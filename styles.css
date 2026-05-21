@@ -212,12 +212,23 @@ h1 {
 }
 
 .section-label {
-  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 40px;
+  color: var(--accent);
+  margin-bottom: 48px;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
 }
 
 /* ── Asset cards ── */
