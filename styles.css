@@ -10,7 +10,7 @@
   --text-mid:    #b0a8a2;
   --text-muted:  #6b6058;
 
-  --header-bg:   rgba(13, 10, 8, 0.6);
+  --header-bg:   rgba(13, 10, 8, 0.4);
   --card-bg:     rgba(13, 10, 8, 0.1);
   --glass-blur:  16px;
 }
@@ -22,7 +22,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
-  background-image: url('images/hero.webp');
+  background-image: linear-gradient(rgba(13, 10, 8, 0.48), rgba(13, 10, 8, 0.48)), url('images/hero.webp');
   background-size: cover;
   background-position: center 60px;
   background-attachment: fixed;
@@ -106,10 +106,10 @@ nav {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(13, 10, 8, 0.30) 0%,
-    rgba(13, 10, 8, 0.18) 30%,
+    rgba(13, 10, 8, 0.50) 0%,
+    rgba(13, 10, 8, 0.42) 30%,
     rgba(13, 10, 8, 0.55) 65%,
-    rgba(13, 10, 8, 0.5) 100%
+    rgba(13, 10, 8, 0.00) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -133,7 +133,7 @@ nav {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url('images/hero.webp');
+    background-image: linear-gradient(rgba(13, 10, 8, 0.48), rgba(13, 10, 8, 0.48)), url('images/hero.webp');
     background-size: cover;
     background-position: center top;
   }
@@ -152,7 +152,7 @@ nav {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 24px;
 }
 
@@ -223,7 +223,6 @@ h1 {
 /* ── Asset cards ── */
 .assets {
   padding: 100px 32px;
-  background: rgba(13, 10, 8, 0.5);
 }
 
 .asset-card {
@@ -324,8 +323,6 @@ h1 {
 .contact {
   padding: 100px 32px;
   text-align: center;
-  background: rgba(13, 10, 8, 0.5);
-  border-top: 1px solid var(--border);
 }
 
 .contact h2 {
@@ -344,7 +341,6 @@ h1 {
 /* ── Footer ── */
 footer {
   padding: 28px 32px;
-  border-top: 1px solid var(--border);
 }
 
 .footer-inner {
