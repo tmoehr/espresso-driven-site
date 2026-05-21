@@ -74,9 +74,10 @@
 
   <footer>
     <div class="container footer-inner">
-      <span>© 2025 Espresso Driven</span>
+      <span>© <span id="year"></span> Espresso Driven</span>
     </div>
   </footer>
 
+  <script>document.getElementById('year').textContent = String(new Date().getFullYear());</script>
 </body>
 </html>
