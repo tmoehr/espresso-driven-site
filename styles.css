@@ -32,8 +32,10 @@ body {
 
 /* ── Nav ── */
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -66,9 +68,8 @@ nav {
 /* ── Hero ── */
 .hero {
   position: relative;
-  padding: 160px 32px 140px;
+  padding: 220px 32px 140px;
   text-align: center;
-
 }
 
 /* Overlay: oben leicht für Bildwirkung, unten vollständig für nahtlosen Übergang */
@@ -208,9 +209,11 @@ h1 {
   border-right: 1px solid var(--border);
 }
 
-.image-placeholder {
-  color: var(--text-muted);
-  opacity: 0.5;
+.asset-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .badge {
