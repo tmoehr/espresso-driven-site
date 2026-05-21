@@ -9,6 +9,9 @@
   --text:        #f0ebe5;
   --text-mid:    #b0a8a2;
   --text-muted:  #6b6058;
+
+  --glass-bg:    rgba(13, 10, 8, 0.15);
+  --glass-blur:  16px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +20,11 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: url('images/hero.webp');
+  background-size: cover;
+  background-position: center 60px;
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -28,10 +35,9 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(13, 10, 8, 0.80);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 nav {
@@ -60,16 +66,38 @@ nav {
 /* ── Hero ── */
 .hero {
   position: relative;
-  overflow: hidden;
   padding: 160px 32px 140px;
   text-align: center;
+
 }
+
+/* Overlay: oben leicht für Bildwirkung, unten vollständig für nahtlosen Übergang */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(13, 10, 8, 0.30) 0%,
+    rgba(13, 10, 8, 0.18) 30%,
+    rgba(13, 10, 8, 0.55) 65%,
+    rgba(13, 10, 8, 0.5) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
 
 .hero-glow {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 800px 500px at 50% 40%, var(--accent-glow) 0%, transparent 65%);
   pointer-events: none;
+}
+
+/* iOS Safari: background-attachment: fixed nicht unterstützt */
+@supports (-webkit-touch-callout: none) {
+  .hero { background-attachment: scroll; }
 }
 
 .hero-inner {
@@ -156,14 +184,14 @@ h1 {
 /* ── Asset cards ── */
 .assets {
   padding: 100px 32px;
-  border-top: 1px solid var(--border);
+  background: rgba(13, 10, 8, 0.5);
 }
 
 .asset-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 16px;
   overflow: hidden;
   transition: border-color 0.3s;
@@ -206,6 +234,9 @@ h1 {
   flex-direction: column;
   justify-content: center;
   gap: 18px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .asset-info h3 {
@@ -250,6 +281,7 @@ h1 {
 .contact {
   padding: 100px 32px;
   text-align: center;
+  background: rgba(13, 10, 8, 0.5);
   border-top: 1px solid var(--border);
 }
 
