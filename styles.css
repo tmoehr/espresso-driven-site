@@ -64,9 +64,17 @@ header {
   left: 0;
   right: 0;
   z-index: 100;
+  overflow: hidden;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--glass-blur));
   background: var(--header-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
+  z-index: -1;
 }
 
 nav {
@@ -330,9 +338,8 @@ h1 {
   font-weight: 500;
   padding: 5px 12px;
   border-radius: 6px;
-  background: var(--surface-2);
+  background: rgba(31, 26, 23, 0.25);
   color: var(--text-muted);
-  border: 1px solid var(--border);
 }
 
 .asset-link {
