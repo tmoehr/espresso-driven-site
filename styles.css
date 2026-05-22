@@ -95,7 +95,10 @@ nav {
 /* ── Hero ── */
 .hero {
   position: relative;
-  padding: 220px 32px 140px;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: 100px 32px;
   text-align: center;
 }
 
@@ -359,7 +362,7 @@ footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 64px;
   color: var(--text-muted);
   font-size: 0.78rem;
   text-align: center;
@@ -373,6 +376,13 @@ footer {
   align-self: flex-start;
   line-height: 1.9;
 }
+
+.footer-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-link:hover { color: var(--text); }
 
 .footer-imprint-label {
   color: var(--accent);
@@ -389,7 +399,7 @@ footer {
 @media (max-width: 720px) {
   nav { padding: 16px 20px; }
 
-  .hero { padding: 100px 20px 90px; }
+  .hero { padding: 80px 20px; }
 
   .assets, .contact { padding: 72px 20px; }
 
