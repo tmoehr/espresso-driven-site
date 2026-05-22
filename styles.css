@@ -21,7 +21,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
-  background-image: linear-gradient(rgba(13, 10, 8, 0.6), rgba(13, 10, 8, 0.2)), url('images/hero.webp');
+  background-image: linear-gradient(rgba(13, 10, 8, 0.8), rgba(13, 10, 8, 0.4)), url('images/hero.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
