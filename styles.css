@@ -7,8 +7,8 @@
   --accent-dim:  rgba(232, 146, 74, 0.12);
   --accent-glow: rgba(232, 146, 74, 0.18);
   --text:        #f0ebe5;
-  --text-mid:    #b0a8a2;
-  --text-muted:  #6b6058;
+  --text-mid: #f1f1f1;
+  --text-muted: #a5958a;
 
   --header-bg:   rgba(13, 10, 8, 0.4);
   --card-bg:     rgba(13, 10, 8, 0.1);
@@ -20,7 +20,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   background-image: linear-gradient(rgba(13, 10, 8, 0.48), rgba(13, 10, 8, 0.48)), url('images/hero.webp');
   background-size: cover;
@@ -79,13 +79,16 @@ nav {
 }
 
 .logo {
+  font-family: 'Inter', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--accent);
   letter-spacing: -0.01em;
 }
 
-.logo-driven { color: var(--text); }
+.logo-driven {
+  color: var(--text);
+}
 
 .nav-links {
   display: flex;
@@ -175,8 +178,9 @@ nav {
 }
 
 h1 {
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.4;
   margin-bottom: 28px;
@@ -303,6 +307,7 @@ h1 {
 }
 
 .asset-info h3 {
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 1.9rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -346,6 +351,7 @@ h1 {
 }
 
 .contact h2 {
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -442,7 +448,7 @@ footer {
   position: fixed;
   inset: 0;
   z-index: 99;
-  background: rgba(13, 10, 8, 0.65);
+  background: rgba(13, 10, 8, 0.25);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   opacity: 0;
