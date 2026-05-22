@@ -10,7 +10,7 @@
   --text-mid: #c5bcb5;
   --text-muted: #a5958a;
 
-  --glass-bg:    rgba(13, 10, 8, 0.25);
+  --glass-bg:    rgba(13, 10, 8, 0.5);
   --glass-blur:  8px;
 }
 
@@ -23,7 +23,7 @@ body {
   background-color: var(--bg);
   background-image: linear-gradient(rgba(13, 10, 8, 0.6), rgba(13, 10, 8, 0.2)), url('images/hero.webp');
   background-size: cover;
-  background-position: center 60px;
+  background-position: center 0px;
   background-attachment: fixed;
   color: var(--text);
   line-height: 1.6;
