@@ -47,6 +47,7 @@
             <span class="tag">Lighting</span>
             <span class="tag">Editor Tool</span>
             <span class="tag">URP</span>
+            <span class="tag">HDRP</span>
           </div>
           <!-- <a href="mailto:support@espressodriven.com" class="asset-link">Get notified on release →</a> -->
         </div>
@@ -57,21 +58,44 @@
 
   <section class="contact reveal" id="contact">
     <div class="container">
+      <p class="section-label">Contact</p>
       <h2>Get in touch</h2>
       <p>Questions, feedback, or feature requests are always welcome.</p>
       <a href="mailto:support@espressodriven.com" class="btn-outline">support@espressoDriven.com</a>
     </div>
   </section>
 
+  <section class="imprint reveal" id="imprint">
+    <div class="container">
+      <p class="section-label">Imprint</p>
+      <p class="imprint-line">Information pursuant to § 5 DDG</p>
+      <p class="imprint-line">Thomas Möhr</p>
+      <p class="imprint-line">Böttcherstr. 6</p>
+      <p class="imprint-line">18439 Stralsund</p>
+      <a href="mailto:hello@espressodriven.com" class="imprint-mail">hello@espressoDriven.com</a>
+    </div>
+  </section>
+
   <footer>
     <div class="container footer-inner">
       <span>©<span id="year"></span> espressoDriven&nbsp;|&nbsp;Thomas Möhr</span>
-      <span class="footer-imprint" id="imprint"><span class="footer-imprint-label">Imprint</span><br>Thomas Möhr<br>Böttcherstr. 6<br>18439 Stralsund<br><a href="mailto:hello@espressodriven.com">hello@espressoDriven.com</a></span>
     </div>
   </footer>
 
   <script>
     document.getElementById('year').textContent = String(new Date().getFullYear());
+
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', e => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY
+          - (window.innerHeight / 2)
+          + (target.offsetHeight / 2);
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
 
     const observer = new IntersectionObserver(
       entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
