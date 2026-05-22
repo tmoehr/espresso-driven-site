@@ -10,8 +10,7 @@
   --text-mid: #c5bcb5;
   --text-muted: #a5958a;
 
-  --header-bg:   rgba(13, 10, 8, 0.4);
-  --card-bg:     rgba(13, 10, 8, 0.2);
+  --glass-bg:    rgba(13, 10, 8, 0.25);
   --glass-blur:  8px;
 }
 
@@ -22,7 +21,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
-  background-image: linear-gradient(rgba(13, 10, 8, 0.4), rgba(13, 10, 8, 0.4)), url('images/hero.webp');
+  background-image: linear-gradient(rgba(13, 10, 8, 0.6), rgba(13, 10, 8, 0.2)), url('images/hero.webp');
   background-size: cover;
   background-position: center 60px;
   background-attachment: fixed;
@@ -71,7 +70,7 @@ header::before {
   content: '';
   position: absolute;
   inset: calc(-1 * var(--glass-blur));
-  background: var(--header-bg);
+  background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   z-index: -1;
@@ -204,8 +203,7 @@ h1 {
 }
 
 /* ── Buttons ── */
-.btn-primary,
-.btn-outline {
+.btn {
   display: inline-block;
   border: 1px solid rgba(232, 146, 74, 0.45);
   color: var(--accent);
@@ -214,13 +212,12 @@ h1 {
   padding: 14px 30px;
   border-radius: 8px;
   text-decoration: none;
-  background: rgba(13, 10, 8, 0.08);
+  background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-.btn-primary:hover,
-.btn-outline:hover {
+.btn:hover {
   background: rgba(232, 146, 74, 0.16);
   border-color: var(--accent);
   transform: translateY(-2px);
@@ -308,7 +305,7 @@ h1 {
   flex-direction: column;
   justify-content: center;
   gap: 18px;
-  background: var(--card-bg);
+  background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
