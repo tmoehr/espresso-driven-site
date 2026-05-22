@@ -81,6 +81,7 @@ nav {
 .logo {
   font-weight: 700;
   font-size: 0.95rem;
+  color: var(--accent);
   letter-spacing: -0.01em;
 }
 
