@@ -373,7 +373,7 @@ h1 {
 
 /* ── Footer ── */
 footer {
-  padding: 28px 32px;
+  padding: 18px 32px;
   border-top: 1px solid var(--border);
 }
 
@@ -389,7 +389,7 @@ footer {
 
 /* ── Imprint ── */
 .imprint {
-  padding: 160px 32px;
+  padding: 160px 32px 64px;
 }
 
 .imprint-line {
