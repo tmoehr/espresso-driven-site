@@ -15,11 +15,23 @@
     <nav>
       <span class="logo">espressoDriven</span>
       <div class="nav-links">
+        <a href="#assets" class="nav-link">Assets</a>
         <a href="#contact" class="nav-link">Contact</a>
         <a href="#imprint" class="nav-link">Imprint</a>
       </div>
+      <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
   </header>
+
+  <div class="mobile-menu" aria-hidden="true">
+    <nav class="mobile-nav">
+      <a href="#assets" class="mobile-nav-link">Assets</a>
+      <a href="#contact" class="mobile-nav-link">Contact</a>
+      <a href="#imprint" class="mobile-nav-link">Imprint</a>
+    </nav>
+  </div>
 
   <section class="hero">
     <div class="hero-glow"></div>
@@ -84,6 +96,28 @@
 
   <script>
     document.getElementById('year').textContent = String(new Date().getFullYear());
+
+    const hamburger = document.querySelector('.nav-hamburger');
+    const mobileMenu = document.querySelector('.mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      const open = hamburger.getAttribute('aria-expanded') === 'true';
+      hamburger.setAttribute('aria-expanded', String(!open));
+      hamburger.classList.toggle('is-open', !open);
+      mobileMenu.classList.toggle('is-open', !open);
+      mobileMenu.setAttribute('aria-hidden', String(open));
+      document.body.style.overflow = open ? '' : 'hidden';
+    });
+
+    function closeMenu() {
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.classList.remove('is-open');
+      mobileMenu.classList.remove('is-open');
+      mobileMenu.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', closeMenu));
 
     document.querySelectorAll('a[href^="#"]').forEach(link => {
       link.addEventListener('click', e => {
