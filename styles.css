@@ -19,10 +19,15 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  overscroll-behavior-x: none;
+  max-width: 100%;
 }
 
 body {
   overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  max-width: 100%;
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   background-image: linear-gradient(rgba(13, 10, 8, 0.8), rgba(13, 10, 8, 0.4)), url('images/hero.webp');
