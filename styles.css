@@ -454,7 +454,7 @@ footer {
 .imprint-linkedin {
   display: inline-flex;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-bottom: 20px;
 }
 .imprint-linkedin:hover { opacity: 1; color: var(--accent); }
 
