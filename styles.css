@@ -434,16 +434,23 @@ footer {
 
 .imprint-links {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
   margin-top: 20px;
+}
+
+.imprint-divider {
+  display: block;
+  width: 1px;
+  height: 20px;
+  background: var(--text-muted);
+  align-self: center;
 }
 
 .imprint-mail {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
   color: var(--accent);
   text-decoration: none;
   font-size: 0.95rem;
@@ -454,7 +461,6 @@ footer {
 .imprint-linkedin {
   display: inline-flex;
   color: var(--text-muted);
-  margin-bottom: 20px;
 }
 .imprint-linkedin:hover { opacity: 1; color: var(--accent); }
 
