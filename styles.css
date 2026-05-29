@@ -451,6 +451,22 @@ footer {
 }
 .imprint-mail:hover { opacity: 0.7; }
 
+.imprint-linkedin {
+  display: inline-flex;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.imprint-linkedin:hover { opacity: 1; color: var(--accent); }
+
+/* ── Footer LinkedIn ── */
+.footer-linkedin {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: inline-flex;
+  transition: color 0.2s, opacity 0.2s;
+}
+.footer-linkedin:hover { color: var(--text); }
+
 /* ── Hamburger ── */
 .nav-hamburger {
   display: none;
