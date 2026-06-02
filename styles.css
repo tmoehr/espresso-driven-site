@@ -93,15 +93,16 @@ nav {
 }
 
 .logo {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--accent);
-  letter-spacing: -0.01em;
+  height: 30px;
+  width: auto;
+  flex-shrink: 0;
 }
 
-.logo-driven {
-  color: var(--text);
+.logo-imprint {
+  height: 48px;
+  width: auto;
+  display: block;
+  margin-bottom: 24px;
 }
 
 .nav-links {
