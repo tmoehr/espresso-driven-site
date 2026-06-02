@@ -105,16 +105,9 @@ nav {
   flex-shrink: 0;
 }
 
-.logo-imprint {
-  height: 48px;
-  width: auto;
-  display: block;
-  margin-bottom: 24px;
-}
-
 .logo-footer {
   display: block;
-  height: 92px;
+  height: 48px;
   margin: 10px;
 }
 
