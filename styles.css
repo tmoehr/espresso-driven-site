@@ -92,9 +92,16 @@ nav {
   align-items: center;
 }
 
+.logo,
+.logo-footer {
+  aspect-ratio: 1660 / 600;
+  background-color: var(--text);
+  mask: url('images/logo.svg') center / contain no-repeat;
+  -webkit-mask: url('images/logo.svg') center / contain no-repeat;
+}
+
 .logo {
   height: 30px;
-  width: auto;
   flex-shrink: 0;
 }
 
@@ -103,6 +110,12 @@ nav {
   width: auto;
   display: block;
   margin-bottom: 24px;
+}
+
+.logo-footer {
+  display: block;
+  height: 92px;
+  margin: 10px;
 }
 
 .nav-links {
