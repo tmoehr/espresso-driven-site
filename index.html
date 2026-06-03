@@ -60,7 +60,7 @@
             <img src="images/heliopath.webp" alt="HelioPath" data-px="56">
           </div>
           <div class="module-info">
-            <span class="id">ID · EDS-001 / LIGHTING</span>
+            <span class="id">ASSET 01 · LIGHTING</span>
             <h3>HelioPath</h3>
             <p>Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p>
             <div class="tags"><span class="tag">Lighting</span><span class="tag">Editor Tool</span><span class="tag">URP</span><span class="tag">HDRP</span></div>
@@ -109,10 +109,21 @@
     document.querySelectorAll('.mobile-nav a').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
 
     if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
-      const px=[...document.querySelectorAll('[data-px]')];
+      const pxEls=[...document.querySelectorAll('[data-px]')].map(el=>{
+        const r=el.getBoundingClientRect();
+        return{el,factor:parseFloat(el.dataset.px),center:r.top+scrollY+r.height/2};
+      });
       let tick=false;
-      function frame(){const vh=innerHeight;for(const el of px){const r=el.getBoundingClientRect();const off=(r.top+r.height/2-vh/2)/vh;el.style.transform='translate3d(0,'+Math.round(off*parseFloat(el.dataset.px))+'px,0)'}tick=false}
-      addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});frame();
+      function frame(){
+        const vh=innerHeight;
+        for(const{el,factor,center}of pxEls){
+          const off=(center-scrollY-vh/2)/vh;
+          el.style.transform='translate3d(0,'+Math.round(off*factor)+'px,0)';
+        }
+        tick=false;
+      }
+      addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});
+      frame();
     }
   </script>
 </body>
