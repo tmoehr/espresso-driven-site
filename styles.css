@@ -33,7 +33,7 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px}
 .chip{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.06em;color:var(--text-mid);border:1px solid var(--line-2);border-radius:5px;padding:6px 11px;background:rgba(19,16,13,.6);backdrop-filter:blur(4px)}
 .chip b{color:var(--gold);font-weight:500}
-h1{font-size:clamp(2.8rem,7.5vw,6.4rem);line-height:.98;letter-spacing:-.035em;max-width:16ch}
+h1{font-size:clamp(2.8rem,7.5vw,6.4rem);line-height:1.1;letter-spacing:-.035em;max-width:16ch}
 h1 .accent{color:var(--gold)}
 .hero>*:not(.hero-bg){position:relative;z-index:1}
 .hero-foot{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;margin-top:42px;padding-top:0}
