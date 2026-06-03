@@ -3,149 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="format-detection" content="address=no, telephone=no, email=no">
-  <title>espressodriven.com | Unity Assets crafted with caffeine and care.</title>
+  <title>espressodriven.com</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
   <header>
     <nav>
-      <span class="logo" role="img" aria-label="espressoDriven"></span>
-      <div class="nav-links">
-        <a href="#assets" class="nav-link">Assets</a>
-        <a href="#contact" class="nav-link">Contact</a>
-        <a href="#imprint" class="nav-link">Imprint</a>
+      <div class="brand">
+        <span class="logo" role="img" aria-label="espressoDriven"></span>
       </div>
-      <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+      <div class="nav-links">
+        <a href="#assets" class="nav-link">assets</a>
+        <a href="#contact" class="nav-link">contact</a>
+        <a href="#imprint" class="nav-link">imprint</a>
+        <a href="#assets" class="nav-cta">Browse →</a>
+      </div>
+      <button class="nav-hamburger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </nav>
   </header>
 
   <div class="mobile-menu" aria-hidden="true">
     <nav class="mobile-nav">
-      <a href="#assets" class="mobile-nav-link">Assets</a>
-      <a href="#contact" class="mobile-nav-link">Contact</a>
-      <a href="#imprint" class="mobile-nav-link">Imprint</a>
+      <a href="#assets">assets</a>
+      <a href="#contact">contact</a>
+      <a href="#imprint">imprint</a>
     </nav>
   </div>
 
   <section class="hero">
-    <div class="hero-glow"></div>
-    <div class="hero-inner">
-      <p class="eyebrow anim anim-1">Unity Asset Publisher</p>
-      <h1 class="anim anim-2">Unity Assets crafted with<br><span class="accent">caffeine and care.</span></h1>
-      <p class="hero-sub anim anim-3">Carefully brewed tools for focused development.</p>
-      <a href="#assets" class="btn">Browse Assets</a>
+    <div class="hero-bg" data-px="-110"></div>
+    <div class="ticks"><span>00</span><span>·</span><span>·</span><span>·</span><span>EOF</span></div>
+    <div class="hero-meta a a1">
+      <span class="chip">UNITY ASSET PUBLISHER</span>
+      <span class="chip">ASSETS · <b>01</b> · more brewing</span>
     </div>
-  </section>
-
-  <section class="assets" id="assets">
-    <div class="container">
-      <p class="section-label">Assets</p>
-
-      <article class="asset-card reveal">
-        <div class="asset-image">
-          <img src="images/heliopath.webp" alt="HelioPath — Realistic sun position control for Unity">
-          <span class="badge">Coming Soon</span>
-        </div>
-        <div class="asset-info">
-          <h3>HelioPath</h3>
-          <p class="asset-desc">Realistic sun position and daylight control for Unity scenes. Simulate accurate solar trajectories based on geographic location, date, and time — perfect for architectural visualization, open-world games, and cinematic lighting.</p>
-          <div class="asset-tags">
-            <span class="tag">Lighting</span>
-            <span class="tag">Editor Tool</span>
-            <span class="tag">URP</span>
-            <span class="tag">HDRP</span>
-          </div>
-          <!-- <a href="mailto:support@espressodriven.com" class="asset-link">Get notified on release →</a> -->
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <section class="contact reveal" id="contact">
-    <div class="container">
-      <p class="section-label">Contact</p>
-      <h2>Get in touch</h2>
-      <p>Questions, feedback, or feature requests are always welcome.</p>
-      <a href="mailto:support@espressodriven.com" class="btn">support@espressodriven.com</a>
-    </div>
-  </section>
-
-  <section class="imprint reveal" id="imprint">
-    <div class="container">
-      <p class="section-label">Imprint</p>
-      <p class="imprint-line">Thomas Möhr</p>
-      <p class="imprint-line">Böttcherstr. 6</p>
-      <p class="imprint-line">18439 Stralsund</p>
-      <p class="imprint-line">Germany</p>
-      <div class="imprint-links">
-        <a href="https://www.linkedin.com/in/moehr/" class="imprint-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        </a>
-        <span class="imprint-divider"></span>
-        <a href="mailto:hello@espressodriven.com" class="imprint-mail">hello@espressodriven.com</a>
-        
+    <h1 class="a a2">Unity assets, engineered with <span class="accent">caffeine & care.</span></h1>
+    <div class="hero-foot">
+      <p class="hero-sub a a3">Carefully brewed tools for focused development. Each one pulled like a perfect shot: precise, dependable, never bitter.</p>
+      <div class="a a4" style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="#assets" class="btn">Browse assets →</a>
+        <a href="#contact" class="btn ghost">Contact</a>
       </div>
     </div>
   </section>
 
+  <div class="wrap">
+    <section class="block" id="assets">
+      <p class="label reveal">Assets <span class="mono">/ what's in the cup</span></p>
+      <article class="module reveal">
+        <div class="module-top">
+          <div class="module-media">
+            <span class="status"><span class="dot"></span>Coming Soon</span>
+            <img src="images/heliopath.webp" alt="HelioPath" data-px="56">
+          </div>
+          <div class="module-info">
+            <span class="id">ID · EDS-001 / LIGHTING</span>
+            <h3>HelioPath</h3>
+            <p>Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p>
+            <div class="tags"><span class="tag">Lighting</span><span class="tag">Editor Tool</span><span class="tag">URP</span><span class="tag">HDRP</span></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="block" id="contact" style="padding-top:0">
+      <p class="label reveal">Contact <span class="mono">/ say hello</span></p>
+      <div class="cols reveal">
+        <div id="contact-inner">
+          <h2>Get in touch.</h2>
+          <p>Questions, feedback or a feature request? The roast is small and personal, so replies usually land within a day.</p>
+          <a href="mailto:support@espressodriven.com" class="btn">support@espressodriven.com</a>
+        </div>
+        <div id="imprint">
+          <img class="imprint-logo" src="images/logo.svg" alt="espressoDriven">
+          <p class="imprint-line">Thomas Möhr</p>
+          <p class="imprint-line">Böttcherstr. 6<br>18439 Stralsund<br>Germany</p>
+          <div class="links">
+            <a href="https://www.linkedin.com/in/moehr/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg> LinkedIn</a>
+            <span class="sep"></span>
+            <a href="mailto:hello@espressodriven.com">hello@espressodriven.com</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <footer>
-    <div class="container footer-inner">
-      <span class="logo-footer" role="img" aria-label="espressoDriven"></span>
-      <span>©<span id="year"></span> espressodriven&nbsp;|&nbsp;Thomas Möhr</span>
+    <div class="foot">
+      <span>©<span id="year"></span> espressodriven · Thomas Möhr</span>
     </div>
   </footer>
 
   <script>
-    document.getElementById('year').textContent = String(new Date().getFullYear());
+    document.getElementById('year').textContent=new Date().getFullYear();
+    const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}}),{threshold:.15});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'})}}));
 
-    const hamburger = document.querySelector('.nav-hamburger');
-    const mobileMenu = document.querySelector('.mobile-menu');
+    const burger=document.querySelector('.nav-hamburger'),mob=document.querySelector('.mobile-menu');
+    function setMenu(open){burger.classList.toggle('is-open',open);burger.setAttribute('aria-expanded',open);mob.classList.toggle('is-open',open);mob.setAttribute('aria-hidden',!open);document.body.style.overflow=open?'hidden':''}
+    burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
+    document.querySelectorAll('.mobile-nav a').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
 
-    hamburger.addEventListener('click', () => {
-      const open = hamburger.getAttribute('aria-expanded') === 'true';
-      hamburger.setAttribute('aria-expanded', String(!open));
-      hamburger.classList.toggle('is-open', !open);
-      mobileMenu.classList.toggle('is-open', !open);
-      mobileMenu.setAttribute('aria-hidden', String(open));
-      document.body.style.overflow = open ? '' : 'hidden';
-    });
-
-    function closeMenu() {
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.classList.remove('is-open');
-      mobileMenu.classList.remove('is-open');
-      mobileMenu.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+    if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
+      const px=[...document.querySelectorAll('[data-px]')];
+      let tick=false;
+      function frame(){const vh=innerHeight;for(const el of px){const r=el.getBoundingClientRect();const off=(r.top+r.height/2-vh/2)/vh;el.style.transform='translate3d(0,'+Math.round(off*parseFloat(el.dataset.px))+'px,0)'}tick=false}
+      addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});frame();
     }
-
-    document.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', closeMenu));
-
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-      link.addEventListener('click', e => {
-        const target = document.querySelector(link.getAttribute('href'));
-        if (!target) return;
-        e.preventDefault();
-        const top = target.getBoundingClientRect().top + window.scrollY
-          - (window.innerHeight / 2)
-          + (target.offsetHeight / 2);
-        window.scrollTo({ top, behavior: 'smooth' });
-      });
-    });
-
-    const observer = new IntersectionObserver(
-      entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
-      { threshold: 0.15 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
   </script>
 </body>
 </html>
