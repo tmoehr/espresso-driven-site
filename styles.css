@@ -14,10 +14,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;op
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .mono{font-family:'JetBrains Mono',monospace}
 
-header{position:fixed;top:0;left:0;right:0;z-index:100;background:limegreen;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top)}
+header{position:fixed;top:0;left:0;right:0;z-index:100;background:limegreen;padding-top:env(safe-area-inset-top)}
 nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
 /* version counter — cache verification */
-.version-tag{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:5rem;font-weight:700;z-index:9999;pointer-events:none;color:blue}
+.version-tag{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:5rem;font-weight:700;z-index:9999;pointer-events:none;color:yellow}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo.svg') center/contain no-repeat}
 .brand .v{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-muted);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px;letter-spacing:.05em}
