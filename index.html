@@ -3,17 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e0218a">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <title>espressodriven.com</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400&family=Schibsted+Grotesk:wght@700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
-  <div class="sa-probe"></div>
-  <pre id="dbg"></pre>
-  <span class="version-tag">10</span>
+  <span class="version-tag">11</span>
   <header>
     <nav>
       <div class="brand">
@@ -108,23 +107,6 @@
   </footer>
 
   <script>
-    (function(){
-      var probe=document.querySelector('.sa-probe'),vp=document.querySelector('meta[name=viewport]'),dbg=document.getElementById('dbg');
-      function read(){
-        var top=probe.getBoundingClientRect().height;
-        dbg.textContent=
-          'safe-area-top: '+top.toFixed(1)+'px\n'+
-          'innerH: '+window.innerHeight+'  outerH: '+window.outerHeight+'\n'+
-          'visualVP-H: '+(window.visualViewport?window.visualViewport.height.toFixed(1):'-')+'\n'+
-          'screen: '+screen.width+'x'+screen.height+'  dpr: '+window.devicePixelRatio+'\n'+
-          'viewport-meta: '+(vp?vp.content:'MISSING')+'\n'+
-          'standalone: '+(window.navigator.standalone)+'\n'+
-          'UA: '+navigator.userAgent;
-      }
-      read();
-      window.addEventListener('resize',read);
-      if(window.visualViewport)window.visualViewport.addEventListener('resize',read);
-    })();
     document.getElementById('year').textContent=new Date().getFullYear();
     const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}}),{threshold:.15});
     document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
