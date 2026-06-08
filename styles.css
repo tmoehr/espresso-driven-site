@@ -107,8 +107,13 @@ footer{border-top:1px solid var(--line);padding:24px 32px}
 .mobile-nav a:hover{color:var(--gold)}
 
 @media(max-width:860px){
-  nav{padding:12px 18px}.nav-links{display:none}.ticks{display:none}.nav-hamburger{display:flex}.mobile-menu{display:flex;align-items:center;justify-content:center}
-  .hero{min-height:86vh;padding:calc(120px + env(safe-area-inset-top)) 20px 46px}
+  :root{--header-h:env(safe-area-inset-top)}
+  /* No header bar on mobile — just a floating hamburger button */
+  header{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;pointer-events:none}
+  nav{padding:0}.brand{display:none}.nav-links{display:none}.ticks{display:none}
+  .nav-hamburger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top));right:18px;width:44px;height:44px;background:rgba(12,9,7,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:8px;pointer-events:auto;z-index:110}
+  .mobile-menu{display:flex;align-items:center;justify-content:center}
+  .hero{min-height:86vh;padding:calc(90px + env(safe-area-inset-top)) 20px 46px}
   .wrap{border:none}section.block{padding:64px 20px}
   .module-top{grid-template-columns:1fr}.module-media{min-height:240px;border-right:none;border-bottom:1px solid var(--line-2)}
   .cols{grid-template-columns:1fr}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line-2)}
