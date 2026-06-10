@@ -1,10 +1,11 @@
 :root{
-  --bg:#0c0907; --panel:#13100d; --line:#262019; --line-2:#352a22;
+  --bg: #361d18; --panel: #120f0c; --line:#262019; --line-2:#352a22;
   --gold:#f0a030; --gold-dim:rgba(232,161,60,.12); --gold-line:rgba(232,161,60,.32);
   --text:#efe7dd; --text-mid:#bcb0a3; --text-muted:#867a6e;
+  --header-blur: 12px
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;overflow-x:hidden;background:var(--bg)}
+html{scroll-behavior:smooth;overflow-x:hidden}
 body{font-family:'Schibsted Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 h1,h2,h3,h4,h5,h6{font-weight:700}
 p{font-family:'DM Sans',sans-serif;font-weight:400}
@@ -13,7 +14,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;op
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .mono{font-family:'JetBrains Mono',monospace}
 
-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top)}
+header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in srgb, var(--bg) 50%, transparent);backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));padding-top:env(safe-area-inset-top)}
 nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo.svg') center/contain no-repeat}
@@ -25,14 +26,9 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .nav-cta:hover{opacity:.85}
 
 .hero{position:relative;max-width:1200px;margin:0 auto;min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:calc(150px + env(safe-area-inset-top)) 32px 64px}
-/* Full-bleed background layer. Extends up by the safe-area inset so the photo
-   reaches behind the iOS notch/status bar instead of leaving a dark strip. */
-.hero-bg-wrap{position:absolute;top:calc(env(safe-area-inset-top) * -1);left:50%;width:100vw;margin-left:-50vw;height:calc(100% + env(safe-area-inset-top));z-index:0;overflow:hidden;pointer-events:none;background:var(--bg)}
-.hero-bg{position:absolute;top:0;left:0;right:0;height:calc(100% + 80px);background:url('images/espresso_bg.webp') top center / 100% auto no-repeat;will-change:transform;backface-visibility:hidden;filter:saturate(1.30)}
-.hero-fade{position:absolute;inset:0;background:linear-gradient(rgba(12,9,7,.30) 0%,rgba(12,9,7,.12) 22%,rgba(12,9,7,.45) 60%,rgba(12,9,7,.85) 82%,var(--bg) 100%);pointer-events:none}
 .hero-head{display:flex;flex-direction:column;align-items:center;text-align:center;margin:40px 0 0px}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
-.hero-logo{width:clamp(411px,58vw,669px);max-width:83.333%;height:auto;object-fit:contain}
+.hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain}
 .hero>*:not(.hero-bg-wrap){position:relative;z-index:1}
 .hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center;gap:38px;margin-top:40px;padding-top:0}
 .hero-sub{font-size:1.08rem;color:var(--text);max-width:52ch;line-height:1.7}
@@ -102,11 +98,7 @@ footer{border-top:1px solid var(--line);padding:24px 32px}
 .mobile-nav a:hover{color:var(--gold)}
 
 @media(max-width:860px){
-  /* The notch/safe-area strip is painted only by the body (canvas) background —
-     positioned content layers are clipped at the safe-area boundary. Offset the
-     photo upward so a brighter band lands in the notch. Tune the -110px y-offset
-     to move which slice of the image shows. Hidden below by the hero/page bg. */
-  body{background:url('images/espresso_bg.webp') center -110px / 100% auto no-repeat var(--bg)}
+  body{background-color:var(--bg)}
   /* No header bar on mobile — just a floating hamburger button */
   header{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;pointer-events:none}
   nav{padding:0}.brand{display:none}.nav-links{display:none}
