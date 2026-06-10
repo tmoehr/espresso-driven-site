@@ -1,1 +1,10 @@
 .idea/
+.DS_Store
+*~lock~
+*.af
+images/Unbenannt.png
+images/helioPathScreenshot01.png
+images/helioPathScreenshot02.png
+images/logo/logo_4096.png
+images/logo/logo_crema_1920.webp
+images/logo_profilePicture.png
