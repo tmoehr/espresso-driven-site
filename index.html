@@ -109,7 +109,7 @@
     document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'})}}));
 
     const burger=document.querySelector('.nav-hamburger'),mob=document.querySelector('.mobile-menu');
-    function setMenu(open){burger.classList.toggle('is-open',open);burger.setAttribute('aria-expanded',open);mob.classList.toggle('is-open',open);mob.setAttribute('aria-hidden',!open);document.body.style.overflow=open?'hidden':''}
+    function setMenu(open){burger.classList.toggle('is-open',open);burger.setAttribute('aria-expanded',open);mob.classList.toggle('is-open',open);mob.setAttribute('aria-hidden',!open);document.documentElement.style.overflow=open?'hidden':'';document.body.style.overflow=open?'hidden':''}
     burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
     document.querySelectorAll('.mobile-nav a').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
 
