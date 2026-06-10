@@ -113,7 +113,15 @@
     document.getElementById('year').textContent=new Date().getFullYear();
     const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}}),{threshold:.15});
     document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'})}}));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+      const t=document.querySelector(a.getAttribute('href'));if(!t)return;
+      e.preventDefault();
+      // If the click came from the mobile overlay, close it first. setMenu(false)
+      // unpins the body and restores scroll, so the rect/scrollY math below is then
+      // measured against the real (un-pinned) layout instead of the fixed overlay.
+      if(a.closest('.mobile-nav'))setMenu(false);
+      window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'});
+    }));
 
     const burger=document.querySelector('.nav-hamburger'),mob=document.querySelector('.mobile-menu'),themeMeta=document.querySelector('meta[name="theme-color"]');
     // iOS Safari tints the status/address bar with theme-color; switch it to the
@@ -141,7 +149,6 @@
       }
     }
     burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
-    document.querySelectorAll('.mobile-nav a').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
 
     if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
       const pxEls=[...document.querySelectorAll('[data-px]')].map(el=>{
