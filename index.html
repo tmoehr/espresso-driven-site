@@ -118,6 +118,7 @@
         const r=el.getBoundingClientRect();
         return{el,factor:parseFloat(el.dataset.px),center:r.top+scrollY+r.height/2};
       });
+      const bgVel=parseFloat(getComputedStyle(document.body).getPropertyValue('--bg-parallax-velocity'))||.3;
       let tick=false;
       function frame(){
         const vh=innerHeight;
@@ -125,6 +126,8 @@
           const off=(center-scrollY-vh/2)/vh;
           el.style.transform='translate3d(0,'+Math.round(off*factor)+'px,0)';
         }
+        // background pattern moves slower than content (parallax)
+        document.body.style.setProperty('--bg-parallax',Math.round(scrollY*bgVel)+'px');
         tick=false;
       }
       addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});
