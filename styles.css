@@ -108,7 +108,11 @@ section.block{padding:96px 32px}
 @keyframes pulse{70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .module-info{padding:44px 40px;display:flex;flex-direction:column;gap:18px}
 .module-info .id{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--text-muted)}
-.module-info h3{color: var(--gold)}
+/* Fluid size keyed to viewport WIDTH so there is no hard jump when a phone
+   is rotated. Narrow viewports (phones) land near the 1.9rem max, wide ones
+   (desktop) taper to the 1.2rem global default — a continuous curve instead
+   of the old 1.2rem<->1.9rem cliff at the 860px breakpoint. */
+.module-info h3{color: var(--gold); font-size:clamp(1.2rem, 2.6rem - 2vw, 1.9rem)}
 .module-info p{color:var(--text-mid);font-size:.96rem;line-height:1.7}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
 .tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
@@ -157,10 +161,10 @@ footer{border-top:1px solid var(--line);padding:24px 32px}
   .hero{min-height:86vh;margin-bottom:64px;padding:calc(90px + env(safe-area-inset-top)) 20px 46px}
   .wrap{border:none}section.block{padding:64px 20px}
   .module-top{grid-template-columns:1fr}.module-media{min-height:240px;border-right:none;border-bottom:0px solid var(--line)}
-  /* tighter padding + smaller heading so nothing (long words, e-mail buttons)
-     can push past the narrow viewport and reintroduce a sideways scroll */
+  /* tighter padding so nothing (long words, e-mail buttons) can push past the
+     narrow viewport and reintroduce a sideways scroll. The heading size is now
+     handled fluidly via clamp() above, so no per-breakpoint override here. */
   .module-info{padding:30px 22px}
-  .module-info h3{font-size:1.9rem}
   .cols{grid-template-columns:1fr}.cols>div{padding:32px 22px}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
   .links{flex-wrap:wrap}
