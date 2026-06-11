@@ -157,12 +157,20 @@
         const r=el.getBoundingClientRect();
         return{el,factor:parseFloat(el.dataset.px),center:r.top+scrollY+r.height/2};
       });
+      const bgVel=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bg-parallax-velocity'))||.3;
+      const root=document.documentElement;
       let tick=false;
       function frame(){
         const vh=innerHeight;
         for(const{el,factor,center}of pxEls){
           const off=(center-scrollY-vh/2)/vh;
           el.style.transform='translate3d(0,'+Math.round(off*factor)+'px,0)';
+        }
+        // Parallax for the static fallback background only — the fixed body::before
+        // is shifted slower than the content. Skipped when the shader runs (the
+        // fallback is hidden then, and the swirls already react to scroll).
+        if(!root.classList.contains('has-webgl')){
+          root.style.setProperty('--bg-parallax',Math.round(-scrollY*bgVel)+'px');
         }
         tick=false;
       }
