@@ -1,5 +1,5 @@
 :root{
-  --bg: #1a0e0a; --panel: rgb(0 0 0 / 0.2); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
+  --bg: #24130e; --panel: rgb(0 0 0 / 0.2); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
   --gold:#f0a030; --gold-dim:rgba(232,161,60,.12); --gold-line:rgba(232,161,60,.32);
   --text:#efe7dd; --text-mid:#bcb0a3; --text-muted:#867a6e;
   --header-blur: 12px;
