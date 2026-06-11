@@ -18,9 +18,9 @@
 html{scroll-behavior:smooth;overflow-x:hidden;overscroll-behavior-x:none;background:var(--bg)}
 body{position:relative;max-width:100%;overflow-x:clip;font-family:'Schibsted Grotesk',system-ui,sans-serif;background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6{font-weight:700;overflow-wrap:break-word}
-h1{font-size:2em}
+h1{font-size:3rem}
 h2{font-size:2.4rem;letter-spacing:-.025em;line-height:1}
-h3{font-family:'JetBrains Mono',monospace;font-weight:400; letter-spacing: 0.1em;font-size:0.8rem;line-height:1; text-transform: uppercase}
+h3{font-family:'JetBrains Mono',monospace;font-weight:400; letter-spacing: 0.1em;font-size:1.2rem;line-height:1; text-transform: uppercase}
 p{font-family:'DM Sans',sans-serif;font-weight:400;overflow-wrap:break-word; margin-top: 14px;}
 /* Fallback background, shown only when WebGL is unavailable. Fixed to the viewport
    (like #bg-gl) so it can never extend past the visible area — on iOS Safari an
