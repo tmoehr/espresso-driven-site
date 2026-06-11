@@ -336,8 +336,13 @@ void main(){
 
     function resize(){
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.floor(innerWidth * dpr);
-      const h = Math.floor(innerHeight * dpr);
+      // Size the drawing buffer to the canvas's actual CSS box (100vw/100vh), not
+      // innerWidth/innerHeight. On iOS Safari innerHeight changes as the toolbar
+      // shows/hides while scrolling, which would resize the buffer and rescale the
+      // shader's aspect ratio — a visible horizontal "jump". The vh-based CSS box
+      // stays constant through those toolbar transitions, so the swirls hold still.
+      const w = Math.floor(canvas.clientWidth  * dpr);
+      const h = Math.floor(canvas.clientHeight * dpr);
       if(canvas.width !== w || canvas.height !== h){
         canvas.width = w; canvas.height = h;
         gl.viewport(0, 0, w, h);
