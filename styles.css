@@ -9,10 +9,13 @@
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;overflow-x:clip;background:var(--bg)}
-/* overflow-x:clip (not hidden) so the page can never be scrolled or pinch-zoomed
-   sideways even if a child briefly overflows — it clips without creating a
-   scrollable axis. max-width pins the layout to the visual viewport width. */
+/* overflow-x:hidden on the ROOT element is what actually stops the page from
+   scrolling/pinch-zooming sideways: per spec only hidden/auto/scroll are
+   propagated from <html> to the viewport — `clip` is NOT, so it silently fails
+   here. overscroll-behavior-x:none also kills the horizontal trackpad
+   rubber-band / browser back-swipe. The body then gets overflow-x:clip as a
+   second wall that trims any in-flow child before it can widen the page. */
+html{scroll-behavior:smooth;overflow-x:hidden;overscroll-behavior-x:none;background:var(--bg)}
 body{position:relative;max-width:100%;overflow-x:clip;font-family:'Schibsted Grotesk',system-ui,sans-serif;background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6{font-weight:700;overflow-wrap:break-word}
 p{font-family:'DM Sans',sans-serif;font-weight:400;overflow-wrap:break-word}
