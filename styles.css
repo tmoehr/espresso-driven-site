@@ -18,7 +18,10 @@
 html{scroll-behavior:smooth;overflow-x:hidden;overscroll-behavior-x:none;background:var(--bg)}
 body{position:relative;max-width:100%;overflow-x:clip;font-family:'Schibsted Grotesk',system-ui,sans-serif;background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6{font-weight:700;overflow-wrap:break-word}
-p{font-family:'DM Sans',sans-serif;font-weight:400;overflow-wrap:break-word}
+h1{font-size:2em}
+h2{font-size:2.4rem;letter-spacing:-.025em;line-height:1}
+h3{font-size:1.5rem;letter-spacing:-.02em;line-height:1; font-weight:lighter}
+p{font-family:'DM Sans',sans-serif;font-weight:400;overflow-wrap:break-word; margin-top: 14px;}
 /* Fallback background, shown only when WebGL is unavailable. Fixed to the viewport
    (like #bg-gl) so it can never extend past the visible area — on iOS Safari an
    absolute, document-tall layer would otherwise peek into the notch/safe-area and
@@ -74,7 +77,7 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center;gap:38px;margin-top:40px;padding-top:0}
 .hero-sub{font-size:1.08rem;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;background:var(--gold);color:#1a1208;border-radius:6px;padding:14px 24px;font-weight:600;font-size:.84rem;text-decoration:none;white-space:nowrap;transition:transform .2s,box-shadow .25s}
+.btn{display:inline-flex;align-items:center;gap:10px; margin: 20px 20px 0 0;font-family:'JetBrains Mono',monospace;background:var(--gold);color:#1a1208;border-radius:6px;padding:14px 24px;font-weight:600;font-size:.84rem;text-decoration:none;white-space:nowrap;transition:transform .2s,box-shadow .25s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(232,161,60,.28)}
 .btn.ghost{background:rgba(19,16,13,.5);color:var(--text);border:1px solid var(--line-2);backdrop-filter:blur(4px)}
 .btn.ghost:hover{border-color:var(--gold-line);background:var(--gold-dim);box-shadow:none}
@@ -105,7 +108,7 @@ section.block{padding:96px 32px}
 @keyframes pulse{70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .module-info{padding:44px 40px;display:flex;flex-direction:column;gap:18px}
 .module-info .id{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--text-muted)}
-.module-info h3{font-size:2.4rem;letter-spacing:-.025em;line-height:1}
+.module-info h3{color: var(--gold)}
 .module-info p{color:var(--text-mid);font-size:.96rem;line-height:1.7}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
 .tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
@@ -113,9 +116,8 @@ section.block{padding:96px 32px}
 .cols{display:grid;grid-template-columns:1fr 1fr}
 .cols>div{padding:46px 40px}
 .cols>div:first-child{border-right:1px solid var(--line)}
-.cols h2{font-size:1.9rem;letter-spacing:-.02em;line-height:1.05;margin-bottom:14px}
-.cols p{color:var(--text-mid);margin-bottom:26px;max-width:38ch}
-.imprint-line{color:var(--text-mid);font-size:.94rem;line-height:1.85;margin-bottom:2px}
+.cols p{color:var(--text-mid);max-width:38ch}
+.imprint-line{color:var(--text-mid);font-size:.94rem;line-height:1.85}
 .links{display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
 .links a{font-family:'JetBrains Mono',monospace;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;font-size:.82rem;transition:color .2s}
 .links a:hover{color:var(--gold)}
