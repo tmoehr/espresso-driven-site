@@ -186,6 +186,7 @@ uniform vec2  u_resolution;
 uniform float u_time;
 uniform float u_scroll;
 uniform float u_swirl;
+uniform vec3  u_fadeColor;   // edge-fade colour, fed from CSS (--bg-fade)
 
 // --- value noise (Inigo Quilez style) ---
 float hash(vec2 p){
@@ -258,6 +259,13 @@ void main(){
   vec2 vig = uv - 0.5;
   col *= 1.0 - 0.55 * dot(vig, vig);
 
+  // fade to the page background colour (CSS --bg-fade, passed in as u_fadeColor)
+  // at the top and bottom viewport edges. Baked into the shader so it can never
+  // shift relative to the canvas — a separate fixed overlay jitters against the
+  // live canvas during iOS Safari toolbar transitions.
+  float edge = min(uv.y, 1.0 - uv.y);          // 0 at top/bottom edge
+  col = mix(u_fadeColor, col, smoothstep(0.0, 0.18, edge));
+
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
   </script>
@@ -267,8 +275,10 @@ void main(){
     const canvas = document.getElementById('bg-gl');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     // No WebGL: leave the canvas transparent so the static espresso_bg.webp
-    // fallback (body::before, z-index:-2) shows through instead.
+    // fallback (body::before, z-index:-3) shows through instead.
     if(!gl) return;
+    // Shader is live — hide the fallback image (see html.has-webgl in styles.css).
+    document.documentElement.classList.add('has-webgl');
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -302,6 +312,19 @@ void main(){
     const uTime   = gl.getUniformLocation(prog, 'u_time');
     const uScroll = gl.getUniformLocation(prog, 'u_scroll');
     const uSwirl  = gl.getUniformLocation(prog, 'u_swirl');
+    const uFade   = gl.getUniformLocation(prog, 'u_fadeColor');
+
+    // Edge-fade colour stays controllable from CSS: resolve --bg-fade (which may
+    // itself reference other vars) to an rgb triple via a throwaway element, then
+    // hand it to the shader. Set once — it doesn't change at runtime.
+    (function(){
+      const probe = document.createElement('div');
+      probe.style.cssText = 'color:var(--bg-fade);display:none';
+      document.body.appendChild(probe);
+      const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number);
+      probe.remove();
+      gl.uniform3f(uFade, (m[0]||0)/255, (m[1]||0)/255, (m[2]||0)/255);
+    })();
 
     function resize(){
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
