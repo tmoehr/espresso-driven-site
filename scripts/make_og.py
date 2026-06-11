@@ -4,12 +4,10 @@
 Renders the espressodriven wordmark (from images/logo.svg) over a warm
 espresso-roast background, with the tagline beneath it. Output: images/og.png
 """
-import io
 import math
 from pathlib import Path
 
-import cairosvg
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 FONTS = Path("/mnt/skills/examples/canvas-design/canvas-fonts")
@@ -47,17 +45,22 @@ draw = ImageDraw.Draw(bg, "RGBA")
 draw.line([(80, 70), (W - 80, 70)], fill=GOLD + (28,), width=1)
 draw.line([(80, H - 70), (W - 80, H - 70)], fill=GOLD + (28,), width=1)
 
-# --- Wordmark: render logo.svg, tint to cream -------------------------------
-LOGO_W = 720
-png_bytes = cairosvg.svg2png(url=str(ROOT / "images/logo.svg"), output_width=LOGO_W)
-logo = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
-# Recolor white glyphs -> cream using the alpha as mask
-cream = Image.new("RGBA", logo.size, TEXT + (255,))
-cream.putalpha(logo.split()[3])
-logo = cream
+# --- Wordmark: the crema artwork (transparent, high-res) --------------------
+LOGO_W = 760
+logo = Image.open(ROOT / "images/logo/logo_crema.webp").convert("RGBA")
+logo = logo.crop(logo.getbbox())
+logo = logo.resize((LOGO_W, round(LOGO_W * logo.height / logo.width)), Image.LANCZOS)
+
+# Soft warm shadow so the wordmark lifts off the background
+shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+sh = Image.new("RGBA", logo.size, (0, 0, 0, 0))
+sh.putalpha(logo.split()[3].point(lambda a: int(a * 0.45)))
 
 lx = (W - logo.width) // 2
-ly = int(H * 0.30) - logo.height // 2
+ly = int(H * 0.34) - logo.height // 2
+shadow.paste(sh, (lx, ly + 6), sh)
+shadow = shadow.filter(ImageFilter.GaussianBlur(10))
+bg.paste(shadow, (0, 0), shadow)
 bg.paste(logo, (lx, ly), logo)
 
 # --- Tagline ----------------------------------------------------------------
