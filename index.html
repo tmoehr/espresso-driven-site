@@ -219,18 +219,6 @@ uniform float u_scroll;
 uniform float u_swirl;
 uniform vec3  u_fadeColor;   // edge-fade colour, fed from CSS (--bg-fade)
 
-// recent finger/cursor path (uv coords, y flipped). Each point carries:
-//   W     - half-width, set from drag speed (faster swipe = wider tear)
-//   Fresh - fast-fading lead marker, tapers the newest tip to a point
-//   Life  - slow-fading heal amount; drives opacity and the gradual melt-back
-//   Gap   - 1 if this point starts a new stroke; the segment to it is not drawn
-const int TRAIL_N = 26;
-uniform vec2  u_trail[TRAIL_N];
-uniform float u_trailW[TRAIL_N];
-uniform float u_trailFresh[TRAIL_N];
-uniform float u_trailLife[TRAIL_N];
-uniform float u_trailGap[TRAIL_N];
-
 // --- value noise (Inigo Quilez style) ---
 float hash(vec2 p){
   p = fract(p * vec2(123.34, 345.45));
@@ -285,47 +273,6 @@ void main(){
 
   float f = fbm(p + w * r);
 
-#ifdef TEAR_ENABLED
-  // --- finger trail: drag through the crema to expose the dark coffee below ---
-  // The path points are advected by a swirl field in JS, so a tear drifts and
-  // deforms with the surrounding liquid. Each point carries a speed-set width, a
-  // fast-fading tip taper and a slow-fading life that closes the tear as it heals;
-  // wider points heal slower. Crisp distance-field contour, round caps, no corners.
-  vec2 ac = uv;
-  ac.x *= u_resolution.x / u_resolution.y;
-  float reveal = 0.0;
-  float ridge  = 0.0;
-  for(int i = 0; i < TRAIL_N - 1; i++){
-    float la = u_trailLife[i], lb = u_trailLife[i + 1];
-    if(la <= 0.0 || lb <= 0.0) continue;
-    if(u_trailGap[i + 1] > 0.5) continue;          // i+1 starts a new stroke
-    vec2 a = u_trail[i];     a.x *= u_resolution.x / u_resolution.y;
-    vec2 b = u_trail[i + 1]; b.x *= u_resolution.x / u_resolution.y;
-    if(distance(a, b) > 0.25) continue;            // belt-and-braces: never bridge a big jump
-    vec2 pa = ac - a, ba = b - a;
-    float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0);
-    float d = length(pa - ba * h);
-    float life  = mix(la, lb, h);
-    float fresh = mix(u_trailFresh[i], u_trailFresh[i + 1], h);
-    float baseW = mix(u_trailW[i], u_trailW[i + 1], h);
-    // taper the fresh tip, and start closing the tear right away as it heals
-    float sw = max(baseW * mix(1.0, 0.22, fresh) * sqrt(life), 1e-4);
-    float op = smoothstep(0.0, 0.30, life);
-    float prof = 1.0 - smoothstep(sw * 0.82, sw, d); // crisp, well-defined contour
-    // Keep the exposed coffee fully dark while it heals — it disappears only by the
-    // tear closing (width -> 0), not by fading toward crema. The short life-fade is
-    // just to avoid a pop when the point is finally dropped. Segments are combined
-    // with a screen blend (a + b - a*b) rather than max, so overlapping joints merge
-    // smoothly into a rounded curve instead of creasing into corners.
-    float cov = prof * smoothstep(0.0, 0.05, life);
-    reveal = reveal + cov - reveal * cov;
-    // crema shoved aside into a defined bank hugging just outside the stroke edge
-    float band = smoothstep(sw * 0.95, sw * 1.2, d) * (1.0 - smoothstep(sw * 1.2, sw * 1.7, d));
-    float bcov = band * op;
-    ridge = ridge + bcov - ridge * bcov;
-  }
-#endif
-
   // --- dark espresso palette: near-black crema with warm reddish ridges ---
   vec3 espresso  = vec3(0.045, 0.020, 0.010);  // deep, almost black
   vec3 darkBrown = vec3(0.115, 0.055, 0.028);
@@ -337,14 +284,6 @@ void main(){
   col = mix(col, darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
   col = mix(col, caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
   col = mix(col, crema,     clamp(pow(max(r.y, 0.0), 3.0) * 1.4, 0.0, 1.0)); // tight, sparse sheen
-
-#ifdef TEAR_ENABLED
-  // crema shoved aside piles into brighter banks along the stroke edges, then the
-  // stroke itself wipes down to the dark coffee underneath
-  col = mix(col, crema, clamp(ridge, 0.0, 1.0) * 0.30);
-  vec3 darkCoffee = vec3(0.022, 0.009, 0.004);
-  col = mix(col, darkCoffee, clamp(reveal, 0.0, 1.0) * 0.92);
-#endif
 
   // keep it dark: gentle sheen, no global lift, deeper vignette
   col *= 0.58 + 0.42 * f;
@@ -378,12 +317,6 @@ void main(){
     const SPEED = 3.55;
     const SWIRL = 1.0;
 
-    // Crema-tear interaction (mouse/touch drags through the crema). Default on.
-    // When off, the trail code is compiled out of the shader (#define below) and
-    // all the JS bookkeeping — listeners, advection, uniform uploads — is skipped,
-    // so the feature costs nothing.
-    const TEAR_ENABLED = false;
-
     function compile(type, src){
       const s = gl.createShader(type);
       gl.shaderSource(s, src);
@@ -394,8 +327,7 @@ void main(){
 
     const prog = gl.createProgram();
     gl.attachShader(prog, compile(gl.VERTEX_SHADER, document.getElementById('bg-vert').textContent));
-    const fragSrc = (TEAR_ENABLED ? '#define TEAR_ENABLED 1\n' : '') + document.getElementById('bg-frag').textContent;
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, document.getElementById('bg-frag').textContent));
     gl.linkProgram(prog);
     gl.useProgram(prog);
 
@@ -412,12 +344,6 @@ void main(){
     const uScroll = gl.getUniformLocation(prog, 'u_scroll');
     const uSwirl  = gl.getUniformLocation(prog, 'u_swirl');
     const uFade   = gl.getUniformLocation(prog, 'u_fadeColor');
-    const uTrail      = gl.getUniformLocation(prog, 'u_trail[0]');
-    const uTrailW     = gl.getUniformLocation(prog, 'u_trailW[0]');
-    const uTrailFresh = gl.getUniformLocation(prog, 'u_trailFresh[0]');
-    const uTrailLife  = gl.getUniformLocation(prog, 'u_trailLife[0]');
-    const uTrailGap   = gl.getUniformLocation(prog, 'u_trailGap[0]');
-    const TRAIL_N     = 20;
 
     // Edge-fade colour stays controllable from CSS: resolve --bg-fade (which may
     // itself reference other vars) to an rgb triple via a throwaway element, then
@@ -454,125 +380,11 @@ void main(){
       return max > 0 ? window.scrollY / max : 0;
     }
 
-    // Finger trail: record the recent pointer path in uv (y flipped to match the
-    // shader's bottom-left origin). Each point gets a width from the drag speed,
-    // a fast-fading freshness (tapers the leading tip) and a slow-fading life
-    // (opacity + the gradual melt-back of the torn crema).
-    const MIN_W = 0.010, MAX_W = 0.050;     // half-width range (aspect-corrected uv)
-    const SPEED_SCALE = 0.0045;             // uv/s of drag speed -> extra width
-    const MIN_STEP = 0.006;                 // resample spacing; max trail length ~= TRAIL_N * MIN_STEP
-    const SMOOTH_LAMBDA = 0.18;             // per-frame kink relaxation -> rounded curve
-    const HEAL_FAST = 0.98200, HEAL_SLOW = 0.99501; // per-frame life decay: narrow vs wide
-    const FLOW_AMP = 0.004;                 // how strongly the crema flow carries the tear
-    const trail = [];                       // path order, oldest first
-    const trailPos   = new Float32Array(TRAIL_N * 2);
-    const trailWArr  = new Float32Array(TRAIL_N);
-    const trailFresh = new Float32Array(TRAIL_N);
-    const trailLife  = new Float32Array(TRAIL_N);
-    const trailGap   = new Float32Array(TRAIL_N);
-    let lastT = 0, strokeBreak = true;      // first point ever is a stroke start
-    // Tear the crema everywhere except over a real backed surface — the header
-    // bar, any .panel (its text, tags, status badge and image), the buttons, and
-    // the open mobile menu. Bare text on the espresso (section labels, the hero
-    // subtitle) and the hero logo are not backed, so the effect stays permeable
-    // there. #bg-gl is pointer-events:none, so elementFromPoint reports the
-    // topmost content box (or a see-through layout layer) under the pointer.
-    function onBackground(x, y){
-      const el = document.elementFromPoint(x, y);
-      return !!el && !el.closest('header, .panel, .btn, .mobile-menu');
-    }
-    // value noise + fbm ported from the background shader, so the tear can be
-    // carried along a swirl field of the same scale and character as the crema.
-    const fract = v => v - Math.floor(v);
-    function vnoise(x, y){
-      const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
-      const h = (gx, gy) => {
-        let px = fract(gx * 123.34), py = fract(gy * 345.45);
-        const d = px * (px + 34.345) + py * (py + 34.345);
-        px += d; py += d;
-        return fract(px * py);
-      };
-      const a = h(ix, iy), b = h(ix + 1, iy), c = h(ix, iy + 1), d = h(ix + 1, iy + 1);
-      const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
-      return a + (b - a) * ux + (c - a) * uy * (1 - ux) + (d - b) * ux * uy;
-    }
-    function fbm2(x, y){
-      let v = 0, amp = 0.5, px = x, py = y;
-      for(let i = 0; i < 4; i++){
-        v += amp * vnoise(px, py);
-        const nx = 1.6 * px - 1.2 * py, ny = 1.2 * px + 1.6 * py;  // mat2(1.6,1.2,-1.2,1.6)
-        px = nx; py = ny; amp *= 0.5;
-      }
-      return v;
-    }
-    // divergence-free swirl velocity = curl of an fbm potential. Kept deliberately
-    // low-frequency: the spatial scale is small and the finite-difference step is
-    // wide (which low-passes the gradient), so the field is made of big, gentle
-    // vortices. High-frequency curl makes tight, fast-spinning vortices that whip a
-    // point through a full orbit and close it into a circle; broad vortices only
-    // bend the tear along arcs. The potential also drifts in time so vortices sweep
-    // past a point instead of parking under it.
-    function flowAt(x, y, t){
-      const asp = canvas.clientWidth / canvas.clientHeight;
-      const sx = x * asp * 1.8 - t * 0.09, sy = y * 1.8 - t * 0.12, e = 0.10;
-      const p0 = fbm2(sx, sy);
-      const dPdx = (fbm2(sx + e, sy) - p0) / e;
-      const dPdy = (fbm2(sx, sy + e) - p0) / e;
-      return [dPdy, -dPdx];
-    }
-
-    // A pen/finger down — or a long pause — begins a new stroke. The next point is
-    // then flagged as a stroke start (gap), so it is never connected to the tail of
-    // the previous stroke: the old one keeps healing on its own while the new one
-    // starts fresh under the finger.
-    function startStroke(){ strokeBreak = true; }
-    function pushPoint(x, y){
-      if(!onBackground(x, y)) return;
-      const ux = x / canvas.clientWidth, uy = 1 - y / canvas.clientHeight;
-      const now = performance.now();
-      if(now - lastT > 140) strokeBreak = true;     // a pause also breaks the stroke
-      const last = strokeBreak ? null : trail[trail.length - 1];
-      let w = MIN_W;
-      if(last){
-        const dist = Math.hypot(ux - last.x, uy - last.y);
-        if(dist < MIN_STEP) return;         // resample: ignore micro-moves
-        const dt = Math.max((now - lastT) / 1000, 0.001);
-        w = Math.min(MAX_W, MIN_W + (dist / dt) * SPEED_SCALE);
-      }
-      lastT = now;
-      // wider tears displaced more crema, so they take longer to flow back shut
-      const wn = (w - MIN_W) / (MAX_W - MIN_W);
-      const heal = HEAL_FAST + (HEAL_SLOW - HEAL_FAST) * wn;
-      trail.push({x: ux, y: uy, w: w, fresh: 1, life: 1, heal: heal, gap: strokeBreak});
-      strokeBreak = false;
-      if(trail.length > TRAIL_N) trail.shift();
-    }
-    if(TEAR_ENABLED){
-      addEventListener('pointermove', e => pushPoint(e.clientX, e.clientY), {passive:true});
-      addEventListener('pointerdown', e => { startStroke(); pushPoint(e.clientX, e.clientY); }, {passive:true});
-      addEventListener('touchstart', e => { const t=e.touches[0]; if(t){ startStroke(); pushPoint(t.clientX, t.clientY); } }, {passive:true});
-      addEventListener('touchmove', e => { const t=e.touches[0]; if(t) pushPoint(t.clientX, t.clientY); }, {passive:true});
-    }
-
     function draw(){
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uTime, simTime);
       gl.uniform1f(uScroll, scrollSmooth);
       gl.uniform1f(uSwirl, SWIRL);
-      if(TEAR_ENABLED){
-        let i = 0;
-        for(; i < trail.length; i++){
-          trailPos[i*2] = trail[i].x; trailPos[i*2+1] = trail[i].y;
-          trailWArr[i] = trail[i].w; trailFresh[i] = trail[i].fresh; trailLife[i] = trail[i].life;
-          trailGap[i] = trail[i].gap ? 1 : 0;
-        }
-        for(; i < TRAIL_N; i++){ trailLife[i] = 0; }
-        gl.uniform2fv(uTrail, trailPos);
-        gl.uniform1fv(uTrailW, trailWArr);
-        gl.uniform1fv(uTrailFresh, trailFresh);
-        gl.uniform1fv(uTrailLife, trailLife);
-        gl.uniform1fv(uTrailGap, trailGap);
-      }
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
@@ -590,26 +402,6 @@ void main(){
 
       scrollTarget = scrollProgress() * 1.6;                  // gentle scroll influence
       scrollSmooth += (scrollTarget - scrollSmooth) * 0.045;  // slow easing
-
-      if(TEAR_ENABLED && trail.length){
-        for(const pt of trail){
-          const v = flowAt(pt.x, pt.y, simTime);             // carried by the crema swirls
-          pt.x += v[0] * dt * FLOW_AMP;
-          pt.y += v[1] * dt * FLOW_AMP;
-          pt.fresh *= 0.85;                                   // tip taper fades quickly
-          pt.life  *= pt.heal;                               // wider tears heal slower
-        }
-        // Relax kinks the differential advection introduces by nudging each interior
-        // point toward the midpoint of its neighbours, so the path stays a smooth,
-        // naturally rounded curve instead of going angular. Endpoints stay put.
-        for(let i = 1; i < trail.length - 1; i++){
-          const a = trail[i - 1], b = trail[i], c = trail[i + 1];
-          if(b.gap || c.gap) continue;                        // don't relax across a stroke break
-          b.x += SMOOTH_LAMBDA * ((a.x + c.x) * 0.5 - b.x);
-          b.y += SMOOTH_LAMBDA * ((a.y + c.y) * 0.5 - b.y);
-        }
-        while(trail.length && trail[0].life < 0.02) trail.shift();
-      }
 
       draw();
       requestAnimationFrame(frame);
