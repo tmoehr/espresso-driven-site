@@ -143,6 +143,10 @@ section.block{padding:0 32px var(--space-2xl)}
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:38ch}
 .imprint-line{color:var(--text-mid);font-size:.94rem;line-height:1.85;font-family:var(--font-mono);margin-bottom:2px}
+.imprint-row{display:flex;align-items:center;gap:var(--space-m);flex-wrap:wrap}
+/* margin-inline:auto centers the logo within the free space next to the address,
+   not against the column edge */
+.imprint-logo{height:30px;flex-shrink:0;margin-inline:auto;background:var(--text-mid);opacity:.9}
 .links{display:flex;align-items:center;gap:var(--space-s);padding-top:var(--space-m);border-top:1px solid var(--line)}
 .links a{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;font-size:.82rem;transition:color .2s}
 .links .sep{width:1px;height:12px;background:var(--line);margin: -6px}
