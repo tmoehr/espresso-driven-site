@@ -13,7 +13,7 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // baked-in look
-  const SPEED = 3.55;
+  const SPEED = 1.55;
   const SWIRL = 1.0;
 
   function compile(type, src){
