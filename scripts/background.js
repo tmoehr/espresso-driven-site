@@ -17,8 +17,8 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // baked-in look
-  const SPEED = 1.55;
-  const SWIRL = 1.0;
+  const SPEED = 2.55;
+  const SWIRL = 0.5;
 
   function compile(type, src){
     const s = gl.createShader(type);
@@ -121,11 +121,11 @@
     return;
   }
 
-  // Cap rendering at ~30fps: the motion is slow enough (time coefficients
-  // 0.025–0.045) that per-frame displacement stays sub-pixel, so 30fps is
-  // indistinguishable from 60/120 — at a half/quarter of the GPU work. The
-  // small tolerance keeps vsync timestamp jitter from skipping a whole frame.
-  const FRAME_MIN_MS = 1000 / 30 - 4;
+  // Cap rendering at ~60fps for smooth motion. The small tolerance keeps vsync
+  // timestamp jitter from skipping a whole frame, and the cap still spares the
+  // GPU on 120Hz+ displays where the slow, low-frequency motion (time
+  // coefficients 0.025–0.045) gains nothing from the extra frames.
+  const FRAME_MIN_MS = 1000 / 60 - 4;
   let rafId = 0;
   function frame(now){
     rafId = requestAnimationFrame(frame);
