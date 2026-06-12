@@ -3,7 +3,11 @@
 // into a WebGL program drawn behind all content, churned by scroll position.
 (function(){
   const canvas = document.getElementById('bg-gl');
-  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  // alpha:false — the shader writes alpha 1.0 everywhere, so an opaque canvas
+  // spares the compositor the blend against the layers behind it. No edges to
+  // antialias on a full-screen triangle, no depth/stencil needed.
+  const attrs = { alpha: false, antialias: false, depth: false, stencil: false };
+  const gl = canvas.getContext('webgl', attrs) || canvas.getContext('experimental-webgl', attrs);
   // No WebGL: leave the canvas transparent so the static espresso_bg.webp
   // fallback (body::before, z-index:-3) shows through instead.
   if(!gl) return;
@@ -41,7 +45,7 @@
   const uRes    = gl.getUniformLocation(prog, 'u_resolution');
   const uTime   = gl.getUniformLocation(prog, 'u_time');
   const uScroll = gl.getUniformLocation(prog, 'u_scroll');
-  const uSwirl  = gl.getUniformLocation(prog, 'u_swirl');
+  gl.uniform1f(gl.getUniformLocation(prog, 'u_swirl'), SWIRL);
   const uFade      = gl.getUniformLocation(prog, 'u_fadeColor');
   const uEspresso  = gl.getUniformLocation(prog, 'u_espresso');
   const uDarkBrown = gl.getUniformLocation(prog, 'u_darkBrown');
@@ -71,7 +75,11 @@
   })();
 
   function resize(){
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // DPR capped at 1: the shader output is all low-frequency fbm gradients
+    // (no hard edges), and the film-grain overlay (body::after) supplies the
+    // high-frequency texture at full resolution — bilinear upscaling of the
+    // canvas is not distinguishable, at a quarter of the fragment work.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1);
     // Size the drawing buffer to the canvas's actual CSS box (100vw/100vh), not
     // innerWidth/innerHeight. On iOS Safari innerHeight changes as the toolbar
     // shows/hides while scrolling, which would resize the buffer and rescale the
@@ -82,22 +90,27 @@
     if(canvas.width !== w || canvas.height !== h){
       canvas.width = w; canvas.height = h;
       gl.viewport(0, 0, w, h);
+      gl.uniform2f(uRes, w, h);
     }
   }
   window.addEventListener('resize', resize);
   resize();
 
   let scrollTarget = 0, scrollSmooth = 0, simTime = 0, last = performance.now();
+  // Cache the scrollable height instead of reading scrollHeight every frame
+  // (a potential layout read). The ResizeObserver catches content reflows
+  // (font swaps, etc.) that change the page height without a window resize.
+  let scrollMax = document.body.scrollHeight - innerHeight;
+  const updateScrollMax = () => { scrollMax = document.body.scrollHeight - innerHeight; };
+  window.addEventListener('resize', updateScrollMax);
+  if(window.ResizeObserver) new ResizeObserver(updateScrollMax).observe(document.body);
   function scrollProgress(){
-    const max = document.body.scrollHeight - innerHeight;
-    return max > 0 ? window.scrollY / max : 0;
+    return scrollMax > 0 ? window.scrollY / scrollMax : 0;
   }
 
   function draw(){
-    gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, simTime);
     gl.uniform1f(uScroll, scrollSmooth);
-    gl.uniform1f(uSwirl, SWIRL);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -108,16 +121,24 @@
     return;
   }
 
+  // Cap rendering at ~30fps: the motion is slow enough (time coefficients
+  // 0.025–0.045) that per-frame displacement stays sub-pixel, so 30fps is
+  // indistinguishable from 60/120 — at a half/quarter of the GPU work. The
+  // small tolerance keeps vsync timestamp jitter from skipping a whole frame.
+  const FRAME_MIN_MS = 1000 / 30 - 4;
   function frame(now){
+    requestAnimationFrame(frame);
+    if(now - last < FRAME_MIN_MS) return;
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     simTime += dt * SPEED;
 
-    scrollTarget = scrollProgress() * 1.6;                  // gentle scroll influence
-    scrollSmooth += (scrollTarget - scrollSmooth) * 0.045;  // slow easing
+    scrollTarget = scrollProgress() * 1.6;       // gentle scroll influence
+    // dt-based easing (≙ 0.045/frame at 60fps), so the scroll follow feels
+    // identical at any frame rate
+    scrollSmooth += (scrollTarget - scrollSmooth) * (1.0 - Math.exp(-2.764 * dt));
 
     draw();
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();

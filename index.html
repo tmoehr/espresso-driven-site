@@ -222,7 +222,7 @@ void main(){
   vec3 col = mix(u_espresso, u_midBrown, clamp(f * f * 2.6, 0.0, 1.0));
   col = mix(col, u_darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
   col = mix(col, u_caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
-  col = mix(col, u_crema,     clamp(pow(max(r.y, 0.0), 3.0) * 1.4, 0.0, 1.0)); // tight, sparse sheen
+  col = mix(col, u_crema,     clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen (cube ≡ pow(max(r.y,0),3): fbm never goes negative)
 
   // keep it dark: gentle sheen, no global lift, deeper vignette
   col *= 0.58 + 0.42 * f;
