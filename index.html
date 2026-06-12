@@ -231,7 +231,7 @@ void main(){
 
   // keep it dark: gentle sheen, no global lift, deeper vignette
   float fc = smoothstep(0.15, 0.85, f);   // S-Kurve: Tiefen tiefer, Höhen höher
-  col *= 0.45 + 0.50 * fc;
+  col *= 0.15 + 0.450 * fc;
   vec2 vig = uv - 0.5;
   col *= 1.0 - 0.55 * dot(vig, vig);
 
