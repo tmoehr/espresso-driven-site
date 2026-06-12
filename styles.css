@@ -5,6 +5,9 @@
   --header-blur: 12px;
   --panel-blur: 3px;
   --bg-fade: var(--bg); /* colour the background fades into at the top/bottom edges */
+  /* dark espresso palette — single source of truth, also fed into the background
+     shader as uniforms (see the colour-probe block in index.html) */
+  --espresso:#0b0503; --dark-brown:#1d0e07; --mid-brown:#3b1f0f; --caramel:#66371d; --crema:#8f5530;
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
 }

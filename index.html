@@ -219,6 +219,13 @@ uniform float u_scroll;
 uniform float u_swirl;
 uniform vec3  u_fadeColor;   // edge-fade colour, fed from CSS (--bg-fade)
 
+// dark espresso palette, fed from CSS custom properties (see :root in styles.css)
+uniform vec3  u_espresso;    // --espresso : deep, almost black
+uniform vec3  u_darkBrown;   // --dark-brown
+uniform vec3  u_midBrown;    // --mid-brown
+uniform vec3  u_caramel;     // --caramel  : used sparingly
+uniform vec3  u_crema;       // --crema    : rare warm highlight
+
 // --- value noise (Inigo Quilez style) ---
 float hash(vec2 p){
   p = fract(p * vec2(123.34, 345.45));
@@ -274,16 +281,12 @@ void main(){
   float f = fbm(p + w * r);
 
   // --- dark espresso palette: near-black crema with warm reddish ridges ---
-  vec3 espresso  = vec3(0.045, 0.020, 0.010);  // deep, almost black
-  vec3 darkBrown = vec3(0.115, 0.055, 0.028);
-  vec3 midBrown  = vec3(0.230, 0.120, 0.060);
-  vec3 caramel   = vec3(0.400, 0.215, 0.115);  // used sparingly
-  vec3 crema     = vec3(0.560, 0.335, 0.190);  // rare warm highlight
-
-  vec3 col = mix(espresso, midBrown, clamp(f * f * 2.6, 0.0, 1.0));
-  col = mix(col, darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
-  col = mix(col, caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
-  col = mix(col, crema,     clamp(pow(max(r.y, 0.0), 3.0) * 1.4, 0.0, 1.0)); // tight, sparse sheen
+  // Colours come from CSS custom properties (:root in styles.css), uploaded as
+  // uniforms so the page and the shader share one source of truth.
+  vec3 col = mix(u_espresso, u_midBrown, clamp(f * f * 2.6, 0.0, 1.0));
+  col = mix(col, u_darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
+  col = mix(col, u_caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
+  col = mix(col, u_crema,     clamp(pow(max(r.y, 0.0), 3.0) * 1.4, 0.0, 1.0)); // tight, sparse sheen
 
   // keep it dark: gentle sheen, no global lift, deeper vignette
   col *= 0.58 + 0.42 * f;
@@ -343,18 +346,32 @@ void main(){
     const uTime   = gl.getUniformLocation(prog, 'u_time');
     const uScroll = gl.getUniformLocation(prog, 'u_scroll');
     const uSwirl  = gl.getUniformLocation(prog, 'u_swirl');
-    const uFade   = gl.getUniformLocation(prog, 'u_fadeColor');
+    const uFade      = gl.getUniformLocation(prog, 'u_fadeColor');
+    const uEspresso  = gl.getUniformLocation(prog, 'u_espresso');
+    const uDarkBrown = gl.getUniformLocation(prog, 'u_darkBrown');
+    const uMidBrown  = gl.getUniformLocation(prog, 'u_midBrown');
+    const uCaramel   = gl.getUniformLocation(prog, 'u_caramel');
+    const uCrema     = gl.getUniformLocation(prog, 'u_crema');
 
-    // Edge-fade colour stays controllable from CSS: resolve --bg-fade (which may
-    // itself reference other vars) to an rgb triple via a throwaway element, then
-    // hand it to the shader. Set once — it doesn't change at runtime.
+    // Colours stay controllable from CSS: resolve each custom property (which may
+    // itself reference other vars) to a normalised rgb triple via a throwaway
+    // element, then hand them to the shader. Set once — they don't change at runtime.
     (function(){
       const probe = document.createElement('div');
-      probe.style.cssText = 'color:var(--bg-fade);display:none';
+      probe.style.display = 'none';
       document.body.appendChild(probe);
-      const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number);
+      const rgb = name => {
+        probe.style.color = 'var(' + name + ')';
+        const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number);
+        return [(m[0]||0)/255, (m[1]||0)/255, (m[2]||0)/255];
+      };
+      gl.uniform3fv(uFade,      rgb('--bg-fade'));
+      gl.uniform3fv(uEspresso,  rgb('--espresso'));
+      gl.uniform3fv(uDarkBrown, rgb('--dark-brown'));
+      gl.uniform3fv(uMidBrown,  rgb('--mid-brown'));
+      gl.uniform3fv(uCaramel,   rgb('--caramel'));
+      gl.uniform3fv(uCrema,     rgb('--crema'));
       probe.remove();
-      gl.uniform3f(uFade, (m[0]||0)/255, (m[1]||0)/255, (m[2]||0)/255);
     })();
 
     function resize(){
