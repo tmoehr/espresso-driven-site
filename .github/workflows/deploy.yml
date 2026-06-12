@@ -1,0 +1,58 @@
+name: Deploy to GitHub Pages
+
+# Builds the site and deploys it to Pages on every push to main. Local CSS/JS
+# references in the HTML get the commit SHA appended as a ?v= query string, so a
+# new deploy always serves fresh assets — GitHub Pages hard-codes
+# Cache-Control: max-age=600 on every file and that header can't be overridden,
+# which is why Safari keeps showing stale styles/scripts for up to 10 minutes
+# after a push. A changing URL sidesteps the cache entirely.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions the deploy-pages action needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; newer pushes supersede an in-flight run.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site with cache-busted assets
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA::8}"
+          mkdir _site
+          # Ship only the site itself — never .git (would publish full history)
+          # or the workflow dir.
+          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+          # Append ?v=<sha> to local .css/.js refs only. The match requires the
+          # path to end in exactly .css" or .js", so the Google Fonts <link>
+          # (ends in &display=swap") and .svg refs are left untouched.
+          for f in _site/*.html; do
+            sed -i -E "s/(href|src)=\"([^\"]+\.(css|js))\"/\1=\"\2?v=${SHA}\"/g" "$f"
+          done
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
