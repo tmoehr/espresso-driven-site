@@ -126,8 +126,9 @@
   // indistinguishable from 60/120 — at a half/quarter of the GPU work. The
   // small tolerance keeps vsync timestamp jitter from skipping a whole frame.
   const FRAME_MIN_MS = 1000 / 30 - 4;
+  let rafId = 0;
   function frame(now){
-    requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
     if(now - last < FRAME_MIN_MS) return;
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
@@ -140,5 +141,16 @@
 
     draw();
   }
-  requestAnimationFrame(frame);
+
+  // Stop the loop while the tab is hidden. Browsers already throttle rAF in
+  // background tabs, but a WebGL canvas that keeps rendering holds the GPU
+  // process memory resident — which is what trips Safari's "this page used a
+  // lot of memory" reload. Fully halting lets the OS reclaim it; on return we
+  // reset `last` so the paused interval doesn't dump into dt as one big jump.
+  function start(){ if(!rafId){ last = performance.now(); rafId = requestAnimationFrame(frame); } }
+  function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId = 0; } }
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? stop() : start();
+  });
+  if(!document.hidden) start();
 })();
