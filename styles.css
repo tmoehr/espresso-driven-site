@@ -67,7 +67,7 @@ html.has-webgl body::before{display:none}
    iOS toolbar show/hide (see resize() in index.html). */
 #bg-gl{position:fixed;inset:0;height:100vh;display:block;z-index:-2;pointer-events:none}
 /* warm film grain */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.16;mix-blend-mode:overlay;
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .mono{font-family:var(--font-mono)}
 
@@ -88,11 +88,19 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .hero-head,.hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:var(--space-l)}
 .hero-foot{gap:var(--space-l)}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
-.hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain;filter:saturate(.85)}
+.hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain;}
 .hero-sub{font-size:1.08rem;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-sub span{display:block}
 .hero-sub .accent{color:var(--gold);font-weight:700}
 .hero-actions{display:flex;gap:var(--space-xs);flex-wrap:wrap}
+/* centered via left/right+margin instead of translateX(-50%), which the fadeUp
+   animation (fill:forwards, ends on transform:none) would otherwise wipe out */
+.scroll-cue{position:absolute;left:0;right:0;bottom:28px;margin-inline:auto;width:max-content;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;color:var(--text-muted);transition:color .25s}
+.scroll-cue:hover{color:var(--gold)}
+.scroll-cue span:first-child{font-size:.58rem;letter-spacing:.28em;text-transform:uppercase}
+.scroll-line{position:relative;width:1px;height:36px;background:transparent;overflow:hidden}
+.scroll-line::after{content:'';position:absolute;top:0;left:0;width:1px;height:45%;background:var(--gold);animation:scrolldot 1.9s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes scrolldot{0%{transform:translateY(-100%)}100%{transform:translateY(260%)}}
 .btn{display:inline-flex;align-items:center;gap:var(--space-xs);font-family:var(--font-mono);background:var(--gold);color:#1a1208;border-radius:6px;padding:14px 24px;font-weight:600;font-size:.84rem;text-decoration:none;white-space:nowrap;transition:transform .2s,box-shadow .25s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px color-mix(in srgb, var(--gold) 28%, transparent)}
 .btn.ghost{background:color-mix(in srgb, var(--ink) 50%, transparent);color:var(--text);border:1px solid var(--line-2);backdrop-filter:blur(4px)}
@@ -100,10 +108,10 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 .a{opacity:0;animation:fadeUp .75s var(--ease) forwards}
-.a1{animation-delay:.08s}.a2{animation-delay:.22s}.a3{animation-delay:.36s}.a4{animation-delay:.5s}.a5{animation-delay:.64s}
+.a1{animation-delay:.08s}.a2{animation-delay:.22s}.a3{animation-delay:.36s}.a4{animation-delay:.5s}.a5{animation-delay:.64s}.a6{animation-delay:.78s}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
 .reveal.vis{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.a,.reveal{opacity:1!important;transform:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){.a,.reveal{opacity:1!important;transform:none!important;animation:none!important}.scroll-line::after{animation:none}}
 
 .wrap{max-width:1200px;margin:0 auto;}
 /* top padding 0: the gap above each section is owned by the previous block's
@@ -134,7 +142,7 @@ section.block{padding:0 32px var(--space-2xl)}
 /* button shrinks to its content instead of stretching to the column width */
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:38ch}
-.imprint-line{color:var(--text-mid);font-size:.94rem;line-height:1.85}
+.imprint-line{color:var(--text-mid);font-size:.94rem;line-height:1.85;font-family:var(--font-mono);margin-bottom:2px}
 .links{display:flex;align-items:center;gap:var(--space-s);padding-top:var(--space-m);border-top:1px solid var(--line)}
 .links a{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;font-size:.82rem;transition:color .2s}
 .links .sep{width:1px;height:12px;background:var(--line);margin: -6px}
