@@ -104,7 +104,7 @@ section.block{padding:var(--space-2xl) 32px}
 #contact{padding-top:0}
 .label{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-l)}
 .label::before{content:'';width:34px;height:1px;background:var(--line)}
-.label .mono{color:var(--text-mid);letter-spacing:.1em;text-transform:none}
+.label .mono{color:var(--text-muted);letter-spacing:.1em;text-transform:none}
 
 /* shared surface for anything using the panel color */
 .panel{border:0px solid var(--line-2);border-radius:14px;overflow:hidden;background:var(--panel);backdrop-filter:blur(var(--panel-blur));-webkit-backdrop-filter:blur(var(--panel-blur))}
