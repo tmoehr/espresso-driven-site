@@ -124,7 +124,12 @@ section.block{padding:0 32px var(--space-2xl)}
 /* shared surface for anything using the panel color */
 .panel{border-radius:14px;overflow:hidden;background:var(--panel);backdrop-filter:blur(var(--panel-blur));-webkit-backdrop-filter:blur(var(--panel-blur))}
 /* asset showcase — carousel stage + two-column body, all on the .panel surface */
-.stage{position:relative;height:430px;overflow:hidden}
+/* The stage always fills the panel width; its height tracks that width at a
+   16:10 ratio (62.5cqw = width x 10/16) but is capped at 430px. So 16:10 is the
+   floor on narrow screens, and on wide ones it only ever grows flatter — never
+   narrower. Unlike aspect-ratio + max-height, this never shrinks the width. */
+.module{container-type:inline-size}
+.stage{position:relative;height:min(62.5cqw,430px);overflow:hidden}
 .stage .slides{position:absolute;inset:0;z-index:0}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease)}
 .slide.active{opacity:1}
@@ -227,7 +232,7 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
      narrow viewport and reintroduce a sideways scroll. */
   .sc-body{grid-template-columns:1fr}.sc-main{border-right:none;border-bottom:1px solid var(--line)}
   .sc-main,.sc-side{padding:var(--space-m)}
-  .stage{height:300px}.stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h2{font-size:2.4rem}
+  .stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h2{font-size:2.4rem}
   .stage .bars{bottom:18px;right:18px}.stage .bars button::before{top:-16px;bottom:-16px}
   .cols{grid-template-columns:1fr}.cols>div{padding:var(--space-m)}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
