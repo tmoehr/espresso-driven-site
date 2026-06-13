@@ -38,30 +38,34 @@ function setMenu(open){
 }
 burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
 
-// Asset showcase carousel: cross-fade slides with autoplay (paused on hover/
-// touch), arrow-key and swipe navigation. Reduced-motion skips the autoplay.
+// Asset showcase carousel: cross-fade slides, navigable via the segment bars,
+// arrow keys and swipe. Autoplay rides the active bar's CSS fill animation —
+// its animationend advances the slide, and CSS pauses the fill on hover.
+// Reduced-motion fills instantly (no animationend), so it never auto-advances.
 (function(){
   const stage=document.querySelector('.stage');
   if(!stage)return;
   const slides=[...stage.querySelectorAll('.slide')];
-  const dots=[...stage.querySelectorAll('.dots button')];
-  let i=0,timer=null;
-  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function go(n){i=(n+slides.length)%slides.length;slides.forEach((s,k)=>s.classList.toggle('active',k===i));dots.forEach((d,k)=>d.classList.toggle('active',k===i));}
+  const bars=[...stage.querySelectorAll('.bars button')];
+  const fills=bars.map(b=>b.querySelector('.fill'));
+  let i=0;
+  function go(n){
+    i=(n+slides.length)%slides.length;
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bars.forEach((b,k)=>b.classList.toggle('active',k===i));
+    // restart the fill animation on the newly active bar
+    const f=fills[i];
+    if(f){f.style.animation='none';void f.offsetWidth;f.style.animation='';}
+  }
   const next=()=>go(i+1),prev=()=>go(i-1);
-  function stop(){if(timer){clearInterval(timer);timer=null;}}
-  function start(){stop();if(reduce||slides.length<2)return;timer=setInterval(next,5000);}
-  stage.querySelector('.next').addEventListener('click',()=>{next();start();});
-  stage.querySelector('.prev').addEventListener('click',()=>{prev();start();});
-  dots.forEach((d,k)=>d.addEventListener('click',()=>{go(k);start();}));
-  stage.addEventListener('mouseenter',stop);
-  stage.addEventListener('mouseleave',start);
+  fills.forEach(f=>f.addEventListener('animationend',()=>{if(slides.length>1)next();}));
+  bars.forEach((b,k)=>b.addEventListener('click',()=>go(k)));
   stage.setAttribute('tabindex','0');
-  stage.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){next();start();}else if(e.key==='ArrowLeft'){prev();start();}});
+  stage.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();else if(e.key==='ArrowLeft')prev();});
   let x0=null;
-  stage.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;stop();},{passive:true});
-  stage.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){dx<0?next():prev();}x0=null;start();},{passive:true});
-  go(0);start();
+  stage.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+  stage.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){dx<0?next():prev();}x0=null;},{passive:true});
+  go(0);
 })();
 
 // "Notify me at launch": prefill a mailto so the visitor only has to hit send.

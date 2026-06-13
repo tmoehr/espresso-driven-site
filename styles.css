@@ -130,15 +130,19 @@ section.block{padding:0 32px var(--space-2xl)}
 .slide.active{opacity:1}
 .slide img{width:100%;height:100%;object-fit:cover;backface-visibility:hidden}
 /* bottom-up scrim so the caption stays legible over any slide */
-.stage::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb, var(--ink) 96%, transparent) 4%,color-mix(in srgb, var(--ink) 25%, transparent) 46%,color-mix(in srgb, var(--ink) 45%, transparent))}
-.stage .nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2);background:color-mix(in srgb, var(--ink) 50%, transparent);color:var(--text);border-radius:50%;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background .2s,border-color .2s,color .2s}
-.stage .nav:hover{background:color-mix(in srgb, var(--ink) 82%, transparent);border-color:var(--gold-line);color:var(--gold)}
-.stage .nav svg{width:18px;height:18px}
-.stage .nav.prev{left:16px}.stage .nav.next{right:16px}
-.stage .dots{position:absolute;bottom:24px;right:24px;z-index:4;display:flex;gap:4px}
-.stage .dots button{width:8px;height:8px;padding:7px;box-sizing:content-box;background-clip:content-box;border:none;border-radius:99px;background-color:color-mix(in srgb, var(--text) 32%, transparent);cursor:pointer;transition:background-color .25s,width .25s}
-.stage .dots button:hover{background-color:color-mix(in srgb, var(--text) 60%, transparent)}
-.stage .dots button.active{background-color:var(--gold);width:22px}
+.stage::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb, var(--ink) 50%, transparent) 0%,color-mix(in srgb, var(--ink) 0%, transparent) 50%, color-mix(in srgb, var(--ink) 20%, transparent))}
+/* segment-bar indicator: the active bar's gold fill doubles as the autoplay
+   progress (5s), paused while the stage is hovered */
+.stage .bars{position:absolute;bottom:28px;right:24px;z-index:4;display:flex;gap:7px}
+.stage .bars button{position:relative;width:30px;height:3px;padding:0;border:none;border-radius:99px;background:color-mix(in srgb, var(--text) 22%, transparent);cursor:pointer;transition:background .25s}
+.stage .bars button:hover{background:color-mix(in srgb, var(--text) 42%, transparent)}
+/* enlarged hit area so the thin bars stay easy to tap */
+.stage .bars button::before{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-10px}
+.stage .bars .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--gold)}
+.stage .bars button.active .fill{animation:fillbar 5s linear forwards}
+.stage:hover .bars button.active .fill{animation-play-state:paused}
+@keyframes fillbar{from{width:0}to{width:100%}}
+@media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:var(--text-muted);margin-bottom:14px;text-transform:uppercase}
 .stage-cap h2{font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:12px}
@@ -224,7 +228,7 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
   .sc-body{grid-template-columns:1fr}.sc-main{border-right:none;border-bottom:1px solid var(--line)}
   .sc-main,.sc-side{padding:var(--space-m)}
   .stage{height:300px}.stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h2{font-size:2.4rem}
-  .stage .dots{bottom:18px;right:18px}.stage .nav{width:40px;height:40px}
+  .stage .bars{bottom:18px;right:18px}.stage .bars button::before{top:-16px;bottom:-16px}
   .cols{grid-template-columns:1fr}.cols>div{padding:var(--space-m)}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
   .links{flex-wrap:wrap}
