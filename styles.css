@@ -147,7 +147,9 @@ section.block{padding:0 32px var(--space-2xl)}
 .stage .bars button.active{width:22px;background:color-mix(in srgb, var(--gold) 28%, transparent)}
 .stage .bars .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--gold)}
 .stage .bars button.active .fill{animation:fillbar 5s linear forwards}
-.stage:hover .bars button.active .fill{animation-play-state:paused}
+/* only on real hover devices — on touch, :hover sticks after a swipe and would
+   freeze the fill, stalling autoplay */
+@media (hover:hover){.stage:hover .bars button.active .fill{animation-play-state:paused}}
 @keyframes fillbar{from{width:0}to{width:100%}}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
