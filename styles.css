@@ -136,13 +136,15 @@ section.block{padding:0 32px var(--space-2xl)}
 .slide img{width:100%;height:100%;object-fit:cover;backface-visibility:hidden}
 /* bottom-up scrim so the caption stays legible over any slide */
 .stage::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb, var(--ink) 50%, transparent) 0%,color-mix(in srgb, var(--ink) 0%, transparent) 50%, color-mix(in srgb, var(--ink) 20%, transparent))}
-/* segment-bar indicator: the active bar's gold fill doubles as the autoplay
-   progress (5s), paused while the stage is hovered */
-.stage .bars{position:absolute;bottom:28px;right:24px;z-index:4;display:flex;gap:7px}
-.stage .bars button{position:relative;width:30px;height:3px;padding:0;border:none;border-radius:99px;background:color-mix(in srgb, var(--text) 22%, transparent);cursor:pointer;transition:background .25s}
-.stage .bars button:hover{background:color-mix(in srgb, var(--text) 42%, transparent)}
-/* enlarged hit area so the thin bars stay easy to tap */
+/* dot indicator: inactive dots are small grey circles; the active one elongates
+   into a gold pill whose brighter fill rides the autoplay progress (5s), paused
+   while the stage is hovered */
+.stage .bars{position:absolute;bottom:24px;right:24px;z-index:4;display:flex;gap:4px}
+.stage .bars button{position:relative;width:8px;height:8px;padding:0;border:none;border-radius:99px;background:color-mix(in srgb, var(--text) 32%, transparent);cursor:pointer;transition:width .25s,background .25s}
+.stage .bars button:hover{background:color-mix(in srgb, var(--text) 60%, transparent)}
+/* enlarged hit area so the small dots stay easy to tap */
 .stage .bars button::before{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-10px}
+.stage .bars button.active{width:22px;background:color-mix(in srgb, var(--gold) 28%, transparent)}
 .stage .bars .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--gold)}
 .stage .bars button.active .fill{animation:fillbar 5s linear forwards}
 .stage:hover .bars button.active .fill{animation-play-state:paused}
@@ -150,7 +152,7 @@ section.block{padding:0 32px var(--space-2xl)}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:var(--text-muted);margin-bottom:14px;text-transform:uppercase}
-.stage-cap h2{font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:12px}
+.stage-cap h2{font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:4px}
 .stage-cap p{color:var(--text);font-size:1.05rem;max-width:30ch;line-height:1.5}
 .status{position:absolute;top:14px;right:16px;z-index:2;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
 .status .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 color-mix(in srgb, var(--gold) 50%, transparent);animation:pulse 2s infinite}
