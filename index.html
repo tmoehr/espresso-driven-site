@@ -82,16 +82,34 @@
     <section class="block" id="assets">
       <p class="label reveal">Assets<span class="mono">/ what's in the cup?</span></p>
       <article class="module panel reveal">
-        <div class="module-top">
-          <div class="module-media">
-            <span class="status"><span class="dot"></span>Coming Soon</span>
-            <img src="images/heliopath.webp" alt="HelioPath" data-px="-56" loading="lazy" decoding="async">
+        <div class="stage">
+          <div class="slides">
+            <div class="slide active"><img src="images/heliopath/sunrise_hdrp.webp" srcset="images/heliopath/sunrise_hdrp.webp 1x, images/heliopath/sunrise_hdrp@2x.webp 2x" width="1136" height="430" alt="HelioPath sunrise HDRP" loading="lazy" decoding="async"></div>
+            <div class="slide"><img src="images/heliopath/editor_sceneview_skybox.webp" srcset="images/heliopath/editor_sceneview_skybox.webp 1x, images/heliopath/editor_sceneview_skybox@2x.webp 2x" width="1136" height="430" alt="HelioPath Sceneview Gizmos" loading="lazy" decoding="async"></div>
+            <div class="slide"><img src="images/heliopath/effects.webp" srcset="images/heliopath/effects.webp 1x, images/heliopath/effects@2x.webp 2x" width="1136" height="430" alt="HelioPath sunlight effects" loading="lazy" decoding="async"></div>
           </div>
-          <div class="module-info">
-            <span class="id">ASSET 01 · LIGHTING</span>
+          <span class="status"><span class="dot"></span>Coming Soon</span>
+          <div class="stage-cap">
             <h2>HelioPath</h2>
-            <h3>Geographically Accurate Sun</h3>
-            <p>Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p>
+            <p>Geographically accurate sun &amp; daylight for Unity.</p>
+          </div>
+          <button class="nav prev" type="button" aria-label="Previous image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <button class="nav next" type="button" aria-label="Next image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          <div class="dots" aria-label="Choose image">
+            <button class="active" type="button" aria-label="Image 1"></button>
+            <button type="button" aria-label="Image 2"></button>
+            <button type="button" aria-label="Image 3"></button>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-main">
+            <p class="lead">Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p>
+            <ul class="feat">
+              <li><span class="mono">01</span><span>Geographically accurate sun position from latitude, longitude, date &amp; time</span></li>
+              <li><span class="mono">02</span><span>Procedural sky &amp; dynamic daylight simulation</span></li>
+              <li><span class="mono">03</span><span>VR / AR ready | runs in URP &amp; HDRP</span></li>
+              <li><span class="mono">04</span><span>Drop-in sunlight effects · one component, no setup</span></li>
+            </ul>
             <div class="tags">
               <span class="tag">Daylight</span>
               <span class="tag">Simulation</span>
@@ -104,6 +122,22 @@
               <span class="tag">Unity 2022.3+</span>
             </div>
           </div>
+          <aside class="sc-side">
+            <div class="spec">
+              <div class="spec-row"><span>Category</span><b>Lighting</b></div>
+              <div class="spec-row"><span>Pipeline</span><b>URP | HDRP</b></div>
+              <div class="spec-row"><span>Unity</span><b>2022.3 +</b></div>
+              <div class="spec-row"><span>Status</span><b class="gold">In the roaster</b></div>
+            </div>
+            <div class="notify">
+              <label for="notify-email">Notify me at launch</label>
+              <form class="notify-row" id="notify-form">
+                <input type="email" id="notify-email" name="email" placeholder="Enter your email" required aria-label="Your email">
+                <button type="submit" aria-label="Notify me">→</button>
+              </form>
+              <p class="notify-ok" id="notify-ok">Opening your mail app — hit send to lock it in.</p>
+            </div>
+          </aside>
         </div>
       </article>
     </section>

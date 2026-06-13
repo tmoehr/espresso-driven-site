@@ -38,6 +38,45 @@ function setMenu(open){
 }
 burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
 
+// Asset showcase carousel: cross-fade slides with autoplay (paused on hover/
+// touch), arrow-key and swipe navigation. Reduced-motion skips the autoplay.
+(function(){
+  const stage=document.querySelector('.stage');
+  if(!stage)return;
+  const slides=[...stage.querySelectorAll('.slide')];
+  const dots=[...stage.querySelectorAll('.dots button')];
+  let i=0,timer=null;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function go(n){i=(n+slides.length)%slides.length;slides.forEach((s,k)=>s.classList.toggle('active',k===i));dots.forEach((d,k)=>d.classList.toggle('active',k===i));}
+  const next=()=>go(i+1),prev=()=>go(i-1);
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function start(){stop();if(reduce||slides.length<2)return;timer=setInterval(next,5000);}
+  stage.querySelector('.next').addEventListener('click',()=>{next();start();});
+  stage.querySelector('.prev').addEventListener('click',()=>{prev();start();});
+  dots.forEach((d,k)=>d.addEventListener('click',()=>{go(k);start();}));
+  stage.addEventListener('mouseenter',stop);
+  stage.addEventListener('mouseleave',start);
+  stage.setAttribute('tabindex','0');
+  stage.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){next();start();}else if(e.key==='ArrowLeft'){prev();start();}});
+  let x0=null;
+  stage.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;stop();},{passive:true});
+  stage.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){dx<0?next():prev();}x0=null;start();},{passive:true});
+  go(0);start();
+})();
+
+// "Notify me at launch": prefill a mailto so the visitor only has to hit send.
+(function(){
+  const nf=document.getElementById('notify-form');
+  if(!nf)return;
+  nf.addEventListener('submit',e=>{
+    e.preventDefault();
+    const email=nf.email.value.trim();
+    const body='Please notify me when HelioPath launches.%0D%0A%0D%0AMy email: '+encodeURIComponent(email);
+    window.location.href='mailto:hello@espressodriven.com?subject='+encodeURIComponent('Notify me: HelioPath')+'&body='+body;
+    document.getElementById('notify-ok').classList.add('show');
+  });
+})();
+
 if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
   const pxEls=[...document.querySelectorAll('[data-px]')].map(el=>{
     const r=el.getBoundingClientRect();
