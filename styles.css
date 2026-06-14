@@ -150,7 +150,9 @@ section.block{padding:0 32px var(--space-2xl)}
 /* only on real hover devices — on touch, :hover sticks after a swipe and would
    freeze the fill, stalling autoplay */
 @media (hover:hover){.stage:hover .bars button.active .fill{animation-play-state:paused}}
-@keyframes fillbar{from{width:0}to{width:100%}}
+/* start at the dot diameter (8px) so the fill is a circle from the first frame
+   and only ever stretches into the pill — never a thin vertical sliver */
+@keyframes fillbar{from{width:8px}to{width:100%}}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:var(--text-muted);margin-bottom:14px;text-transform:uppercase}
