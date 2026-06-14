@@ -89,7 +89,7 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .hero-foot{gap:var(--space-l)}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
 .hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain;}
-.hero-sub{font-size:1.08rem;color:var(--text);max-width:52ch;line-height:1.7}
+.hero-sub{font-size:1.08rem;font-weight:400;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-sub span{display:block}
 .hero-sub .accent{color:var(--gold);font-weight:700}
 .hero-actions{display:flex;gap:var(--space-xs);flex-wrap:wrap}
