@@ -84,18 +84,31 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 /* The gap before the first content section lives here (hero margin-bottom)
    rather than as #assets top padding, so the #assets anchor sits right on its
    content — jumping to it doesn't leave a tall empty strip above the label. */
-.hero{position:relative;max-width:1200px;margin:0 auto 96px;min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:calc(150px + env(safe-area-inset-top)) 32px 64px}
-.hero-head,.hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:var(--space-l)}
-.hero-foot{gap:var(--space-l)}
+.hero{position:relative;max-width:1200px;margin:0 auto 96px;min-height:100svh;display:flex;flex-direction:column;padding:calc(150px + env(safe-area-inset-top)) 32px 32px}
+/* Golden-section placement of the buttons. The leftover vertical height is dealt out
+   by three flex spacers, so the gaps stay proportional at ANY viewport height:
+     ::before  6.5  → above the logo (keeps the logo ~1/3 from the top)
+     --upper     5  → subtitle → buttons
+     --lower     8  → buttons → scroll-cue
+   The 5:8 split (golden ratio) seats the buttons above the midpoint. flex-shrink:0
+   keeps the spacers from collapsing when space gets tight. */
+.hero::before{content:'';flex-grow:6.5}
+.hero-gap{flex-shrink:0}
+.hero-gap--upper{flex-grow:5}
+.hero-gap--lower{flex-grow:8}
+.hero-top{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:var(--space-l)}
+.hero-head,.hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
 .hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain;}
 .hero-sub{font-size:1.08rem;font-weight:400;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-sub span{display:block}
 .hero-sub .accent{color:var(--gold);font-weight:700}
-.hero-actions{display:flex;gap:var(--space-xs);flex-wrap:wrap}
-/* centered via left/right+margin instead of translateX(-50%), which the fadeUp
-   animation (fill:forwards, ends on transform:none) would otherwise wipe out */
-.scroll-cue{position:absolute;left:0;right:0;bottom:28px;margin-inline:auto;width:max-content;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;color:var(--text-muted);transition:color .25s}
+.hero-actions{display:flex;justify-content:center;align-items:center;gap:var(--space-xs);flex-wrap:wrap}
+/* In the normal flex flow (not absolute) so the .hero-actions auto-margins can
+   split the free space evenly above AND below the buttons, landing them exactly
+   midway between the subtitle and this cue. align-self centres it horizontally
+   (a transform-based centre would be wiped by the fadeUp animation's transform:none). */
+.scroll-cue{align-self:center;width:max-content;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;color:var(--text-muted);transition:color .25s}
 .scroll-cue:hover{color:var(--gold)}
 .scroll-cue span:first-child{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase}
 .scroll-line{position:relative;width:1px;height:36px;background:transparent;overflow:hidden}
@@ -233,7 +246,7 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
   nav{padding:0}.brand{display:none}.nav-links{display:none}
   .nav-hamburger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top));right:18px;width:44px;height:44px;background:color-mix(in srgb, var(--ink) 72%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:8px;pointer-events:auto;z-index:110}
   .mobile-menu{display:flex;align-items:center;justify-content:center}
-  .hero{min-height:86vh;margin-bottom:64px;padding:calc(90px + env(safe-area-inset-top)) 20px 46px}
+  .hero{margin-bottom:64px;padding:calc(90px + env(safe-area-inset-top)) 20px 24px}
   section.block{padding:0 20px var(--space-xl)}
   /* tighter padding so nothing (long words, e-mail buttons) can push past the
      narrow viewport and reintroduce a sideways scroll. */
