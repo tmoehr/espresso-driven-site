@@ -81,6 +81,22 @@ burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open'
   });
 })();
 
+// Fade the hero scroll cue out for good once the visitor has scrolled a
+// meaningful amount (~15% of the viewport). One-shot: the listener removes
+// itself so the cue stays gone until the page is reloaded. Runs regardless of
+// reduced-motion — CSS (the cueOut keyframes) eases the fade.
+(function(){
+  const cue=document.querySelector('.scroll-cue');
+  if(!cue)return;
+  function onScroll(){
+    if(window.scrollY>innerHeight*0.15){
+      cue.classList.add('is-dismissed');
+      removeEventListener('scroll',onScroll);
+    }
+  }
+  addEventListener('scroll',onScroll,{passive:true});
+})();
+
 if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
   const pxEls=[...document.querySelectorAll('[data-px]')].map(el=>{
     const r=el.getBoundingClientRect();

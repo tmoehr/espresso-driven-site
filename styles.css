@@ -84,7 +84,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .mono{font-family:var(--font-mono)}
 
 header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in srgb, var(--bg) 50%, transparent);backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));padding-top:env(safe-area-inset-top)}
-nav{max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:flex;justify-content:space-between;align-items:center}
+nav{max-width:var(--container);margin:0 auto;padding:0px var(--gutter);display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo/logo.svg') center/contain no-repeat}
 .nav-links{display:flex;align-items:center;gap:2px}
@@ -128,6 +128,14 @@ nav{max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:
    (a transform-based centre would be wiped by the fadeUp animation's transform:none). */
 .scroll-cue{align-self:center;width:max-content;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;color:var(--text-muted);transition:color .25s}
 .scroll-cue:hover{color:var(--gold)}
+/* JS adds this once the visitor has scrolled past the threshold, so the cue
+   fades out and stops competing for attention. One-shot — it stays dismissed
+   until reload. We drive the fade with its own keyframe animation rather than a
+   transition: the intro .a fadeUp is `forwards`-filled, and a transition won't
+   fire against an animation-held value — but cueOut simply replaces it and
+   animates from the current (visible) state to gone. */
+@keyframes cueOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(8px)}}
+.scroll-cue.is-dismissed{pointer-events:none;animation:cueOut .6s var(--ease) forwards}
 .scroll-cue span:first-child{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase}
 .scroll-line{position:relative;width:1px;height:36px;background:transparent;overflow:hidden}
 .scroll-line::after{content:'';position:absolute;top:0;left:0;width:1px;height:45%;background:var(--gold);animation:scrolldot 1.9s cubic-bezier(.6,0,.4,1) infinite}
@@ -142,7 +150,9 @@ nav{max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:
 .a1{animation-delay:.08s}.a2{animation-delay:.22s}.a3{animation-delay:.36s}.a4{animation-delay:.5s}.a5{animation-delay:.64s}.a6{animation-delay:.78s}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
 .reveal.vis{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.a,.reveal{opacity:1!important;transform:none!important;animation:none!important}.scroll-line::after{animation:none}}
+@media(prefers-reduced-motion:reduce){.a,.reveal{opacity:1!important;transform:none!important;animation:none!important}.scroll-line::after{animation:none}
+  /* still dismiss the cue, just instantly (the .a override above re-pins opacity:1) */
+  .scroll-cue.is-dismissed{opacity:0!important}}
 
 .wrap{max-width:var(--container);margin:0 auto;}
 /* top padding 0: the gap above each section is owned by the previous block's
