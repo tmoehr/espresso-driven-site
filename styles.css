@@ -84,11 +84,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .mono{font-family:var(--font-mono)}
 
 header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in srgb, var(--bg) 50%, transparent);backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));padding-top:env(safe-area-inset-top)}
-nav{max-width:var(--container);margin:0 auto;padding:0px var(--gutter);display:flex;justify-content:space-between;align-items:center}
+/* --nav-link-pad-x: the link's inline padding, defined once here because two
+   rules depend on it staying equal — the .nav-link padding and the .nav-links
+   negative margin that cancels it (see there). */
+nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo/logo.svg') center/contain no-repeat}
-.nav-links{display:flex;align-items:center;gap:2px}
-.nav-link{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;font-size:.72rem;letter-spacing:.04em;padding:8px 14px;transition:color .2s}
+/* Pull the cluster out by exactly one link's inline padding so the last link's
+   TEXT — not its padding box — lands on the gutter line shared by the cards and
+   footer. Tied to the same token as the padding below, so they can't desync. */
+.nav-links{display:flex;align-items:center;gap:2px;margin-right:calc(-1 * var(--nav-link-pad-x))}
+.nav-link{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;font-size:.72rem;letter-spacing:.04em;padding:8px var(--nav-link-pad-x);transition:color .2s}
 /* shared link styling: gold "/ " prefix and gold hover, header + mobile menu + footer links */
 .nav-link::before,.mobile-nav a::before{content:'/ ';color:var(--gold)}
 .nav-link:hover,.mobile-nav a:hover,.links a:hover{color:var(--gold)}
