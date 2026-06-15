@@ -61,11 +61,14 @@ html.has-webgl body::before{display:none}
    position churns the swirls. The fade to --bg at the top/bottom viewport edges is
    computed inside the fragment shader, so it moves with the canvas (a separate
    fixed overlay jitters against the live canvas during iOS toolbar transitions). */
-/* inset:0 (left/right:0) sizes the width to the visual viewport — not 100vw,
-   which includes the desktop scrollbar and would push a sideways overflow.
-   height:100vh is kept so the drawing buffer stays a constant height through
-   iOS toolbar show/hide (see resize() in index.html). */
-#bg-gl{position:fixed;inset:0;height:100vh;display:block;z-index:-2;pointer-events:none}
+/* <canvas> is a REPLACED element, so an EXPLICIT width is required: with only left/right
+   (or inset:0) and no width, it falls back to its intrinsic 2:1 ratio (default 300x150)
+   and sizes width to height*2 — leaving an --bg strip on the right once the viewport is
+   wider than 2:1 (extreme landscape). width:100% resolves against the viewport, so it
+   still excludes the desktop scrollbar (unlike 100vw, which would push a sideways
+   overflow). height:100vh keeps the drawing buffer a constant height through iOS toolbar
+   show/hide (see resize() in index.html). */
+#bg-gl{position:fixed;top:0;left:0;width:100%;height:100vh;display:block;z-index:-2;pointer-events:none}
 /* warm film grain */
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -84,7 +87,10 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 /* The gap before the first content section lives here (hero margin-bottom)
    rather than as #assets top padding, so the #assets anchor sits right on its
    content — jumping to it doesn't leave a tall empty strip above the label. */
-.hero{position:relative;max-width:1200px;margin:0 auto 96px;min-height:100svh;display:flex;flex-direction:column;padding:calc(150px + env(safe-area-inset-top)) 32px 32px}
+/* padding-top scales with the viewport height (clamp) instead of a fixed 150px, so the
+   logo's distance to the top edge is fluid like the rest of the hero. The 72px floor
+   keeps the logo clear of the fixed header on short screens; 150px caps it on tall ones. */
+.hero{position:relative;max-width:1200px;margin:0 auto 96px;min-height:100svh;display:flex;flex-direction:column;padding:calc(clamp(72px,10vh,150px) + env(safe-area-inset-top)) 32px 32px}
 /* Golden-section placement of the buttons. The leftover vertical height is dealt out
    by three flex spacers, so the gaps stay proportional at ANY viewport height:
      ::before  6.5  → above the logo (keeps the logo ~1/3 from the top)
@@ -96,10 +102,13 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .hero-gap{flex-shrink:0}
 .hero-gap--upper{flex-grow:5}
 .hero-gap--lower{flex-grow:8}
-.hero-top{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:var(--space-l)}
+/* --hero-logo-w drives BOTH the logo width and the logo→subtitle gap, so the gap
+   stays a constant 8% of the logo's width — the proportion holds as the logo scales
+   with the viewport. */
+.hero-top{--hero-logo-w:clamp(411px,58vw,669px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:calc(var(--hero-logo-w) * 0.08)}
 .hero-head,.hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
-.hero-logo{width:clamp(411px,58vw,669px);max-width:90%;height:auto;object-fit:contain;}
+.hero-logo{width:var(--hero-logo-w);max-width:90%;height:auto;object-fit:contain;}
 .hero-sub{font-size:1.08rem;font-weight:400;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-sub span{display:block}
 .hero-sub .accent{color:var(--gold);font-weight:700}
@@ -240,13 +249,20 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
 .mobile-menu.is-open .mobile-nav a:nth-child(2){transition-delay:.15s}
 .mobile-menu.is-open .mobile-nav a:nth-child(3){transition-delay:.22s}
 
-@media(max-width:860px){
-  /* No header bar on mobile — just a floating hamburger button */
+/* Collapse the header to the floating hamburger when the viewport is either narrow
+   (phones) OR short (landscape phones / flat windows): a wide-but-flat window has no
+   vertical room for the full header bar either. The content-layout rules below stay
+   width-only, since a wide window should keep its multi-column layout. */
+@media (max-width:860px), (max-height:520px){
   header{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;pointer-events:none}
   nav{padding:0}.brand{display:none}.nav-links{display:none}
   .nav-hamburger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top));right:18px;width:44px;height:44px;background:color-mix(in srgb, var(--ink) 72%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:8px;pointer-events:auto;z-index:110}
   .mobile-menu{display:flex;align-items:center;justify-content:center}
-  .hero{margin-bottom:64px;padding:calc(90px + env(safe-area-inset-top)) 20px 24px}
+}
+
+@media(max-width:860px){
+  /* same fluid idea as desktop; 72px floor clears the floating hamburger (top 16 + 44) */
+  .hero{margin-bottom:64px;padding:calc(clamp(72px,11vh,96px) + env(safe-area-inset-top)) 20px 24px}
   section.block{padding:0 20px var(--space-xl)}
   /* tighter padding so nothing (long words, e-mail buttons) can push past the
      narrow viewport and reintroduce a sideways scroll. */
@@ -261,4 +277,31 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
      instead of overflowing its button */
   .btn{max-width:100%}
   #contact-inner .btn{white-space:normal;overflow-wrap:anywhere;text-align:center}
+}
+
+/* Landscape phones / very short viewports: 100svh leaves little vertical room, so the
+   58vw-wide logo eats nearly all of it and the flex spacers collapse. Here the logo is
+   sized by HEIGHT instead (width follows the aspect ratio), so it shrinks to give the
+   subtitle, buttons and scroll-cue room to breathe. The gap stays proportional to the
+   now-smaller logo (~22% of its height ≈ the 8% of width used elsewhere), and the top
+   padding is trimmed since there's no header bar to clear. */
+@media (max-height:520px){
+  /* Top padding is trimmed to the hamburger's own 16px offset: the logo may slip
+     slightly under the hamburger top-right, which is fine — most of the centred wordmark
+     stays readable, and reclaiming that strip lets the logo grow. */
+  .hero{padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:16px}
+  /* Drop the top spacer so the logo sits right at the top instead of being pushed down,
+     and let the logo grow into the freed height — 34svh instead of 18svh — so it no
+     longer shrinks more than necessary on extreme landscape ratios. */
+  .hero::before{flex-grow:0}
+  .hero-top{--hero-logo-h:clamp(72px,34svh,170px);gap:calc(var(--hero-logo-h) * 0.22)}
+  .hero-logo{width:auto;height:var(--hero-logo-h);max-width:90%}
+}
+
+/* Extremely short viewports (landscape phones with lots of browser chrome): even the
+   shrunk logo + subtitle + buttons + scroll-cue won't fit without squashing. The action
+   buttons are only in-page jump links (#assets, #contact) that are also reachable via
+   the hamburger menu, so drop them — and their upper spacer — to free up the height. */
+@media (max-height:450px){
+  .hero-actions,.hero-gap--upper{display:none}
 }
