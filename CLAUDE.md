@@ -1,4 +1,4 @@
-# espressoDriven Site — Project Notes
+# espressodriven Site — Project Notes
 
 ## Navigation convention
 Every content section (excluding the footer) must have a corresponding nav link in the header.
