@@ -25,8 +25,11 @@ ausgeschlossen → versioniert, aber nicht öffentlich auf der Seite).
 - [ ] Optional: **Bing Webmaster Tools** einrichten (analog zur Search Console).
 
 ## Einmalig nach Go-Live (Status)
-- [ ] Google Search Console: Domain verifiziert + Sitemap eingereicht.
-- [ ] Rich Results Test bestanden.
+- [x] Google Search Console: Domain-Property `espressodriven.com` per DNS/Cloudflare
+      verifiziert; www-Startseite indexiert; URL-Präfix-Property als Bonus angelegt.
+- [x] Strukturierte Daten geprüft: Schema Markup Validator 0 Fehler. (Rich Results Test
+      meldet „keine Elemente" — erwartet: `Organization`/`WebSite` sind keine
+      Rich-Snippet-Typen. Greift erst, wenn `Product`/`SoftwareApplication` dazukommt.)
 
 ## Was bereits eingerichtet ist (2026-06-14)
 - Keyword-erweiterter Title + Meta-Description.
@@ -34,3 +37,11 @@ ausgeschlossen → versioniert, aber nicht öffentlich auf der Seite).
 - OG-/Twitter-Tags konsistent gezogen.
 - JSON-LD: Organization + WebSite.
 - robots.txt + sitemap.xml im Root (Deploy shippt sie automatisch mit).
+
+## Google Search Console eingerichtet (2026-06-15)
+- Domain-Property via Cloudflare-DNS-Integration verifiziert (deckt apex + www ab).
+- Apex → www sauber per 301; nur www ist kanonisch und indexiert.
+- Sitemap unter `https://www.espressodriven.com/sitemap.xml` eingereicht.
+- Verifizierung hängt an der Cloudflare-Integration (kein Backup-Meta-Tag — bewusst
+  verworfen als Over-Engineering für eine statische Single-Page). Wenn die
+  Cloudflare↔Google-Verknüpfung je getrennt wird, Property neu verifizieren.
