@@ -17,6 +17,15 @@
   --crema: #CC8635;
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
+  /* Layout — central page measures, the single source of truth for the page width
+     and side gutter. The header nav, hero, the .wrap card column AND the footer all
+     derive from these, so the cards and the footer share one column and one gutter.
+     The cards sit INSIDE the gutter; the footer is expressed the same way, so it
+     lines up with the card edges automatically. Change a value here once and the
+     whole page (footer included) reflows together. --gutter narrows on phones in the
+     max-width:860px media query below. */
+  --container: 1200px;
+  --gutter: 32px;
   /* Spacing scale — single source of truth for all vertical/inline rhythm.
      Vertical spacing between text levels is owned by container `gap`, never by
      the elements themselves, so abstände never stack. Steps are intentionally
@@ -75,7 +84,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .mono{font-family:var(--font-mono)}
 
 header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in srgb, var(--bg) 50%, transparent);backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));padding-top:env(safe-area-inset-top)}
-nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
+nav{max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo/logo.svg') center/contain no-repeat}
 .nav-links{display:flex;align-items:center;gap:2px}
@@ -90,7 +99,7 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 /* padding-top scales with the viewport height (clamp) instead of a fixed 150px, so the
    logo's distance to the top edge is fluid like the rest of the hero. The 72px floor
    keeps the logo clear of the fixed header on short screens; 150px caps it on tall ones. */
-.hero{position:relative;max-width:1200px;margin:0 auto 96px;min-height:100svh;display:flex;flex-direction:column;padding:calc(clamp(72px,10vh,150px) + env(safe-area-inset-top)) 32px 32px}
+.hero{position:relative;max-width:var(--container);margin:0 auto 96px;min-height:100svh;display:flex;flex-direction:column;padding:calc(clamp(72px,10vh,150px) + env(safe-area-inset-top)) var(--gutter) 32px}
 /* Golden-section placement of the buttons. The leftover vertical height is dealt out
    by three flex spacers, so the gaps stay proportional at ANY viewport height:
      ::before  6.5  → above the logo (keeps the logo ~1/3 from the top)
@@ -135,10 +144,10 @@ nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-conten
 .reveal.vis{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.a,.reveal{opacity:1!important;transform:none!important;animation:none!important}.scroll-line::after{animation:none}}
 
-.wrap{max-width:1200px;margin:0 auto;}
+.wrap{max-width:var(--container);margin:0 auto;}
 /* top padding 0: the gap above each section is owned by the previous block's
    bottom padding (or the hero's margin), so the anchor sits right on its content */
-section.block{padding:0 32px var(--space-2xl)}
+section.block{padding:0 var(--gutter) var(--space-2xl)}
 .label{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-l)}
 .label::before{content:'';width:34px;height:1px;background:var(--line)}
 .label .mono{color:var(--text-mid);letter-spacing:.1em;text-transform:lowercase}
@@ -227,8 +236,12 @@ section.block{padding:0 32px var(--space-2xl)}
 .links a{color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .2s}
 .links .sep{width:1px;height:12px;background:var(--line);margin: -6px}
 
-footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
-.foot{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;color:var(--text-muted);font-family:var(--font-mono);font-size:.72rem;flex-wrap:wrap;text-transform:lowercase}
+/* Footer rule runs full-bleed (border on the full-width <footer>); the text row aligns
+   with the cards: .foot uses the same column + gutter as .wrap/section.block, so its
+   content box equals a card's box at every width and the text flushes with the left/
+   right card edges. */
+footer{border-top:1px solid var(--line)}
+.foot{max-width:var(--container);margin:0 auto;padding:var(--space-m) var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:20px;color:var(--text-muted);font-family:var(--font-mono);font-size:.72rem;flex-wrap:wrap;text-transform:lowercase}
 
 .nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:1px solid var(--line-2);border-radius:6px;cursor:pointer;padding:8px;z-index:101}
 .nav-hamburger span{display:block;width:100%;height:1.5px;background:var(--text);transition:transform .35s var(--ease),opacity .25s}
@@ -261,9 +274,12 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
 }
 
 @media(max-width:860px){
+  /* narrow the page gutter on phones; one change cascades to the hero, the card
+     sections AND the footer, keeping them all aligned at the tighter gutter. */
+  :root{--gutter:20px}
   /* same fluid idea as desktop; 72px floor clears the floating hamburger (top 16 + 44) */
-  .hero{margin-bottom:64px;padding:calc(clamp(72px,11vh,96px) + env(safe-area-inset-top)) 20px 24px}
-  section.block{padding:0 20px var(--space-xl)}
+  .hero{margin-bottom:64px;padding:calc(clamp(72px,11vh,96px) + env(safe-area-inset-top)) var(--gutter) 24px}
+  section.block{padding:0 var(--gutter) var(--space-xl)}
   /* tighter padding so nothing (long words, e-mail buttons) can push past the
      narrow viewport and reintroduce a sideways scroll. */
   .sc-body{grid-template-columns:1fr}.sc-main{border-right:none;border-bottom:1px solid var(--line)}
