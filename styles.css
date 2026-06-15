@@ -74,7 +74,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in srgb, var(--bg) 50%, transparent);backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));padding-top:env(safe-area-inset-top)}
 nav{max-width:1200px;margin:0 auto;padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
-.logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo.svg') center/contain no-repeat}
+.logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo/logo.svg') center/contain no-repeat}
 .nav-links{display:flex;align-items:center;gap:2px}
 .nav-link{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;font-size:.72rem;letter-spacing:.04em;padding:8px 14px;transition:color .2s}
 /* shared link styling: gold "/ " prefix and gold hover, header + mobile menu + footer links */
