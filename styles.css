@@ -156,7 +156,7 @@ section.block{padding:0 32px var(--space-2xl)}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:var(--text-muted);margin-bottom:14px;text-transform:uppercase}
-.stage-cap h2{font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:4px}
+.stage-cap h3{font-family:inherit;font-weight:700;text-transform:none;color:var(--text);font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:4px}
 .stage-cap p{color:var(--text);font-size:1.05rem;max-width:30ch;line-height:1.5}
 .status{position:absolute;top:14px;right:16px;z-index:2;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
 .status .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 color-mix(in srgb, var(--gold) 50%, transparent);animation:pulse 2s infinite}
@@ -194,6 +194,7 @@ section.block{padding:0 32px var(--space-2xl)}
 /* button shrinks to its content instead of stretching to the column width */
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:38ch}
+#contact-inner h3{font-family:inherit;font-weight:700;text-transform:none;color:var(--text);font-size:2.4rem;letter-spacing:-.025em;line-height:1}
 .imprint{font-family:var(--font-mono);font-size:.82rem;}
 .imprint-line{color:var(--text-mid);line-height:1.85;margin-bottom:2px}
 .imprint-row{display:flex;align-items:center;gap:var(--space-m);flex-wrap:wrap}
@@ -238,7 +239,7 @@ footer{border-top:1px solid var(--line);padding:var(--space-m) 32px}
      narrow viewport and reintroduce a sideways scroll. */
   .sc-body{grid-template-columns:1fr}.sc-main{border-right:none;border-bottom:1px solid var(--line)}
   .sc-main,.sc-side{padding:var(--space-m)}
-  .stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h2{font-size:2.4rem}
+  .stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h3{font-size:2.4rem}
   .stage .bars{bottom:18px;right:18px}.stage .bars button::before{top:-16px;bottom:-16px}
   .cols{grid-template-columns:1fr}.cols>div{padding:var(--space-m)}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
