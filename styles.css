@@ -194,6 +194,10 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .stage .bars button.active{width:22px;background:color-mix(in srgb, var(--gold) 28%, transparent)}
 .stage .bars .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--gold)}
 .stage .bars button.active .fill{animation:fillbar 5s linear forwards}
+/* Hold autoplay until the stage scrolls into view (JS adds .in-view), so
+   slide 1's timer doesn't elapse before the visitor reaches the section.
+   Pausing at frame 0 holds the fill at its `from` (the 8px dot). */
+.stage:not(.in-view) .bars button.active .fill{animation-play-state:paused}
 /* only on real hover devices — on touch, :hover sticks after a swipe and would
    freeze the fill, stalling autoplay */
 @media (hover:hover){.stage:hover .bars button.active .fill{animation-play-state:paused}}

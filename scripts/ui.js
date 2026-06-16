@@ -65,6 +65,16 @@ burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open'
   let x0=null;
   stage.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
   stage.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){dx<0?next():prev();}x0=null;},{passive:true});
+  // Don't start the autoplay timer until the stage has been scrolled into view —
+  // otherwise slide 1's 5s fill elapses (and advances) before the visitor gets
+  // here. CSS pauses the fill while .in-view is absent; this arms it on first
+  // sight. One-shot (disconnect), mirroring the scroll-cue's arm-once pattern.
+  if('IntersectionObserver' in window){
+    const vio=new IntersectionObserver(es=>{
+      if(es.some(e=>e.isIntersecting)){stage.classList.add('in-view');vio.disconnect();}
+    },{threshold:.35});
+    vio.observe(stage);
+  }else stage.classList.add('in-view');
   go(0);
 })();
 
