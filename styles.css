@@ -1,5 +1,5 @@
 :root{
-  --bg: #1a110f; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
+  --bg: #1a1514; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
   --gold:#f0a030; --gold-dim:color-mix(in srgb, var(--gold) 12%, transparent); --gold-line:color-mix(in srgb, var(--gold) 32%, transparent);
   --ink:#0c0907; /* base for all dark translucent scrims (menu, badges, media shade) */
   --text:#efe7dd; --text-mid:#bcb0a3; --text-muted:#867a6e;
@@ -10,11 +10,11 @@
   --bg-fade: var(--bg); /* colour the background fades into at the top/bottom edges */
   /* dark espresso palette — single source of truth, also fed into the background
      shader as uniforms (see the colour-probe block in index.html) */
-  --espresso: #18160e;
-  --dark-brown: #34250c;
-  --mid-brown: #592f16;
-  --caramel: #7A481F;
-  --crema: #CC8635;
+  --espresso: #171611;
+  --dark-brown: #332e26;
+  --mid-brown: #594b43;
+  --caramel: #7a6a5c;
+  --crema: #ccb499;
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
@@ -123,7 +123,7 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px 
 .hero-top{--hero-logo-w:clamp(411px,58vw,669px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:calc(var(--hero-logo-w) * 0.08)}
 .hero-head,.hero-foot{display:flex;flex-direction:column;align-items:center;text-align:center}
 /* width-based so it never overflows; max-width keeps >=10% of logo width as margin each side */
-.hero-logo{width:var(--hero-logo-w);max-width:90%;height:auto;object-fit:contain;}
+.hero-logo{width:var(--hero-logo-w);max-width:90%;height:auto;object-fit:contain;filter: saturate(.8)}
 .hero-sub{font-size:1.08rem;font-weight:400;color:var(--text);max-width:52ch;line-height:1.7}
 .hero-sub span{display:block}
 .hero-sub .accent{color:var(--gold);font-weight:700}
