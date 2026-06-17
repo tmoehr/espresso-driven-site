@@ -100,7 +100,7 @@
   :root:not([data-theme]){
     --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
     --gold:#bf7000; --on-gold:#fdf6ea;
-    --panel:rgb(255 255 255 / 0.42); --line-2:#e2d3bf;
+    --panel: rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
     --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
     --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
     --bg-poly:#fffaf2;
@@ -111,7 +111,7 @@
 :root[data-theme="light"]{
   --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
   --gold:#bf7000; --on-gold:#fdf6ea;
-  --panel:rgb(255 255 255 / 0.42); --line-2:#e2d3bf;
+  --panel:rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
   --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
   --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
   --bg-poly:#fffaf2;
