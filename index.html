@@ -216,104 +216,69 @@
 
   <script src="scripts/ui.js"></script>
 
-  <!-- Live espresso-swirl background: a WebGL fragment shader rendered behind all
-       content (#bg-gl). Replaces the former static images/espresso_bg.webp. Scroll
-       position feeds the shader so the swirls churn as you move down the page. -->
+  <!-- Live low-poly relief background: a triangulated surface (#bg-gl) lit by a
+       single directional light that slowly wanders — faster while scrolling. The
+       mesh (irregular triangles, per-face normals, per-vertex ambient occlusion)
+       is generated on the CPU in scripts/background.js; the shaders below only
+       light it. Replaces the former static images/espresso_bg.webp fallback. -->
   <script id="bg-vert" type="x-shader/x-vertex">
-attribute vec2 a_pos;
-void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
+attribute vec2  a_pos;     // vertex position, already in clip space (-1..1)
+attribute vec3  a_normal;  // FLAT face normal — identical for a triangle's 3 vertices,
+                           // so it interpolates to a constant -> crisp facets
+attribute float a_ao;      // per-vertex ambient occlusion — DIFFERS per vertex,
+                           // so the GPU interpolates it into a soft gradient INSIDE
+                           // each polygon (the "shadow" gradients seen in the look)
+varying vec3  v_normal;
+varying float v_ao;
+void main(){
+  v_normal = a_normal;
+  v_ao = a_ao;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}
   </script>
 
   <script id="bg-frag" type="x-shader/x-fragment">
-precision highp float;
+precision mediump float;
 
-uniform vec2  u_resolution;
-uniform float u_time;
-uniform float u_scroll;
-uniform float u_swirl;
-uniform vec3  u_fadeColor;   // edge-fade colour, fed from CSS (--bg-fade)
+uniform vec2 u_resolution;
+uniform vec3 u_lightDir;    // single light direction (unit), wandered from JS
+uniform vec3 u_base;        // base tone, fed from CSS (--bg-poly) — single hue,
+                            // brightness alone carries the relief
+uniform vec3 u_fadeColor;   // edge-fade colour, fed from CSS (--bg-fade)
 
-// dark espresso palette, fed from CSS custom properties (see :root in styles.css)
-uniform vec3  u_espresso;    // --espresso : deep, almost black
-uniform vec3  u_darkBrown;   // --dark-brown
-uniform vec3  u_midBrown;    // --mid-brown
-uniform vec3  u_caramel;     // --caramel  : used sparingly
-uniform vec3  u_crema;       // --crema    : rare warm highlight
+varying vec3  v_normal;
+varying float v_ao;
 
-// --- value noise (Inigo Quilez style) ---
-float hash(vec2 p){
-  p = fract(p * vec2(123.34, 345.45));
-  p += dot(p, p + 34.345);
-  return fract(p.x * p.y);
-}
-float noise(in vec2 x){
-  vec2 i = floor(x);
-  vec2 f = fract(x);
-  float a = hash(i);
-  float b = hash(i + vec2(1.0, 0.0));
-  float c = hash(i + vec2(0.0, 1.0));
-  float d = hash(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-}
-float fbm(vec2 p){
-  float v = 0.0;
-  float a = 0.5;
-  mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-  for(int i = 0; i < 6; i++){
-    v += a * noise(p);
-    p = m * p;
-    a *= 0.5;
-  }
-  return v;
-}
+// Tone mapping of the lighting — named so the look is tunable without hunting for
+// numbers. Flat facet term drives the dynamic part; AO darkens the static dips.
+const float SHADOW_LEVEL    = 0.42;  // brightness of a facet facing away from light
+const float HIGHLIGHT_LEVEL = 1.18;  // brightness of a facet facing the light
+const float AO_FLOOR        = 0.55;  // strongest darkening AO can apply
+const float VIGNETTE        = 0.45;  // edge falloff strength
+const float FADE_SPAN       = 0.16;  // how far the top/bottom edge fade reaches
 
 void main(){
+  vec3 n = normalize(v_normal);
+
+  // --- the one light: crisp per-facet Lambert term (dynamic, follows the light) ---
+  float facet = max(dot(n, u_lightDir), 0.0);
+  float light = mix(SHADOW_LEVEL, HIGHLIGHT_LEVEL, facet);
+
+  // --- ambient occlusion: soft gradient inside polygons (static, baked geometry) ---
+  float ao = mix(AO_FLOOR, 1.0, clamp(v_ao, 0.0, 1.0));
+
+  vec3 col = u_base * light * ao;
+
+  // gentle vignette so the field sits back from the page edges
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 p = uv;
-  p.x *= u_resolution.x / u_resolution.y;   // keep swirls round
-  p *= 3.0;                                  // a few vortices across the screen
-
-  float t  = u_time;
-  float sc = u_scroll;
-  float w  = u_swirl;
-
-  // a slow common drift so the whole surface eases in one direction,
-  // like liquid settling rather than shimmering in place
-  vec2 drift = vec2(sin(t * 0.06) * 0.10, t * 0.025);
-
-  // domain warping: feed noise through itself twice -> marbled vortices.
-  // small, de-synced time coefficients keep the motion subtle and natural
-  vec2 q;
-  q.x = fbm(p + drift + vec2(0.0, 1.0) + 0.035 * t);
-  q.y = fbm(p + drift + vec2(5.2, 1.3) - 0.028 * t);
-
-  vec2 r;
-  r.x = fbm(p + w * q + vec2(1.7, 9.2) + 0.045 * t + sc);
-  r.y = fbm(p + w * q + vec2(8.3, 2.8) - 0.038 * t + sc * 0.75);
-
-  float f = fbm(p + w * r);
-
-  // --- dark espresso palette: near-black crema with warm reddish ridges ---
-  // Colours come from CSS custom properties (:root in styles.css), uploaded as
-  // uniforms so the page and the shader share one source of truth.
-  vec3 col = mix(u_espresso, u_midBrown, clamp(f * f * 2.6, 0.0, 1.0));
-  col = mix(col, u_darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
-  col = mix(col, u_caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
-  col = mix(col, u_crema,     clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen (cube ≡ pow(max(r.y,0),3): fbm never goes negative)
-
-  // keep it dark: gentle sheen, no global lift, deeper vignette
-  float fc = smoothstep(0.15, 0.85, f);   // S-Kurve: Tiefen tiefer, Höhen höher
-  col *= 0.25 + 0.2 * fc;
   vec2 vig = uv - 0.5;
-  col *= 1.0 - 0.55 * dot(vig, vig);
+  col *= 1.0 - VIGNETTE * dot(vig, vig);
 
-  // fade to the page background colour (CSS --bg-fade, passed in as u_fadeColor)
-  // at the top and bottom viewport edges. Baked into the shader so it can never
-  // shift relative to the canvas — a separate fixed overlay jitters against the
-  // live canvas during iOS Safari toolbar transitions.
+  // fade to the page background colour at the top/bottom viewport edges. Baked in
+  // here so it moves with the canvas (a separate fixed overlay jitters against the
+  // live canvas during iOS Safari toolbar transitions).
   float edge = min(uv.y, 1.0 - uv.y);          // 0 at top/bottom edge
-  col = mix(u_fadeColor, col, smoothstep(0.0, 0.18, edge));
+  col = mix(u_fadeColor, col, smoothstep(0.0, FADE_SPAN, edge));
 
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }

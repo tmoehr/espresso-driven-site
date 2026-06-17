@@ -1,20 +1,19 @@
 :root{
-  --bg: #1a110f; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
+  --bg: #1a120f; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
   --gold:#f0a030; --gold-dim:color-mix(in srgb, var(--gold) 12%, transparent); --gold-line:color-mix(in srgb, var(--gold) 32%, transparent);
   --ink:#0c0907; /* base for all dark translucent scrims (menu, badges, media shade) */
   --text:#efe7dd; --text-mid:#bcb0a3; --text-muted:#867a6e;
   --font-mono:'JetBrains Mono',monospace;
   --ease:cubic-bezier(.22,1,.36,1);
   --header-blur: 16px;
-  --panel-blur: 8px;
+  --panel-blur: 6px;
   --bg-fade: var(--bg); /* colour the background fades into at the top/bottom edges */
-  /* dark espresso palette — single source of truth, also fed into the background
-     shader as uniforms (see the colour-probe block in index.html) */
-  --espresso: #171611;
-  --dark-brown: #33221e;
-  --mid-brown: #59483e;
-  --caramel: #7a6a5c;
-  --crema: #ccb499;
+  /* Base tone of the low-poly relief background. A single hue — brightness alone
+     (facet lighting + ambient occlusion) carries the 3D look — so this one value
+     re-tints the whole field. Greyscale for now; swap in any colour here.
+     Read into the WebGL shader as the u_base uniform (see the colour-probe block
+     in scripts/background.js). */
+  --bg-poly: #332722;
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
@@ -65,9 +64,10 @@ body::before{content:'';position:fixed;inset:0;height:100vh;z-index:-3;pointer-e
    everything, so the fallback image is not needed — and removing it means the iOS
    toolbar-transition/overscroll strip reveals only --bg instead of the fallback. */
 html.has-webgl body::before{display:none}
-/* full-page background: a live WebGL espresso-swirl shader (#bg-gl, driven in
-   index.html), fixed behind all content, over the fallback image above. Scroll
-   position churns the swirls. The fade to --bg at the top/bottom viewport edges is
+/* full-page background: a live WebGL low-poly relief (#bg-gl, mesh + shaders in
+   scripts/background.js / index.html), fixed behind all content, over the fallback
+   image above. A single directional light slowly wanders across the facets —
+   faster while scrolling. The fade to --bg at the top/bottom viewport edges is
    computed inside the fragment shader, so it moves with the canvas (a separate
    fixed overlay jitters against the live canvas during iOS toolbar transitions). */
 /* <canvas> is a REPLACED element, so an EXPLICIT width is required: with only left/right
