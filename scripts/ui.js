@@ -11,19 +11,23 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
   window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'});
 }));
 
+const rootEl=document.documentElement;
 const burger=document.querySelector('.nav-hamburger'),mob=document.querySelector('.mobile-menu'),themeMeta=document.querySelector('meta[name="theme-color"]');
-// iOS Safari tints the status/address bar with theme-color; switch it to the
-// menu's dark tone while open so those bars match the overlay (web content
-// can't paint under them in normal Safari).
-const themeDefault='#340f02',themeMenu='#160d08';
+const cssVar=name=>getComputedStyle(rootEl).getPropertyValue(name).trim();
+// iOS Safari tints the status/address bars with theme-color, and overrides it
+// with the <html> background colour. Both follow the active theme (read from the
+// --theme-color tokens); while the mobile menu is open they switch to the menu
+// scrim tone so those bars match the overlay. Re-run on theme switch (below) too.
+function syncBars(menuOpen){
+  const c=cssVar(menuOpen?'--theme-color-menu':'--theme-color');
+  if(themeMeta)themeMeta.setAttribute('content',c);
+  rootEl.style.background=menuOpen?c:'';
+}
 let lockedScrollY=0;
 function setMenu(open){
   burger.classList.toggle('is-open',open);burger.setAttribute('aria-expanded',open);
   mob.classList.toggle('is-open',open);mob.setAttribute('aria-hidden',!open);
-  if(themeMeta)themeMeta.setAttribute('content',open?themeMenu:themeDefault);
-  // iOS Safari tints the status/address bars from the <html> background color
-  // (it overrides theme-color), so darken it to match the overlay while open.
-  document.documentElement.style.background=open?themeMenu:'';
+  syncBars(open);
   const b=document.body;
   if(open){
     // iOS-safe scroll lock: pin the body instead of setting overflow:hidden on
@@ -37,6 +41,43 @@ function setMenu(open){
   }
 }
 burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
+
+// Theme switch: cycles Auto -> Light -> Dark on each click. 'Auto' (no
+// data-theme attribute) follows prefers-color-scheme; Light/Dark force the
+// theme and are persisted in localStorage (re-applied pre-paint by the inline
+// script in index.html). All .theme-toggle buttons (header + mobile menu) share
+// one handler and stay in sync. On change we keep the theme-color bars and the
+// WebGL relief palette aligned with the new theme.
+(function(){
+  const STORE_KEY='theme';
+  const MODES=['auto','light','dark'];
+  const LABELS={auto:'Theme: folgt System',light:'Theme: hell',dark:'Theme: dunkel'};
+  const btns=[...document.querySelectorAll('.theme-toggle')];
+  if(!btns.length)return;
+  const systemDark=matchMedia('(prefers-color-scheme: dark)');
+  const current=()=>rootEl.getAttribute('data-theme')||'auto';
+  function apply(mode){
+    if(mode==='auto')rootEl.removeAttribute('data-theme');
+    else rootEl.setAttribute('data-theme',mode);
+    try{mode==='auto'?localStorage.removeItem(STORE_KEY):localStorage.setItem(STORE_KEY,mode);}catch(e){}
+    btns.forEach(b=>{b.dataset.mode=mode;b.setAttribute('aria-label',LABELS[mode]);b.title=LABELS[mode];});
+    notifyThemeChanged();
+  }
+  function notifyThemeChanged(){
+    syncBars(mob.classList.contains('is-open'));
+    window.dispatchEvent(new CustomEvent('themechange'));
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>apply(MODES[(MODES.indexOf(current())+1)%MODES.length])));
+  // Sync icon/labels with whatever the pre-paint script applied, and prime the
+  // theme-color bars + relief shader for the initial theme.
+  apply(current());
+  // While on 'auto', reflect live OS theme changes in the bars + shader. iOS Safari
+  // < 14 has no MediaQueryList.addEventListener (only the deprecated addListener) —
+  // calling the missing method would throw, so feature-detect both.
+  const onSystemChange=()=>{if(current()==='auto')notifyThemeChanged();};
+  if(systemDark.addEventListener)systemDark.addEventListener('change',onSystemChange);
+  else if(systemDark.addListener)systemDark.addListener(onSystemChange);
+})();
 
 // Asset showcase carousel: cross-fade slides, navigable via the segment bars,
 // arrow keys and swipe. Autoplay rides the active bar's CSS fill animation —

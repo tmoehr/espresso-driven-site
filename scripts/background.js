@@ -262,15 +262,22 @@
   gl.enableVertexAttribArray(aNor); gl.vertexAttribPointer(aNor, 3, gl.FLOAT, false, STRIDE, 8);
   gl.enableVertexAttribArray(aAo);  gl.vertexAttribPointer(aAo,  1, gl.FLOAT, false, STRIDE, 20);
 
-  const uRes      = gl.getUniformLocation(prog, 'u_resolution');
-  const uLightDir = gl.getUniformLocation(prog, 'u_lightDir');
-  const uBase     = gl.getUniformLocation(prog, 'u_base');
-  const uFade     = gl.getUniformLocation(prog, 'u_fadeColor');
+  const uRes            = gl.getUniformLocation(prog, 'u_resolution');
+  const uLightDir       = gl.getUniformLocation(prog, 'u_lightDir');
+  const uBase           = gl.getUniformLocation(prog, 'u_base');
+  const uFade           = gl.getUniformLocation(prog, 'u_fadeColor');
+  const uShadowLevel    = gl.getUniformLocation(prog, 'u_shadowLevel');
+  const uHighlightLevel = gl.getUniformLocation(prog, 'u_highlightLevel');
+  const uAoFloor        = gl.getUniformLocation(prog, 'u_aoFloor');
+  const uVignette       = gl.getUniformLocation(prog, 'u_vignette');
 
-  // Base tone + edge-fade colour stay controllable from CSS: resolve each custom
-  // property (which may reference other vars) to a normalised rgb triple via a
-  // throwaway element. Set once — they don't change at runtime.
-  (function(){
+  // Colours + tone-mapping stay controllable from CSS, and the SAME tokens flip
+  // per theme (dark default + light override block), so re-reading them is also how
+  // a theme switch is applied. Colours go through a throwaway element so var()
+  // resolves to the active theme's value; the scalars are plain custom properties
+  // read off :root. The mesh is theme-independent, so a switch never rebuilds it.
+  const rootEl = document.documentElement;
+  function applyTheme(){
     const probe = document.createElement('div');
     probe.style.display = 'none';
     document.body.appendChild(probe);
@@ -282,7 +289,16 @@
     gl.uniform3fv(uBase, rgb('--bg-poly'));
     gl.uniform3fv(uFade, rgb('--bg-fade'));
     probe.remove();
-  })();
+    const num = (name, fallback) => {
+      const v = parseFloat(getComputedStyle(rootEl).getPropertyValue(name));
+      return Number.isFinite(v) ? v : fallback;
+    };
+    gl.uniform1f(uShadowLevel,    num('--bg-shadow-level',    0.42));
+    gl.uniform1f(uHighlightLevel, num('--bg-highlight-level', 1.18));
+    gl.uniform1f(uAoFloor,        num('--bg-ao-floor',        0.55));
+    gl.uniform1f(uVignette,       num('--bg-vignette',        0.45));
+  }
+  applyTheme();
 
   // DPR capped at 2: the facets have hard edges, so some device-pixel density
   // helps crispness, but the fragment shader is a single dot product — cheap
@@ -314,6 +330,12 @@
     gl.uniform3f(uLightDir, x * inv, y * inv, z * inv);
   }
   function draw(){ gl.drawArrays(gl.TRIANGLES, 0, vertexCount); }
+
+  // Theme switch (or live OS change on 'auto'): re-read the palette/tone uniforms
+  // and repaint. Cheap — no mesh rebuild. The draw() covers the reduced-motion
+  // case (no loop running); in the animated case the next frame would repaint
+  // anyway, so the extra draw is harmless.
+  window.addEventListener('themechange', () => { applyTheme(); draw(); });
 
   if(reduceMotion){
     setLight(0);                                // single still frame at the base angle
