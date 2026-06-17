@@ -163,9 +163,14 @@
 
   // ---------------------------------------------------------------------------
   // Build the GPU mesh for the current canvas size and upload it.
-  // Interleaved layout per vertex: [posX, posY, nX, nY, nZ, ao] (6 floats).
+  // Interleaved layout per vertex: [posX, posY, nX, nY, nZ, ao, baryX, baryY] (8 floats).
+  // baryX/baryY are two of the corner's barycentric coords (the third is implied as
+  // 1-x-y); the shader uses them to find each fragment's distance to the nearest
+  // polygon edge for the single-pass accent edge-glint.
   // ---------------------------------------------------------------------------
-  const FLOATS_PER_VERT = 6;
+  const FLOATS_PER_VERT = 8;
+  // The three triangle corners, in vertex order, get these barycentric coords.
+  const BARY = [[1, 0], [0, 1], [0, 0]];
   const SEED = 1234.5;                       // fixed height pattern; point layout is random per load
   let vertexCount = 0;
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
@@ -225,10 +230,12 @@
       if(nz < 0){ nx = -nx; ny = -ny; nz = -nz; }      // face the viewer (+z)
       const inv = 1 / (Math.hypot(nx, ny, nz) || 1);
       nx *= inv; ny *= inv; nz *= inv;
-      for(const i of t){                                // same normal on all 3 -> flat facet
-        data[o++] = ndcX(i); data[o++] = ndcY(i);
-        data[o++] = nx;      data[o++] = ny;  data[o++] = nz;
+      for(let c = 0; c < 3; c++){                       // same normal on all 3 -> flat facet
+        const i = t[c];
+        data[o++] = ndcX(i);   data[o++] = ndcY(i);
+        data[o++] = nx;        data[o++] = ny;  data[o++] = nz;
         data[o++] = ao[i];
+        data[o++] = BARY[c][0]; data[o++] = BARY[c][1]; // distinct per corner -> edge distance
       }
     }
     vertexCount = tris.length * 3;
@@ -258,9 +265,11 @@
   const aPos = gl.getAttribLocation(prog, 'a_pos');
   const aNor = gl.getAttribLocation(prog, 'a_normal');
   const aAo  = gl.getAttribLocation(prog, 'a_ao');
-  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, STRIDE, 0);
-  gl.enableVertexAttribArray(aNor); gl.vertexAttribPointer(aNor, 3, gl.FLOAT, false, STRIDE, 8);
-  gl.enableVertexAttribArray(aAo);  gl.vertexAttribPointer(aAo,  1, gl.FLOAT, false, STRIDE, 20);
+  const aBary = gl.getAttribLocation(prog, 'a_bary');
+  gl.enableVertexAttribArray(aPos);  gl.vertexAttribPointer(aPos,  2, gl.FLOAT, false, STRIDE, 0);
+  gl.enableVertexAttribArray(aNor);  gl.vertexAttribPointer(aNor,  3, gl.FLOAT, false, STRIDE, 8);
+  gl.enableVertexAttribArray(aAo);   gl.vertexAttribPointer(aAo,   1, gl.FLOAT, false, STRIDE, 20);
+  gl.enableVertexAttribArray(aBary); gl.vertexAttribPointer(aBary, 2, gl.FLOAT, false, STRIDE, 24);
 
   const uRes            = gl.getUniformLocation(prog, 'u_resolution');
   const uLightDir       = gl.getUniformLocation(prog, 'u_lightDir');
@@ -270,6 +279,8 @@
   const uHighlightLevel = gl.getUniformLocation(prog, 'u_highlightLevel');
   const uAoFloor        = gl.getUniformLocation(prog, 'u_aoFloor');
   const uVignette       = gl.getUniformLocation(prog, 'u_vignette');
+  const uGlint          = gl.getUniformLocation(prog, 'u_glint');
+  const uGlintStrength  = gl.getUniformLocation(prog, 'u_glintStrength');
 
   // Colours + tone-mapping stay controllable from CSS, and the SAME tokens flip
   // per theme (dark default + light override block), so re-reading them is also how
@@ -288,6 +299,7 @@
     };
     gl.uniform3fv(uBase, rgb('--bg-poly'));
     gl.uniform3fv(uFade, rgb('--bg-fade'));
+    gl.uniform3fv(uGlint, rgb('--bg-glint'));
     probe.remove();
     const num = (name, fallback) => {
       const v = parseFloat(getComputedStyle(rootEl).getPropertyValue(name));
@@ -297,6 +309,7 @@
     gl.uniform1f(uHighlightLevel, num('--bg-highlight-level', 1.18));
     gl.uniform1f(uAoFloor,        num('--bg-ao-floor',        0.55));
     gl.uniform1f(uVignette,       num('--bg-vignette',        0.45));
+    gl.uniform1f(uGlintStrength,  num('--bg-glint-strength',  0.5));
   }
   applyTheme();
 

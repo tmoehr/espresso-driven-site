@@ -256,11 +256,16 @@ attribute vec3  a_normal;  // FLAT face normal — identical for a triangle's 3 
 attribute float a_ao;      // per-vertex ambient occlusion — DIFFERS per vertex,
                            // so the GPU interpolates it into a soft gradient INSIDE
                            // each polygon (the "shadow" gradients seen in the look)
+attribute vec2  a_bary;    // two of the triangle's barycentric coords (corner = 1,0,0
+                           // / 0,1,0 / 0,0,1). Interpolated, the smallest of the three
+                           // is the distance to the nearest edge -> single-pass wireframe
 varying vec3  v_normal;
 varying float v_ao;
+varying vec2  v_bary;
 void main(){
   v_normal = a_normal;
   v_ao = a_ao;
+  v_bary = a_bary;
   gl_Position = vec4(a_pos, 0.0, 1.0);
 }
   </script>
@@ -281,11 +286,19 @@ uniform float u_highlightLevel; // --bg-highlight-level : facet brightness facin
 uniform float u_aoFloor;        // --bg-ao-floor : strongest darkening AO can apply
 uniform float u_vignette;       // --bg-vignette : edge falloff strength
 uniform vec3  u_fadeColor;      // --bg-fade : edge-fade colour at the viewport edges
+uniform vec3  u_glint;          // --bg-glint : accent colour grazing edges flash in
+uniform float u_glintStrength;  // --bg-glint-strength : 0 = off
 
 varying vec3  v_normal;
 varying float v_ao;
+varying vec2  v_bary;
 
 const float FADE_SPAN = 0.16;  // how far the top/bottom edge fade reaches (geometry, not theme)
+
+// Edge-glint tuning (geometry/look, not theme — themes scale it via u_glintStrength).
+const float GLINT_EDGE_WIDTH   = 0.01;//0.09; // barycentric line half-width; polygons are near-uniform in size, so this reads as a roughly constant on-screen thickness without needing pixel derivatives
+const float GLINT_LIGHT_FOCUS  = 5.0;  // higher -> only facets near-perfectly aligned with the light glint, so fewer edges fire at once (pow(facet,K): K=12 was effectively invisible)
+const float GLINT_RIDGE_FOCUS  = 0.05;  // gentle bias toward tilted ridge facets; kept <1 so the soft relief facets aren't crushed to black (the light-focus term already quiets the big flat areas)
 
 void main(){
   vec3 n = normalize(v_normal);
@@ -298,6 +311,18 @@ void main(){
   float ao = mix(u_aoFloor, 1.0, clamp(v_ao, 0.0, 1.0));
 
   vec3 col = u_base * light * ao;
+
+  // --- accent edge-glint: tint fragments near a polygon edge gold, but only on
+  // facets the wandering light grazes (LIGHT_FOCUS) and that actually tilt up into
+  // a ridge (RIDGE_FOCUS). Both gates keep it to a few edges that migrate as the
+  // light moves. Composited before the vignette/fade so it dims toward the edges too.
+  float edgeDist = min(min(v_bary.x, v_bary.y), 1.0 - v_bary.x - v_bary.y);
+  float edgeMask = 1.0 - smoothstep(0.0, GLINT_EDGE_WIDTH, edgeDist);
+  // max(...,0.0) guards the base: on mediump (iOS) normalize() can nudge n.z just
+  // over 1.0, and pow() of a negative base is NaN -> black fragments across the big
+  // flat facets. Clamping keeps it 0 there, which is what we want anyway.
+  float glint = pow(facet, GLINT_LIGHT_FOCUS) * pow(max(1.0 - n.z, 0.0), GLINT_RIDGE_FOCUS);
+  col = mix(col, u_glint, clamp(edgeMask * glint * u_glintStrength, 0.0, 1.0));
 
   // gentle vignette so the field sits back from the page edges
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;

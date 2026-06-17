@@ -57,6 +57,12 @@
   --bg-highlight-level: 1.18; /* facet brightness facing the light */
   --bg-ao-floor:        0.55; /* strongest darkening ambient occlusion applies */
   --bg-vignette:        0.45; /* edge falloff strength */
+  /* Accent edge-glint: a few polygon edges flash in the accent colour where their
+     facet grazes the wandering light. As the light moves, different edges catch it.
+     Colour follows --gold (re-resolves per theme); strength is dialled down on the
+     pale light field below so it stays a hint, never a distraction. */
+  --bg-glint:           var(--gold);
+  --bg-glint-strength:  3.0; /* 0 = off; how strongly lit edges pick up the accent */
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
@@ -99,6 +105,7 @@
     --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
     --bg-poly:#fffaf2;
     --bg-shadow-level:0.92; --bg-highlight-level:1.06; --bg-ao-floor:0.80; --bg-vignette:0.12;
+    --bg-glint-strength:5;
   }
 }
 :root[data-theme="light"]{
@@ -109,6 +116,7 @@
   --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
   --bg-poly:#fffaf2;
   --bg-shadow-level:0.92; --bg-highlight-level:1.06; --bg-ao-floor:0.80; --bg-vignette:0.12;
+  --bg-glint-strength:5;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* overflow-x:hidden on the ROOT element is what actually stops the page from
