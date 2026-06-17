@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "images/og-source.jpeg"   # original crema wordmark photo
+SRC = ROOT / "images/og-source.jpg"   # original crema wordmark photo
 OUT = ROOT / "images/og.jpg"
 
 TARGET_W, TARGET_H = 1200, 630
