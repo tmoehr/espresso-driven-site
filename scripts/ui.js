@@ -123,12 +123,32 @@ burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open'
 })();
 
 // "Notify me at launch": prefill a mailto so the visitor only has to hit send.
+// The native type="email" check is intentionally lax (it accepts dot-less domains
+// such as "a@b"), so we layer a stricter rule on top via the Constraint Validation
+// API: setCustomValidity marks the field, reportValidity surfaces the message in
+// the browser's own bubble, and we only fire the mailto / show the confirmation
+// once the address actually passes.
 (function(){
   const nf=document.getElementById('notify-form');
   if(!nf)return;
+  const field=nf.email;
+  // Pragmatic single-line address: a non-space local part, "@", then a dotted
+  // domain with a 2+ char TLD. Deliberately stricter than the HTML5 default, but
+  // not a full RFC 5322 parser — that only buys edge cases real users never type.
+  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const INVALID_MSG='Please enter a valid email address (e.g. name@example.com).';
+  const validate=()=>{
+    const email=field.value.trim();
+    field.setCustomValidity(EMAIL_RE.test(email)?'':INVALID_MSG);
+    return email;
+  };
+  // Re-validate while typing so a stale error bubble clears as soon as the
+  // address becomes valid.
+  field.addEventListener('input',validate);
   nf.addEventListener('submit',e=>{
     e.preventDefault();
-    const email=nf.email.value.trim();
+    const email=validate();
+    if(!nf.reportValidity())return;
     const body='Please notify me when HelioPath launches.%0D%0A%0D%0AMy email: '+encodeURIComponent(email);
     window.location.href='mailto:hello@espressodriven.com?subject='+encodeURIComponent('Notify me: HelioPath')+'&body='+body;
     document.getElementById('notify-ok').classList.add('show');
