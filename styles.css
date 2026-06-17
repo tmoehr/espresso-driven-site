@@ -1,5 +1,5 @@
 :root{
-  --bg: #1a1514; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
+  --bg: #1a110f; --panel: rgb(0 0 0 / 0.16); --line: color-mix(in srgb, var(--gold) 25%, transparent); --line-2:#352a22;
   --gold:#f0a030; --gold-dim:color-mix(in srgb, var(--gold) 12%, transparent); --gold-line:color-mix(in srgb, var(--gold) 32%, transparent);
   --ink:#0c0907; /* base for all dark translucent scrims (menu, badges, media shade) */
   --text:#efe7dd; --text-mid:#bcb0a3; --text-muted:#867a6e;
@@ -11,8 +11,8 @@
   /* dark espresso palette — single source of truth, also fed into the background
      shader as uniforms (see the colour-probe block in index.html) */
   --espresso: #171611;
-  --dark-brown: #332e26;
-  --mid-brown: #594b43;
+  --dark-brown: #33221e;
+  --mid-brown: #59483e;
   --caramel: #7a6a5c;
   --crema: #ccb499;
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */

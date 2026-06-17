@@ -150,20 +150,20 @@
               <li><span class="mono">04</span><span>Drop-in sunlight effects: one component, no setup required</span></li>
             </ul>
             <div class="tags">
-              <span class="tag">Daylight</span>
+              <span class="tag">Day Night Cycle</span>
               <span class="tag">Simulation</span>
-              <span class="tag">VR</span>
-              <span class="tag">AR</span>
-              <span class="tag">Procedural Sky</span>
+              <span class="tag">Realistic</span>
               <span class="tag">Sunlight Effects</span>
-              <span class="tag">URP</span>
-              <span class="tag">HDRP</span>
-              <span class="tag">Unity 2022.3+</span>
+              <span class="tag">ArchViz</span>
+              <span class="tag">Lightweight</span>
+              <span class="tag">Physically Based</span>
+              <span class="tag">Procedural Sky</span>
             </div>
           </div>
           <aside class="sc-side">
             <div class="spec">
-              <div class="spec-row"><span>Category</span><b>Lighting</b></div>
+              <div class="spec-row"><span>Category</span><b>
+                Tools/Utilities</b></div>
               <div class="spec-row"><span>Pipeline</span><b>URP | HDRP</b></div>
               <div class="spec-row"><span>Unity</span><b>2022.3 +</b></div>
               <div class="spec-row"><span>Status</span><b class="gold">In the roaster</b></div>
@@ -304,7 +304,7 @@ void main(){
 
   // keep it dark: gentle sheen, no global lift, deeper vignette
   float fc = smoothstep(0.15, 0.85, f);   // S-Kurve: Tiefen tiefer, Höhen höher
-  col *= 0.15 + 0.450 * fc;
+  col *= 0.25 + 0.2 * fc;
   vec2 vig = uv - 0.5;
   col *= 1.0 - 0.55 * dot(vig, vig);
 
