@@ -190,8 +190,8 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px 
 /* touch-action:manipulation kills iOS Safari's 300ms double-tap-zoom wait on the
    button; -webkit-tap-highlight-color hides the grey flash. position/z-index keep
    it the topmost hit target within its flex row. */
-.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;background:none;border:1px solid var(--line-2);border-radius:7px;color:var(--text-muted);cursor:pointer;position:relative;z-index:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:color .2s,border-color .2s}
-.theme-toggle:hover{color:var(--gold);border-color:var(--gold-line)}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;background:none;border:none;color:var(--text-muted);cursor:pointer;position:relative;z-index:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:color .2s,border-color .2s}
+.theme-toggle:hover{color:var(--gold);}
 /* pointer-events:none on the icons makes the <button> itself the tap target — on
    iOS a tap landing on an SVG child (esp. its fill:none regions) could otherwise
    miss, so the click never reached the button. */
