@@ -201,8 +201,14 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px 
 .theme-toggle[data-mode="auto"]  [data-icon="auto"],
 .theme-toggle:not([data-mode])   [data-icon="auto"]{display:block}
 /* Theme switch inside the mobile overlay: labelled row, fades in with the menu. */
-.mobile-theme{display:flex;align-items:center;gap:var(--space-xs);margin-top:var(--space-m);font-family:var(--font-mono);font-size:.8rem;letter-spacing:.04em;color:var(--text-muted);opacity:0;transform:translateY(16px);transition:opacity .4s var(--ease),transform .4s var(--ease);transition-delay:.28s}
+/* The mobile switch IS the whole row (a .theme-toggle button): label + icon, so
+   the larger area is tappable. Overrides the base .theme-toggle icon-box sizing
+   (auto width, no border) back into a roomy row; min-height keeps a 44px target.
+   The transition props below stagger it in with the menu. */
+.mobile-theme{display:flex;align-items:center;justify-content:center;gap:var(--space-xs);width:auto;height:auto;min-height:44px;padding:8px 12px;border:none;border-radius:8px;margin-top:var(--space-m);font-family:var(--font-mono);font-size:.8rem;letter-spacing:.04em;color:var(--text-muted);opacity:0;transform:translateY(16px);transition:opacity .4s var(--ease),transform .4s var(--ease);transition-delay:.28s}
 .mobile-menu.is-open .mobile-theme{opacity:1;transform:none}
+.mobile-theme:hover{border-color:transparent} /* base .theme-toggle:hover sets a border colour; the row has no border */
+.mobile-theme>span{pointer-events:none} /* keep the <button> itself the tap target (iOS) */
 
 /* The gap before the first content section lives here (hero margin-bottom)
    rather than as #assets top padding, so the #assets anchor sits right on its
@@ -399,8 +405,6 @@ footer{border-top:1px solid var(--line)}
      so the bars (var(--text)) stay legible against the pill in either theme. */
   .nav-hamburger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top));right:18px;width:44px;height:44px;background:var(--glass);border:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:8px;pointer-events:auto;z-index:110}
   .mobile-menu{display:flex;align-items:center;justify-content:center}
-  /* Full 44px tap target (Apple HIG) for the switch inside the overlay. */
-  .mobile-theme .theme-toggle{width:44px;height:44px}
 }
 
 @media(max-width:860px){

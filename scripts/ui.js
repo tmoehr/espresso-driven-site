@@ -42,12 +42,13 @@ function setMenu(open){
 }
 burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
 
-// Theme switch: cycles Auto -> Light -> Dark on each click. 'Auto' (no
-// data-theme attribute) follows prefers-color-scheme; Light/Dark force the
-// theme and are persisted in localStorage (re-applied pre-paint by the inline
-// script in index.html). All .theme-toggle buttons (header + mobile menu) share
-// one handler and stay in sync. On change we keep the theme-color bars and the
-// WebGL relief palette aligned with the new theme.
+// Theme switch: cycles Auto -> Light -> Dark on each click. 'Auto' (no data-theme
+// attribute) follows prefers-color-scheme; Light/Dark force the theme. All three
+// modes are persisted in localStorage — including 'auto', so a chosen 'auto' is
+// distinguishable from a first visit (no stored value), which defaults to dark
+// (see the pre-paint script in index.html). All .theme-toggle buttons (header +
+// mobile menu) share one handler and stay in sync. On change we keep the
+// theme-color bars and the WebGL relief palette aligned with the new theme.
 (function(){
   const STORE_KEY='theme';
   const MODES=['auto','light','dark'];
@@ -59,7 +60,9 @@ burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open'
   function apply(mode){
     if(mode==='auto')rootEl.removeAttribute('data-theme');
     else rootEl.setAttribute('data-theme',mode);
-    try{mode==='auto'?localStorage.removeItem(STORE_KEY):localStorage.setItem(STORE_KEY,mode);}catch(e){}
+    // Persist every mode, 'auto' included: absence of a stored value means "first
+    // visit" and must stay distinct (it defaults to dark in the pre-paint script).
+    try{localStorage.setItem(STORE_KEY,mode);}catch(e){}
     btns.forEach(b=>{b.dataset.mode=mode;b.setAttribute('aria-label',LABELS[mode]);b.title=LABELS[mode];});
     notifyThemeChanged();
   }

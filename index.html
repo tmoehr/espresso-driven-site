@@ -35,11 +35,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Apply the saved theme before first paint so there's no flash of the wrong
-       theme. 'auto' (or no stored value) leaves the attribute off, so
-       color-scheme:light dark + prefers-color-scheme decide. -->
+  <!-- Apply the theme before first paint so there's no flash of the wrong theme.
+       Default on first visit (nothing stored) is DARK. A stored 'light'/'dark'
+       wins; a stored 'auto' (an explicit choice) leaves the attribute off so
+       color-scheme:light dark + prefers-color-scheme decide. The ||'dark' maps the
+       first-visit null to dark; the catch falls back to dark if storage is blocked. -->
   <script>
-    try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}
+    try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}
   </script>
 
   <!-- Structured data: lets search engines model the brand + site as entities
@@ -108,14 +110,15 @@
         <a href="#contact">contact</a>
         <a href="#imprint">imprint</a>
       </nav>
-      <div class="mobile-theme">
+      <!-- The whole row is the button (label + icon), so the larger 'Theme' area
+           is tappable — not just the icon. Shares .theme-toggle, so the same JS
+           handler and icon-switching CSS apply. -->
+      <button class="theme-toggle mobile-theme" type="button" aria-label="Theme umschalten">
         <span>Theme</span>
-        <button class="theme-toggle" type="button" aria-label="Theme umschalten">
-          <svg data-icon="auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none"/></svg>
-          <svg data-icon="light" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
-          <svg data-icon="dark" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-        </button>
-      </div>
+        <svg data-icon="auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none"/></svg>
+        <svg data-icon="light" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
+        <svg data-icon="dark" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
       <div class="mobile-menu-spacer" aria-hidden="true"></div>
     </div>
   </div>
