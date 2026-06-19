@@ -35,7 +35,8 @@ jobs:
           mkdir _site
           # Ship only the site itself — never .git (would publish full history)
           # or the workflow dir.
-          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+          # 'unity' holds the Unity-WebGL source/template, not site output.
+          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' --exclude='unity' ./ _site/
           # Append ?v=<sha> to local .css/.js refs only. The match requires the
           # path to end in exactly .css" or .js", so the Google Fonts <link>
           # (ends in &display=swap") and .svg refs are left untouched.

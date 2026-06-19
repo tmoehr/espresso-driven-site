@@ -341,7 +341,10 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:color-mix(in srgb, var(--text-on-media) 62%, transparent);margin-bottom:14px;text-transform:uppercase}
 .stage-cap h3{font-family:inherit;font-weight:700;text-transform:none;color:var(--text-on-media);font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:4px}
 .stage-cap p{color:var(--text-on-media);font-size:1.05rem;max-width:30ch;line-height:1.5}
-.status{position:absolute;top:14px;right:16px;z-index:2;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-media);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-media-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
+.stage-top{position:absolute;top:14px;right:16px;z-index:2;display:flex;align-items:center;gap:8px}
+.status{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-media);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-media-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
+.demo-cta{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--on-gold);background:var(--gold-media);border:1px solid var(--gold-media);border-radius:100px;padding:5px 12px;backdrop-filter:blur(6px);transition:transform .2s,box-shadow .25s}
+.demo-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb, var(--gold-media) 35%, transparent)}
 .status .dot{width:6px;height:6px;border-radius:50%;background:var(--gold-media);box-shadow:0 0 0 0 color-mix(in srgb, var(--gold-media) 50%, transparent);animation:pulse 2s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .sc-body{display:grid;grid-template-columns:var(--split-cols)}
