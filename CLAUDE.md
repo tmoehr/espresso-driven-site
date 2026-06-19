@@ -1,5 +1,9 @@
 # espressodriven Site — Project Notes
 
+## Language
+All text is English — site content, code comments, docs, and commit messages alike.
+No German anywhere.
+
 ## Navigation convention
 Every content section (excluding the footer) must have a corresponding nav link in the header.
 Links appear in the same order as their sections in the DOM.
