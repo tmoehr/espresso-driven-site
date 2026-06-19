@@ -46,6 +46,11 @@
   --font-mono:'JetBrains Mono',monospace;
   --ease:cubic-bezier(.22,1,.36,1);
   --header-blur: 16px;
+  /* Header row geometry — single source so anything that must match the header's height can
+     derive it. The row height is set by the square nav control (the theme switch), and the
+     header's total height is that control plus the nav's vertical padding, top and bottom. */
+  --nav-pad-y: 14px;
+  --nav-control-h: 34px;
   --panel-blur: 6px;
   --hero-logo-saturate: .8; /* dark default; light theme lifts it to full saturation below */
   --bg-fade: var(--bg); /* colour the background fades into at the top/bottom edges */
@@ -189,9 +194,11 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;background: color-mix(in 
 /* --nav-link-pad-x: the link's inline padding, defined once here because two
    rules depend on it staying equal — the .nav-link padding and the .nav-links
    negative margin that cancels it (see there). */
-nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px var(--gutter);display:flex;justify-content:space-between;align-items:center}
+nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(--nav-pad-y) var(--gutter);display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:14px}
-.logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('images/logo/logo.svg') center/contain no-repeat}
+/* Root-absolute mask path so this one rule serves both the page (at /) and the demo header
+   (served from /demo/heliopath/, where a relative path would 404). */
+.logo{height:22px;aspect-ratio:1660/600;background:var(--text);mask:url('/images/logo/logo.svg') center/contain no-repeat;-webkit-mask:url('/images/logo/logo.svg') center/contain no-repeat}
 /* Pull the cluster out by exactly one link's inline padding so the last link's
    TEXT — not its padding box — lands on the gutter line shared by the cards and
    footer. Tied to the same token as the padding below, so they can't desync. */
@@ -211,7 +218,7 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:14px 
 /* touch-action:manipulation kills iOS Safari's 300ms double-tap-zoom wait on the
    button; -webkit-tap-highlight-color hides the grey flash. position/z-index keep
    it the topmost hit target within its flex row. */
-.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;background:none;border:none;color:var(--text-muted);cursor:pointer;position:relative;z-index:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:color .2s,border-color .2s}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:var(--nav-control-h);height:var(--nav-control-h);padding:0;background:none;border:none;color:var(--text-muted);cursor:pointer;position:relative;z-index:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:color .2s,border-color .2s}
 .theme-toggle:hover{color:var(--gold);}
 /* pointer-events:none on the icons makes the <button> itself the tap target — on
    iOS a tap landing on an SVG child (esp. its fill:none regions) could otherwise

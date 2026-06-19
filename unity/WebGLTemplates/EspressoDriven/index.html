@@ -23,19 +23,22 @@
        (b) lay out the Unity overlay UI, which exists only in the demo. */
     html,body{height:100%;overflow:hidden}
     body::before{display:none}              /* drop the site's relief-photo fallback layer */
-    #app{display:flex;flex-direction:column;height:100dvh}
+    #app{position:relative;height:100dvh}
 
-    /* The site header is position:fixed with a blurred bar, and its narrow-viewport media
-       rule sets pointer-events:none (the page collapses to a hamburger there). The demo
-       header is a plain, always-interactive flex row, so neutralise those inherited rules. */
-    header{position:static;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-      gap:16px;padding:12px 18px;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;
-      pointer-events:auto;border-bottom:1px solid var(--line)}
-    /* Same mask technique as the main site's .logo — points at the SVG served
-       from the site root (the build is hosted under /demo/heliopath/). */
-    .logo{height:18px;aspect-ratio:1660/600;background:var(--text);
-      mask:url('/images/logo/logo.svg') center/contain no-repeat;
-      -webkit-mask:url('/images/logo/logo.svg') center/contain no-repeat}
+    /* Header: reuse the page's header/nav look from styles.css verbatim (translucent blur bar,
+       bottom hairline, centred nav, 22px masked logo) — so it is the exact same height and logo
+       as the page. Unlike the page's position:fixed header, this one OVERLAYS the stage (absolute,
+       pinned to the top): the Unity canvas runs full-height underneath and shows through the blur.
+       The page header also collapses to a hamburger on narrow/short viewports; the demo has no
+       hamburger, so we keep the full bar interactive at every size. */
+    #app header{position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:auto;padding-top:env(safe-area-inset-top);
+      background:color-mix(in srgb, var(--bg) 70%, transparent);
+      backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));
+      border-bottom:1px solid var(--line)}
+    /* Restore the padding the collapse rule zeroes, and force the exact page-header height: the
+       demo has no 34px theme control, so its row would be shorter — derive the height from the
+       same tokens the page header uses (control + top & bottom nav padding). */
+    #app nav{padding:var(--nav-pad-y) var(--gutter);min-height:calc(var(--nav-control-h) + 2 * var(--nav-pad-y))}
     .title{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;
       text-transform:uppercase;color:var(--text-muted)}
     .back{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
@@ -43,7 +46,7 @@
       transition:color .2s}
     .back:hover{color:var(--gold)}
 
-    #stage{position:relative;flex:1 1 auto;min-height:0}
+    #stage{position:absolute;inset:0}   /* fills the whole app; the header overlays its top */
     #unity-canvas{width:100%;height:100%;display:block;background:var(--bg)}
 
     #loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
@@ -55,27 +58,29 @@
       background:color-mix(in srgb, var(--gold) 14%, transparent)}
     .bar>span{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
 
-    /* Fullscreen toggle — top-right; hidden by JS where real fullscreen is unavailable (iOS). */
-    .fullscreen-btn{position:absolute;top:12px;right:12px;z-index:5;
+    /* Fullscreen toggle — bottom-right, clear of the overlaid header; hidden by JS where real
+       fullscreen is unavailable (iOS). */
+    .fullscreen-btn{position:absolute;bottom:14px;right:14px;z-index:5;
       font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
       color:var(--text);background:var(--glass);
       border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;
       backdrop-filter:blur(6px);transition:color .2s,border-color .2s}
     .fullscreen-btn:hover{color:var(--gold);border-color:var(--gold)}
 
-    #unity-warning{position:absolute;left:12px;top:12px;z-index:3;max-width:60ch;
+    #unity-warning{position:absolute;left:12px;top:12px;z-index:20;max-width:60ch;  /* above the header so a transient banner is never hidden */
       font-family:var(--font-mono);font-size:.7rem;line-height:1.4}
 
     /* ── HelioPath overlay (replaces the in-build UI Toolkit panel) ─────────────────
        Pure DOM over the canvas; the frosted look is a CSS backdrop-filter, so the
        UIBackdropBlurFeature / blur RenderTexture are no longer needed. Controls drive
        the sun through HelioPathWebBridge via unityInstance.SendMessage. Bottom-centered. */
+    /* The panel surface (blur, radius, rounded clipping) comes from the shared .panel class, like
+       the main site's panels. Demo only: take --panel's RGB but pin the alpha to 0.32 (double the
+       token's 0.16) so the controls stay legible over the live, often bright 3D scene. Relative-
+       colour syntax keeps it theme-aware — the RGB still flips with the theme, only alpha is fixed. */
     #hp-ui{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:4;
-      max-width:calc(100% - 28px);display:none;flex-direction:column;gap:14px;padding:16px;
-      border:1px solid var(--line);border-radius:12px;color:var(--text);
-      background:var(--scrim-menu);
-      -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
-      box-shadow:0 12px 40px rgba(0,0,0,.45)}
+      max-width:calc(100% - 28px);display:none;flex-direction:column;gap:14px;padding:16px;color:var(--text);
+      background:rgb(from var(--panel) r g b / 0.32)}
     #hp-ui.ready{display:flex}
     #hp-ui.minimized .hp-tabs,#hp-ui.minimized .hp-body{display:none}
 
@@ -109,7 +114,9 @@
       font-family:var(--font-mono);font-size:.78rem;padding:7px 9px;border-radius:7px;
       border:1px solid var(--line);background:var(--glass-weak)}
     #hp-ui select{width:100%}
-    #hp-ui input[type="date"],#hp-ui input[type="time"]{flex:1 1 0;min-width:0}
+    /* Real min-width (not 0) + flex:auto so Safari/macOS keeps its native date/time fields wide
+       enough to click and edit; .hp-row wraps (flex-wrap) when the panel is too narrow for both. */
+    #hp-ui input[type="date"],#hp-ui input[type="time"]{flex:1 1 auto;min-width:8em}
     #hp-ui select:focus,#hp-ui input:focus{outline:none;border-color:var(--gold)}
     #hp-ui select option{background:var(--bg);color:var(--text)}
 
@@ -153,18 +160,20 @@
 <body>
   <div id="app">
     <header>
-      <span class="logo" role="img" aria-label="espressodriven"></span>
-      <span class="title">{{{ PRODUCT_NAME }}} - Demo</span>
-      <a class="back" href="https://www.espressodriven.com/#assets">&larr;&nbsp;back</a>
+      <nav>
+        <span class="logo" role="img" aria-label="espressodriven"></span>
+        <span class="title">{{{ PRODUCT_NAME }}} - Demo</span>
+        <a class="back" href="https://www.espressodriven.com/#assets">&larr;&nbsp;back</a>
+      </nav>
     </header>
     <div id="stage">
       <canvas id="unity-canvas" tabindex="-1"></canvas>
 
       <!-- HelioPath HTML overlay. Populated/shown once the location database arrives. -->
-      <div id="hp-ui" aria-label="HelioPath controls">
+      <div id="hp-ui" class="panel minimized" aria-label="HelioPath controls">
         <div class="hp-head">
           <h2>Settings</h2>
-          <button class="hp-min" id="hp-min" title="Minimize" aria-label="Minimize">–</button>
+          <button class="hp-min" id="hp-min" title="Expand" aria-label="Expand settings">+</button>
         </div>
 
         <div class="hp-tabs" role="tablist">
@@ -193,7 +202,7 @@
             </div>
 
             <div class="hp-field">
-              <div class="hp-switch on" id="hp-systemtime">
+              <div class="hp-switch" id="hp-systemtime">
                 <span>Use System Time</span>
                 <span class="hp-toggle"></span>
               </div>
@@ -216,9 +225,9 @@
               <div class="hp-sub dim" id="hp-daylength-sub">
                 <div class="hp-range-head">
                   <label for="hp-daylength" class="hp-sublabel">Day duration</label>
-                  <span class="val" id="hp-daylength-val">real-time</span>
+                  <span class="val" id="hp-daylength-val">1 min</span>
                 </div>
-                <input type="range" id="hp-daylength" min="0" max="1" step="0.001" value="1">
+                <input type="range" id="hp-daylength" min="0" max="1" step="0.001" value="0">
               </div>
             </div>
           </section>
@@ -321,6 +330,9 @@
     var HP_TARGET = "HelioPathWebBridge";
     var DAY_MIN = 60, DAY_MAX = 86400; // seconds; mirrors HelioPathPositioner.DayDurationSeconds clamp
     var DEFAULT_COUNTRY = "Germany", DEFAULT_PLACE = "Stralsund";
+    // Curated start moment: summer solstice (longest, highest sun path) at ~sunrise. The panel
+    // opens in manual time (Use System Time off), so these fixed values drive the scene on load.
+    var DEFAULT_DATE = "2026-06-21", DEFAULT_TIME = "03:50";
 
     var hpUnity = null;            // resolved Unity instance
     var hpDb = null;               // parsed location database
@@ -336,8 +348,12 @@
     window.onHelioPathReady = function (json) {
       try { hpDb = JSON.parse(json); } catch (e) { console.error("[HelioPath] bad location JSON", e); return; }
       buildLocationUI(hpDb.Countries || []);
-      // Default state is "Use System Time" on; sync the sun so UI and render agree at start.
-      hpSend("UseRealTime");
+      // Sync the sun to the panel's initial time mode so UI and render agree at start. Default
+      // is manual time (Use System Time off), so push the fixed date/time; in system mode use
+      // the real clock. Also push the day-duration default so a later time-lapse toggle matches.
+      if (el("hp-systemtime").classList.contains("on")) hpSend("UseRealTime");
+      else hpSend("SetLocalTime", manualIso());
+      hpSend("SetDayDuration", Math.round(secondsFromSlider(parseFloat(el("hp-daylength").value))));
       document.querySelector("#hp-ui").classList.add("ready");
     };
 
@@ -427,7 +443,10 @@
     }
 
     function wireTimeControls() {
-      setInputsToPlaceNow();
+      // Start on the curated showcase moment (solstice, ~sunrise); the panel opens in manual
+      // time, so these fixed values drive the sun until the user edits them or picks "Now".
+      el("hp-date").value = DEFAULT_DATE;
+      el("hp-time").value = DEFAULT_TIME;
 
       el("hp-systemtime").onclick = function () {
         var on = !this.classList.contains("on");
@@ -524,6 +543,8 @@
     el("hp-min").onclick = function () {
       var min = document.querySelector("#hp-ui").classList.toggle("minimized");
       this.textContent = min ? "+" : "–";
+      this.title = min ? "Expand" : "Minimize";
+      this.setAttribute("aria-label", min ? "Expand settings" : "Minimize settings");
     };
 
     // ── Fullscreen ─────────────────────────────────────────────────────────────────
