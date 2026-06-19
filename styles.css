@@ -16,7 +16,8 @@
   --text-mid:   #bcb0a3;
   --text-muted: #867a6e;
 
-  --gold:      #f0a030;
+  --accent:    #f0a030;        /* dark-mode accent — the single knob for dark; light below */
+  --gold:      var(--accent);
   --gold-dim:  color-mix(in srgb, var(--gold) 12%, transparent);
   --gold-line: color-mix(in srgb, var(--gold) 32%, transparent);
   --on-gold:   #1a1208; /* text/icon sitting on a gold fill */
@@ -28,9 +29,11 @@
   --glass-weak: rgb(12 9 7 / 0.3);   /* input field */
   --scrim-menu: rgb(22 13 8 / 0.74); /* full-screen mobile menu */
 
-  /* Media-overlay tokens sit over app screenshots, so they keep a dark scrim +
-     light text + bright gold in BOTH themes — legible regardless of the shot or
-     the page theme. These intentionally do NOT flip. */
+  /* Media-overlay tokens sit over app screenshots: the dark scrim + light text stay
+     fixed in BOTH themes so the shots stay legible. The accent over media is its own
+     per-theme value (--gold-media), set independently of --accent in the light blocks
+     below — so it can be tuned against the fixed dark scrim without moving the page
+     accent. Dark default here; light values below. */
   --ink: #0c0907;                /* dark scrim base over media (caption shade, badge) */
   --text-on-media: #efe7dd;
   --gold-media: #f0a030;
@@ -105,7 +108,8 @@
 @media (prefers-color-scheme: light){
   :root:not([data-theme]){
     --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
-    --gold:#bf7000; --on-gold:#fdf6ea;
+    --accent: #804a00; --on-gold:#fdf6ea;
+    --gold-media: #cc811f;
     --panel: rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
     --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
     --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
@@ -117,7 +121,8 @@
 }
 :root[data-theme="light"]{
   --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
-  --gold:#bf7000; --on-gold:#fdf6ea;
+  --accent:#804a00; --on-gold:#fdf6ea;
+  --gold-media: #cc811f;
   --panel:rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
   --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
   --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
