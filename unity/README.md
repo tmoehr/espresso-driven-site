@@ -15,8 +15,13 @@ Copy `WebGLTemplates/EspressoDriven/` into the Unity project at:
 Then, under **Project Settings → Player → WebGL → Resolution and Presentation**,
 select the **EspressoDriven** template.
 
-The template follows the main site's color tokens (`styles.css`): header with
-wordmark, gold loading bar, a "back" link to `/#assets`, and a fullscreen button.
+The template **links the site stylesheet** (`<link rel="stylesheet" href="/styles.css">`)
+as the single source of truth — it defines no colours of its own, only the demo-specific
+overlay layout, all expressed through the shared tokens. It also runs the same pre-paint
+script as the main page, so the demo opens in the visitor's chosen dark/light/auto mode
+(persisted in `localStorage`, shared across the origin) and follows live OS changes while
+on auto. The page chrome is the usual one: header with wordmark, gold loading bar, a "back"
+link to `/#assets`, and a fullscreen button.
 
 ## 2. Pipeline
 
