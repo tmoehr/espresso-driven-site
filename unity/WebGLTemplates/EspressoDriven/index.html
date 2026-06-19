@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{{ PRODUCT_NAME }}} — espressodriven</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Espressodriven look — kept in sync with the main site's tokens (styles.css). */
+    :root{
+      --bg:#1a120f; --text:#efe7dd; --text-muted:#867a6e;
+      --gold:#f0a030; --on-gold:#1a1208;
+      --line:color-mix(in srgb, var(--gold) 25%, transparent);
+      --scrim:#0c0907;
+      --mono:'JetBrains Mono',monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+      font-family:'Space Grotesk',system-ui,sans-serif;overflow:hidden}
+    #app{display:flex;flex-direction:column;height:100dvh}
+
+    header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:12px 18px;border-bottom:1px solid var(--line)}
+    /* Same mask technique as the main site's .logo — points at the SVG served
+       from the site root (the build is hosted under /demo/heliopath/). */
+    .logo{height:18px;aspect-ratio:1660/600;background:var(--text);
+      mask:url('/images/logo/logo.svg') center/contain no-repeat;
+      -webkit-mask:url('/images/logo/logo.svg') center/contain no-repeat}
+    .title{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--text-muted)}
+    .back{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+      transition:color .2s}
+    .back:hover{color:var(--gold)}
+
+    #stage{position:relative;flex:1 1 auto;min-height:0}
+    #unity-canvas{width:100%;height:100%;display:block;background:var(--scrim)}
+
+    #loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:18px;background:var(--bg)}
+    #loader.hidden{display:none}
+    .loading-label{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--text-muted)}
+    .bar{width:min(280px,60vw);height:3px;border-radius:100px;overflow:hidden;
+      background:color-mix(in srgb, var(--gold) 14%, transparent)}
+    .bar>span{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+
+    /* Fullscreen toggle — top-right; hidden by JS where real fullscreen is unavailable (iOS). */
+    .fullscreen-btn{position:absolute;top:12px;right:12px;z-index:5;
+      font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--text);background:color-mix(in srgb, var(--scrim) 60%, transparent);
+      border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;
+      backdrop-filter:blur(6px);transition:color .2s,border-color .2s}
+    .fullscreen-btn:hover{color:var(--gold);border-color:var(--gold)}
+
+    #unity-warning{position:absolute;left:12px;top:12px;z-index:3;max-width:60ch;
+      font-family:var(--mono);font-size:.7rem;line-height:1.4}
+
+    /* ── HelioPath overlay (replaces the in-build UI Toolkit panel) ─────────────────
+       Pure DOM over the canvas; the frosted look is a CSS backdrop-filter, so the
+       UIBackdropBlurFeature / blur RenderTexture are no longer needed. Controls drive
+       the sun through HelioPathWebBridge via unityInstance.SendMessage. Bottom-centered. */
+    #hp-ui{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:4;
+      max-width:calc(100% - 28px);display:none;flex-direction:column;gap:14px;padding:16px;
+      border:1px solid var(--line);border-radius:12px;color:var(--text);
+      background:color-mix(in srgb, var(--scrim) 62%, transparent);
+      -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
+      box-shadow:0 12px 40px rgba(0,0,0,.45)}
+    #hp-ui.ready{display:flex}
+    #hp-ui.minimized .hp-tabs,#hp-ui.minimized .hp-body{display:none}
+
+    .hp-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .hp-head h2{margin:0;font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--gold);font-weight:600}
+    .hp-min{appearance:none;width:24px;height:24px;line-height:1;border-radius:6px;cursor:pointer;
+      color:var(--text);background:transparent;border:1px solid var(--line);font-size:1rem}
+    .hp-min:hover{border-color:var(--gold);color:var(--gold)}
+
+    /* Tabs: shown only in compact mode (see media query). */
+    .hp-tabs{display:none;gap:8px}
+    .hp-tab{flex:1;appearance:none;cursor:pointer;font-family:var(--mono);font-size:.64rem;
+      letter-spacing:.08em;text-transform:uppercase;padding:7px 10px;border-radius:7px;
+      color:var(--text-muted);background:transparent;border:1px solid var(--line)}
+    .hp-tab.active{color:var(--on-gold);background:var(--gold);border-color:var(--gold)}
+
+    /* Body: two side-by-side sections on wide screens, one tabbed column when compact. */
+    .hp-body{display:flex;flex-direction:row;gap:22px}
+    .hp-section{display:flex;flex-direction:column;gap:14px;width:264px;max-width:100%}
+    .hp-section + .hp-section{padding-left:22px;border-left:1px solid var(--line)}
+    .hp-section-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--gold);margin:0}
+
+    .hp-field{display:flex;flex-direction:column;gap:6px}
+    .hp-field>label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+      text-transform:uppercase;color:var(--text-muted)}
+    .hp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+    #hp-ui select,#hp-ui input[type="date"],#hp-ui input[type="time"]{color:var(--text);
+      font-family:var(--mono);font-size:.78rem;padding:7px 9px;border-radius:7px;
+      border:1px solid var(--line);background:color-mix(in srgb, var(--bg) 70%, transparent)}
+    #hp-ui select{width:100%}
+    #hp-ui input[type="date"],#hp-ui input[type="time"]{flex:1 1 0;min-width:0}
+    #hp-ui select:focus,#hp-ui input:focus{outline:none;border-color:var(--gold)}
+    #hp-ui select option{background:var(--bg);color:var(--text)}
+
+    .hp-btn{flex:1;appearance:none;cursor:pointer;font-family:var(--mono);font-size:.62rem;
+      letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-radius:7px;
+      color:var(--text);background:transparent;border:1px solid var(--line);
+      transition:color .2s,border-color .2s,background .2s}
+    .hp-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .hp-btn--inline{flex:0 0 auto;padding:8px 12px}
+    .hp-sublabel{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+      text-transform:uppercase;color:var(--text-muted)}
+
+    .hp-switch{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+    .hp-switch span{font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;color:var(--text)}
+    .hp-toggle{position:relative;width:40px;height:22px;border-radius:100px;flex:0 0 auto;
+      background:color-mix(in srgb, var(--text-muted) 40%, transparent);transition:background .2s}
+    .hp-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+      border-radius:50%;background:var(--text);transition:transform .2s}
+    .hp-switch.on .hp-toggle{background:var(--gold)}
+    .hp-switch.on .hp-toggle::after{transform:translateX(18px);background:var(--on-gold)}
+
+    #hp-ui input[type="range"]{width:100%;accent-color:var(--gold)}
+    .hp-range-head{display:flex;align-items:baseline;justify-content:space-between}
+    .hp-range-head .val{font-family:var(--mono);font-size:.72rem;color:var(--gold)}
+    .hp-sub{display:flex;flex-direction:column;gap:6px;transition:opacity .2s}
+    .hp-sub.dim{opacity:.4;pointer-events:none}
+    .hp-coords{font-family:var(--mono);font-size:.62rem;color:var(--text-muted)}
+
+    /* Compact: tabs replace the side-by-side layout so the panel never overloads phones. */
+    @media (max-width:720px){
+      #hp-ui{width:320px}
+      .hp-tabs{display:flex}
+      .hp-body{flex-direction:column}
+      .hp-section{display:none;width:auto}
+      .hp-section.active{display:flex}
+      .hp-section + .hp-section{padding-left:0;border-left:0}
+      .hp-section-title{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <span class="logo" role="img" aria-label="espressodriven"></span>
+      <span class="title">{{{ PRODUCT_NAME }}} - Demo</span>
+      <a class="back" href="https://www.espressodriven.com/#assets">&larr;&nbsp;back</a>
+    </header>
+    <div id="stage">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+
+      <!-- HelioPath HTML overlay. Populated/shown once the location database arrives. -->
+      <div id="hp-ui" aria-label="HelioPath controls">
+        <div class="hp-head">
+          <h2>Settings</h2>
+          <button class="hp-min" id="hp-min" title="Minimize" aria-label="Minimize">–</button>
+        </div>
+
+        <div class="hp-tabs" role="tablist">
+          <button class="hp-tab active" data-tab="position">Position</button>
+          <button class="hp-tab" data-tab="effects">Effects</button>
+        </div>
+
+        <div class="hp-body">
+          <!-- ── Position (positioner: location, azimuth, time) ─────────────────── -->
+          <section class="hp-section active" data-section="position">
+            <h3 class="hp-section-title">Position</h3>
+
+            <div class="hp-field">
+              <label for="hp-country">Location</label>
+              <select id="hp-country"></select>
+              <select id="hp-place"></select>
+              <span class="hp-coords" id="hp-coords"></span>
+            </div>
+
+            <div class="hp-field">
+              <div class="hp-range-head">
+                <label for="hp-azimuth" class="hp-sublabel">Azimuth offset</label>
+                <span class="val" id="hp-azimuth-val">0°</span>
+              </div>
+              <input type="range" id="hp-azimuth" min="-180" max="180" step="1" value="0">
+            </div>
+
+            <div class="hp-field">
+              <div class="hp-switch on" id="hp-systemtime">
+                <span>Use System Time</span>
+                <span class="hp-toggle"></span>
+              </div>
+            </div>
+
+            <div class="hp-field hp-sub dim" id="hp-manual-sub">
+              <label>Date &amp; time</label>
+              <div class="hp-row">
+                <input type="date" id="hp-date">
+                <input type="time" id="hp-time">
+                <button class="hp-btn hp-btn--inline" id="hp-now">Now</button>
+              </div>
+            </div>
+
+            <div class="hp-field hp-sub dim" id="hp-timelapse-sub">
+              <div class="hp-switch" id="hp-timelapse">
+                <span>Time-lapse</span>
+                <span class="hp-toggle"></span>
+              </div>
+              <div class="hp-sub dim" id="hp-daylength-sub">
+                <div class="hp-range-head">
+                  <label for="hp-daylength" class="hp-sublabel">Day duration</label>
+                  <span class="val" id="hp-daylength-val">real-time</span>
+                </div>
+                <input type="range" id="hp-daylength" min="0" max="1" step="0.001" value="1">
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Effects (radiance: colour temperature, spikes, halo) ──────────── -->
+          <section class="hp-section" data-section="effects">
+            <h3 class="hp-section-title">Effects</h3>
+
+            <div class="hp-field">
+              <div class="hp-switch on" id="hp-coloralt">
+                <span>Color from altitude</span>
+                <span class="hp-toggle"></span>
+              </div>
+            </div>
+
+            <div class="hp-field">
+              <div class="hp-switch on" id="hp-spikes">
+                <span>Spikes</span>
+                <span class="hp-toggle"></span>
+              </div>
+              <div class="hp-sub" id="hp-spike-sub">
+                <div class="hp-range-head">
+                  <label for="hp-spikesize" class="hp-sublabel">Spike size</label>
+                  <span class="val" id="hp-spikesize-val">1.0×</span>
+                </div>
+                <input type="range" id="hp-spikesize" min="0" max="5" step="0.05" value="1">
+              </div>
+            </div>
+
+            <div class="hp-field">
+              <div class="hp-switch on" id="hp-halo">
+                <span>Halo</span>
+                <span class="hp-toggle"></span>
+              </div>
+              <div class="hp-sub" id="hp-halo-sub">
+                <div class="hp-range-head">
+                  <label for="hp-haloradius" class="hp-sublabel">Radius</label>
+                  <span class="val" id="hp-haloradius-val">21.8°</span>
+                </div>
+                <input type="range" id="hp-haloradius" min="5" max="46" step="0.5" value="21.8">
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div id="loader">
+        <div class="loading-label">Loading {{{ PRODUCT_NAME }}} &hellip;</div>
+        <div class="bar"><span id="bar-fill"></span></div>
+      </div>
+      <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
+      <div id="unity-warning"></div>
+    </div>
+  </div>
+
+  <script>
+    var canvas        = document.querySelector("#unity-canvas");
+    var loader        = document.querySelector("#loader");
+    var barFill       = document.querySelector("#bar-fill");
+    var warningBanner = document.querySelector("#unity-warning");
+
+    // Unity calls this for compatibility/quota/error notices.
+    function unityShowBanner(msg, type) {
+      warningBanner.innerHTML = msg;
+      warningBanner.style.padding = "8px 12px";
+      warningBanner.style.borderRadius = "6px";
+      warningBanner.style.border = "1px solid";
+      if (type === "error") {
+        warningBanner.style.color = "#f5a3a3";
+        warningBanner.style.borderColor = "#7a3030";
+        warningBanner.style.background = "rgba(40,10,10,.72)";
+      } else {
+        warningBanner.style.color = "#f0d090";
+        warningBanner.style.borderColor = "#5a4520";
+        warningBanner.style.background = "rgba(40,30,10,.72)";
+        // Unity auto-clears warnings after a while.
+        setTimeout(function () { warningBanner.innerHTML = ""; warningBanner.removeAttribute("style"); }, 6000);
+      }
+    }
+
+    function el(id) { return document.getElementById(id); }
+
+    // ── HelioPath bridge glue ────────────────────────────────────────────────────────
+    // The bridge GameObject's name; must match HelioPathWebBridge's host object in the scene.
+    var HP_TARGET = "HelioPathWebBridge";
+    var DAY_MIN = 60, DAY_MAX = 86400; // seconds; mirrors HelioPathPositioner.DayDurationSeconds clamp
+    var DEFAULT_COUNTRY = "Germany", DEFAULT_PLACE = "Stralsund";
+
+    var hpUnity = null;            // resolved Unity instance
+    var hpDb = null;               // parsed location database
+    var hpManual = false;          // true once the user picks a fixed time (vs. system time)
+    var currentOffsetHours = 0;    // UTC offset of the selected place, for "now" in place-local time
+
+    function hpSend(method, value) {
+      if (!hpUnity) return;
+      hpUnity.SendMessage(HP_TARGET, method, value === undefined ? "" : String(value));
+    }
+
+    // Unity -> JS one-shot: the curated location database, pushed by HelioPathBridge.jslib.
+    window.onHelioPathReady = function (json) {
+      try { hpDb = JSON.parse(json); } catch (e) { console.error("[HelioPath] bad location JSON", e); return; }
+      buildLocationUI(hpDb.Countries || []);
+      // Default state is "Use System Time" on; sync the sun so UI and render agree at start.
+      hpSend("UseRealTime");
+      document.querySelector("#hp-ui").classList.add("ready");
+    };
+
+    // ── Location ───────────────────────────────────────────────────────────────────
+    function buildLocationUI(countries) {
+      var country = el("hp-country"), place = el("hp-place");
+      // Sort countries by name; keep each country's place order from the asset.
+      countries = countries.slice().sort(function (a, b) { return a.Name.localeCompare(b.Name); });
+
+      country.innerHTML = "";
+      countries.forEach(function (c, i) {
+        var o = document.createElement("option");
+        o.value = String(i); o.textContent = c.Name; country.appendChild(o);
+      });
+
+      function buildPlaceOptions() {
+        var c = countries[country.value | 0];
+        place.innerHTML = "";
+        (c.Places || []).forEach(function (p, i) {
+          var o = document.createElement("option");
+          o.value = String(i); o.textContent = p.Name; place.appendChild(o);
+        });
+      }
+
+      function applyPlace() {
+        var c = countries[country.value | 0];
+        var p = (c.Places || [])[place.value | 0];
+        if (!p) return;
+        var lat = p.Coordinates.Latitude, lon = p.Coordinates.Longitude, off = p.UtcOffsetHours;
+        currentOffsetHours = off;
+        hpSend("SetLocation", lat.toFixed(4) + "," + lon.toFixed(4) + "," + off);
+        el("hp-coords").textContent =
+          lat.toFixed(2) + "°, " + lon.toFixed(2) + "°  ·  UTC" + (off >= 0 ? "+" : "") + off;
+        // In manual mode re-send the time so the new place's offset is honoured; otherwise keep
+        // the date/time inputs showing the new place's current wall clock for when the user switches.
+        if (hpManual) hpSend("SetLocalTime", manualIso());
+        else          setInputsToPlaceNow();
+      }
+
+      country.onchange = function () { buildPlaceOptions(); place.value = "0"; applyPlace(); };
+      place.onchange = applyPlace;
+
+      // Default selection: Stralsund, Germany (falls back to the first entry if absent).
+      var ci = countries.findIndex(function (c) { return c.Name === DEFAULT_COUNTRY; });
+      if (ci >= 0) country.value = String(ci);
+      buildPlaceOptions();
+      var places = countries[country.value | 0].Places || [];
+      var pi = places.findIndex(function (p) { return p.Name === DEFAULT_PLACE; });
+      if (pi >= 0) place.value = String(pi);
+      applyPlace();
+    }
+
+    // ── Time ─────────────────────────────────────────────────────────────────────
+    // Current wall-clock at the selected place = UTC now shifted by the place's offset; returned
+    // as { date:"YYYY-MM-DD", time:"HH:mm" } for the split date/time inputs.
+    function placeLocalNow() {
+      var shifted = new Date(Date.now() + currentOffsetHours * 3600000).toISOString();
+      return { date: shifted.slice(0, 10), time: shifted.slice(11, 16) };
+    }
+    function setInputsToPlaceNow() {
+      var p = placeLocalNow();
+      el("hp-date").value = p.date;
+      el("hp-time").value = p.time;
+    }
+    // The split inputs combined into the "YYYY-MM-DDTHH:mm" the bridge's SetLocalTime expects.
+    function manualIso() { return el("hp-date").value + "T" + el("hp-time").value; }
+    function sendManualTime() {
+      if (!el("hp-date").value || !el("hp-time").value) return;
+      setSystemTime(false);
+      hpSend("SetLocalTime", manualIso());
+    }
+
+    // "Use System Time" on dims + disables the manual date/time and the whole time-lapse section
+    // (time-lapse only applies to manual time), mirroring the inspector. Only one dim level applies
+    // at a time so opacity never composites twice.
+    function refreshDimming() {
+      var system = el("hp-systemtime").classList.contains("on");
+      var tl = el("hp-timelapse").classList.contains("on");
+      el("hp-manual-sub").classList.toggle("dim", system);
+      el("hp-timelapse-sub").classList.toggle("dim", system);
+      el("hp-daylength-sub").classList.toggle("dim", !system && !tl);
+      hpManual = !system;
+    }
+    function setSystemTime(on) {
+      el("hp-systemtime").classList.toggle("on", on);
+      refreshDimming();
+    }
+
+    function wireTimeControls() {
+      setInputsToPlaceNow();
+
+      el("hp-systemtime").onclick = function () {
+        var on = !this.classList.contains("on");
+        setSystemTime(on);
+        if (on) hpSend("UseRealTime");
+        else    hpSend("SetLocalTime", manualIso());
+      };
+      el("hp-now").onclick = function () {
+        setInputsToPlaceNow();   // always the selected place's current local time
+        sendManualTime();
+      };
+      el("hp-date").onchange = sendManualTime;
+      el("hp-time").onchange = sendManualTime;
+
+      el("hp-azimuth").oninput = function () {
+        var v = parseInt(this.value, 10);
+        el("hp-azimuth-val").textContent = (v > 0 ? "+" : "") + v + "°";
+        hpSend("SetAzimuthOffset", v);
+      };
+    }
+
+    // Time-lapse + day-duration (log slider mirrors HelioPathPositioner's inspector mapping).
+    function secondsFromSlider(t) {
+      var lo = Math.log(DAY_MIN), hi = Math.log(DAY_MAX);
+      return Math.exp(lo + (hi - lo) * Math.min(1, Math.max(0, t)));
+    }
+    function formatDayDuration(s) {
+      // Round first: at the slider's max, exp(log(86400)) can land a hair below 86400 (float
+      // error) and otherwise render as "23h 60m" instead of "real-time".
+      s = Math.round(s);
+      if (s >= DAY_MAX) return "real-time";
+      if (s < 3600) return Math.round(s / 60) + " min";
+      var h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+      if (m === 60) { h += 1; m = 0; }
+      return m > 0 ? h + "h " + m + "m" : h + "h";
+    }
+    function wireTimeLapse() {
+      var sw = el("hp-timelapse"), slider = el("hp-daylength");
+      sw.onclick = function () {
+        var on = !sw.classList.contains("on");
+        sw.classList.toggle("on", on);
+        refreshDimming();
+        hpSend("SetTimeLapse", on ? "1" : "0");
+      };
+      slider.oninput = function () {
+        var s = secondsFromSlider(parseFloat(this.value));
+        el("hp-daylength-val").textContent = formatDayDuration(s);
+        hpSend("SetDayDuration", Math.round(s));
+      };
+    }
+
+    // ── Effects (radiance) ─────────────────────────────────────────────────────────
+    // Reusable on/off switch: toggles the .on class, optionally dims a sub-group, sends the flag.
+    function wireSwitch(switchId, method, subId) {
+      var sw = el(switchId);
+      sw.onclick = function () {
+        var on = !sw.classList.contains("on");
+        sw.classList.toggle("on", on);
+        if (subId) el(subId).classList.toggle("dim", !on);
+        hpSend(method, on ? "1" : "0");
+      };
+    }
+    function wireEffects() {
+      wireSwitch("hp-coloralt", "SetColorFromAltitude");
+      wireSwitch("hp-spikes", "SetSpikesEnabled", "hp-spike-sub");
+      wireSwitch("hp-halo", "SetHaloEnabled", "hp-halo-sub");
+
+      el("hp-spikesize").oninput = function () {
+        var v = parseFloat(this.value);
+        el("hp-spikesize-val").textContent = v.toFixed(1) + "×";
+        hpSend("SetSpikeSize", v);
+      };
+      el("hp-haloradius").oninput = function () {
+        var v = parseFloat(this.value);
+        el("hp-haloradius-val").textContent = v.toFixed(1) + "°";
+        hpSend("SetHaloRadius", v);
+      };
+    }
+
+    // ── Tabs (compact mode) ──────────────────────────────────────────────────────
+    function wireTabs() {
+      var tabs = document.querySelectorAll(".hp-tab");
+      tabs.forEach(function (t) {
+        t.onclick = function () {
+          var name = t.dataset.tab;
+          tabs.forEach(function (x) { x.classList.toggle("active", x === t); });
+          document.querySelectorAll(".hp-section").forEach(function (s) {
+            s.classList.toggle("active", s.dataset.section === name);
+          });
+        };
+      });
+    }
+
+    el("hp-min").onclick = function () {
+      var min = document.querySelector("#hp-ui").classList.toggle("minimized");
+      this.textContent = min ? "+" : "–";
+    };
+
+    // ── Fullscreen ─────────────────────────────────────────────────────────────────
+    // Only offered where a real Element fullscreen is possible. iOS / iPadOS cannot fullscreen
+    // arbitrary elements (only <video>), so the button is hidden there entirely.
+    function fullscreenSupported() {
+      var stage = document.querySelector("#stage");
+      var hasApi = !!(stage.requestFullscreen || stage.webkitRequestFullscreen) &&
+                   !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+      var iOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+                (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); // iPadOS poses as Mac
+      return hasApi && !iOS;
+    }
+    function updateFsLabel() {
+      var active = document.fullscreenElement || document.webkitFullscreenElement;
+      document.querySelector("#fullscreen-btn").textContent = active ? "Exit" : "Fullscreen";
+    }
+    function wireFullscreen() {
+      var btn = document.querySelector("#fullscreen-btn");
+      if (!fullscreenSupported()) { btn.style.display = "none"; return; }
+      var stage = document.querySelector("#stage");
+      var req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+      var exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+      btn.onclick = function () {
+        var active = document.fullscreenElement || document.webkitFullscreenElement;
+        if (active) { if (exitFs) exitFs.call(document); }
+        else        { req.call(stage); }
+      };
+      document.addEventListener("fullscreenchange", updateFsLabel);
+      document.addEventListener("webkitfullscreenchange", updateFsLabel);
+    }
+
+    wireTabs();
+    wireTimeControls();
+    wireTimeLapse();
+    wireEffects();
+    wireFullscreen();
+    refreshDimming(); // initial state: "Use System Time" on → manual + time-lapse dimmed
+
+    // ── Unity loader ───────────────────────────────────────────────────────────────
+    var buildUrl = "Build";
+    var config = {
+      dataUrl:      buildUrl + "/{{{ DATA_FILENAME }}}",
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl:      buildUrl + "/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+      memoryUrl:    buildUrl + "/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+      symbolsUrl:   buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+      streamingAssetsUrl: "StreamingAssets",
+      companyName:    "{{{ COMPANY_NAME }}}",
+      productName:    "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
+      showBanner:     unityShowBanner,
+    };
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/{{{ LOADER_FILENAME }}}";
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (progress) {
+        barFill.style.width = (100 * progress) + "%";
+      }).then(function (unityInstance) {
+        hpUnity = unityInstance;
+        loader.classList.add("hidden");
+        // If the bridge fired its one-shot export before this handler existed, drain it now.
+        if (window.__helioPathPendingDb) {
+          window.onHelioPathReady(window.__helioPathPendingDb);
+          window.__helioPathPendingDb = null;
+        }
+      }).catch(function (message) {
+        unityShowBanner(message, "error");
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
