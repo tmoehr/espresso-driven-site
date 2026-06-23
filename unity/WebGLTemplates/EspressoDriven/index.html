@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>HelioPath — espressodriven</title>
+  <title>{{{ PRODUCT_NAME }}} | espressodriven</title>
   <meta name="theme-color" content="#1a110f">
   <!-- Apply the persisted theme (auto/light/dark) before first paint, exactly like the main
        site, so the demo opens in the mode the visitor chose — no flash of the wrong theme.
@@ -156,7 +156,7 @@
     <header>
       <nav>
         <span class="logo" role="img" aria-label="espressodriven"></span>
-        <span class="title">HelioPath.Demo</span>
+        <span class="title">{{{ PRODUCT_NAME }}}.Demo</span>
         <a class="nav-link" href="https://www.espressodriven.com/#assets">back</a>
       </nav>
     </header>
@@ -269,7 +269,7 @@
       </div>
 
       <div id="loader">
-        <div class="loading-label">Loading HelioPath &hellip;</div>
+        <div class="loading-label">Loading {{{ PRODUCT_NAME }}} &hellip;</div>
         <div class="bar"><span id="bar-fill"></span></div>
       </div>
       <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
@@ -581,18 +581,24 @@
     // ── Unity loader ───────────────────────────────────────────────────────────────
     var buildUrl = "Build";
     var config = {
-      dataUrl:      buildUrl + "/heliopath.data.unityweb",
-      frameworkUrl: buildUrl + "/heliopath.framework.js.unityweb",
-      codeUrl:      buildUrl + "/heliopath.wasm.unityweb",
+      dataUrl:      buildUrl + "/{{{ DATA_FILENAME }}}",
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl:      buildUrl + "/{{{ CODE_FILENAME }}}",
+      #if MEMORY_FILENAME
+      memoryUrl:    buildUrl + "/{{{ MEMORY_FILENAME }}}",
+      #endif
+      #if SYMBOLS_FILENAME
+      symbolsUrl:   buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+      #endif
       streamingAssetsUrl: "StreamingAssets",
-      companyName:    "espressodriven",
-      productName:    "HelioPath",
-      productVersion: "1.0.2",
+      companyName:    "{{{ COMPANY_NAME }}}",
+      productName:    "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
       showBanner:     unityShowBanner,
     };
 
     var script = document.createElement("script");
-    script.src = buildUrl + "/heliopath.loader.js";
+    script.src = buildUrl + "/{{{ LOADER_FILENAME }}}";
     script.onload = function () {
       createUnityInstance(canvas, config, function (progress) {
         barFill.style.width = (100 * progress) + "%";
