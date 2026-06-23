@@ -54,9 +54,10 @@
       background:color-mix(in srgb, var(--gold) 14%, transparent)}
     .bar>span{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
 
-    /* Fullscreen toggle — bottom-right, clear of the overlaid header; hidden by JS where real
-       fullscreen is unavailable (iOS). */
-    .fullscreen-btn{position:absolute;bottom:14px;right:14px;z-index:5;
+    /* Fullscreen toggle — top-right, just below the overlaid header; hidden by JS where real
+       fullscreen is unavailable (iOS). The top offset is the header height (same tokens as
+       #app nav) plus a 14px gap, so the button never overlaps the bar at any safe-area inset. */
+    .fullscreen-btn{position:absolute;top:calc(env(safe-area-inset-top) + var(--nav-control-h) + 2 * var(--nav-pad-y) + 14px);right:14px;z-index:5;
       font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.08em;text-transform:uppercase;
       color:var(--text);background:var(--glass);
       border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;
@@ -80,12 +81,13 @@
     #hp-ui.ready{display:flex}
     #hp-ui.minimized .hp-tabs,#hp-ui.minimized .hp-body{display:none}
 
-    .hp-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .hp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
     .hp-head h2{margin:0;font-family:var(--font-mono);font-size:var(--mono-large); letter-spacing:.14em;
       text-transform:uppercase;color:var(--text-mid);font-weight:600;}
-    .hp-min{appearance:none;width:24px;height:24px;line-height:1;border-radius:6px;cursor:pointer;
+    .hp-min{appearance:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+      line-height:1;border-radius:6px;cursor:pointer;
       color:var(--text);background:transparent;border:1px solid var(--line);font-size:var(--mono-large)}
-    .hp-min:hover{border-color:var(--gold);color:var(--gold)}
+    .hp-head:hover .hp-min{border-color:var(--gold);color:var(--gold)}
 
     /* Tabs: shown only in compact mode (see media query). */
     .hp-tabs{display:none;gap:8px}
@@ -141,7 +143,7 @@
 
     /* Compact: tabs replace the side-by-side layout so the panel never overloads phones. */
     @media (max-width:720px){
-      #hp-ui{width:400px}
+      #hp-ui{width:100%}
       .hp-tabs{display:flex}
       .hp-body{flex-direction:column}
       .hp-section{display:none;width:auto}
@@ -540,11 +542,14 @@
       });
     }
 
-    el("hp-min").onclick = function () {
+    // The whole head row is the toggle target: clicking the title — or the button, whose click
+    // bubbles up to here — minimizes/expands the panel. The button stays for its visible +/− affordance.
+    document.querySelector(".hp-head").onclick = function () {
+      var btn = el("hp-min");
       var min = document.querySelector("#hp-ui").classList.toggle("minimized");
-      this.textContent = min ? "+" : "–";
-      this.title = min ? "Expand" : "Minimize";
-      this.setAttribute("aria-label", min ? "Expand settings" : "Minimize settings");
+      btn.textContent = min ? "+" : "-";
+      btn.title = min ? "Expand" : "Minimize";
+      btn.setAttribute("aria-label", min ? "Expand settings" : "Minimize settings");
     };
 
     // ── Fullscreen ─────────────────────────────────────────────────────────────────
