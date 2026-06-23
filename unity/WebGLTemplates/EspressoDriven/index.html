@@ -94,7 +94,7 @@
       color:var(--text-muted);background:transparent;border:1px solid var(--line)}
     .hp-tab.active{color:var(--on-gold);background:var(--gold);border-color:var(--gold)}
 
-    /* Body: two side-by-side sections on wide screens, one tabbed column when compact. */
+    /* Body: three side-by-side sections on wide screens, one tabbed column when compact. */
     .hp-body{display:flex;flex-direction:row;gap:22px}
     .hp-section{display:flex;flex-direction:column;gap:14px;width:264px;max-width:100%}
     .hp-section + .hp-section{padding-left:22px;border-left:1px solid var(--line)}
@@ -141,7 +141,7 @@
 
     /* Compact: tabs replace the side-by-side layout so the panel never overloads phones. */
     @media (max-width:720px){
-      #hp-ui{width:320px}
+      #hp-ui{width:400px}
       .hp-tabs{display:flex}
       .hp-body{flex-direction:column}
       .hp-section{display:none;width:auto}
@@ -172,11 +172,12 @@
 
         <div class="hp-tabs" role="tablist">
           <button class="hp-tab active" data-tab="position">Position</button>
+          <button class="hp-tab" data-tab="datetime">Date &amp; Time</button>
           <button class="hp-tab" data-tab="effects">Effects</button>
         </div>
 
         <div class="hp-body">
-          <!-- ── Position (positioner: location, azimuth, time) ─────────────────── -->
+          <!-- ── Position (positioner: location, azimuth) ───────────────────────── -->
           <section class="hp-section active" data-section="position">
             <h3 class="hp-section-title">Position</h3>
 
@@ -194,6 +195,11 @@
               </div>
               <input type="range" id="hp-azimuth" min="-180" max="180" step="1" value="0">
             </div>
+          </section>
+
+          <!-- ── Date & Time (positioner: system vs. manual time, time-lapse) ───── -->
+          <section class="hp-section" data-section="datetime">
+            <h3 class="hp-section-title">Date &amp; Time</h3>
 
             <div class="hp-field">
               <div class="hp-switch" id="hp-systemtime">
