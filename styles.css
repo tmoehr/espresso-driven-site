@@ -43,7 +43,17 @@
   --theme-color:      #340f02;
   --theme-color-menu: #160d08;
 
+  /* Two typefaces, by role:
+       --font-text — long-form text: body copy, headings (set on <body>, inherited everywhere)
+       --font-mono — short text: labels, nav, buttons, tags, status … */
+  --font-text:'Space Grotesk',system-ui,sans-serif;
   --font-mono:'JetBrains Mono',monospace;
+  /* The mono size scale (the fluid .mobile-nav a is the single exception).
+     small = labels, nav, badges, tags, footer; medium = buttons, inputs, imprint;
+     large = demo panel headings. */
+  --mono-small:.72rem;
+  --mono-medium:.84rem;
+  --mono-large:1rem;
   --ease:cubic-bezier(.22,1,.36,1);
   --header-blur: 16px;
   /* Header row geometry — single source so anything that must match the header's height can
@@ -144,9 +154,9 @@
    rubber-band / browser back-swipe. The body then gets overflow-x:clip as a
    second wall that trims any in-flow child before it can widen the page. */
 html{scroll-behavior:smooth;overflow-x:hidden;overscroll-behavior-x:none;background:var(--bg)}
-body{position:relative;max-width:100%;overflow-x:clip;font-family:'Space Grotesk',system-ui,sans-serif;background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+body{position:relative;max-width:100%;overflow-x:clip;font-family:var(--font-text);background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6{overflow-wrap:break-word}
-h3{font-size:3.4rem;letter-spacing:-.025em;line-height:1;font-weight:700; text-transform: none; color: var(--text)}
+h3{font-size:2.4rem;letter-spacing:-.025em;line-height:1;font-weight:700; text-transform: none; color: var(--text)}
 p{font-weight:400;overflow-wrap:break-word}
 /* Fallback background, shown only when WebGL is unavailable. Fixed to the viewport
    (like #bg-gl) so it can never extend past the visible area — on iOS Safari an
@@ -202,7 +212,9 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(-
    TEXT — not its padding box — lands on the gutter line shared by the cards and
    footer. Tied to the same token as the padding below, so they can't desync. */
 .nav-links{display:flex;align-items:center;gap:2px;margin-right:calc(-1 * var(--nav-link-pad-x))}
-.nav-link{font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;font-size:.72rem;letter-spacing:.04em;padding:8px var(--nav-link-pad-x);transition:color .2s}
+/* shared small-label type: header nav links, spec-row keys, notify form label */
+.nav-link,.spec-row span,.notify label{font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.04em}
+.nav-link{color:var(--text-muted);text-decoration:none;padding:8px var(--nav-link-pad-x);transition:color .2s}
 /* shared link styling: gold "/ " prefix and gold hover, header + mobile menu + footer links */
 .nav-link::before,.mobile-nav a::before{content:'/ ';color:var(--gold)}
 .nav-link:hover,.mobile-nav a:hover,.links a:hover{color:var(--gold)}
@@ -232,7 +244,7 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(-
    the larger area is tappable. Overrides the base .theme-toggle icon-box sizing
    (auto width, no border) back into a roomy row; min-height keeps a 44px target.
    The transition props below stagger it in with the menu. */
-.mobile-theme{display:flex;align-items:center;justify-content:center;gap:var(--space-xs);width:auto;height:auto;min-height:44px;padding:8px 12px;border:none;border-radius:8px;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.04em;color:var(--text-muted);opacity:0;transform:translateY(16px);transition:opacity .4s var(--ease),transform .4s var(--ease);transition-delay:.28s}
+.mobile-theme{display:flex;align-items:center;justify-content:center;gap:var(--space-xs);width:auto;height:auto;min-height:44px;padding:8px 12px;border:none;border-radius:8px;font-family:var(--font-mono);font-size:var(--mono-medium);letter-spacing:.04em;color:var(--text-muted);opacity:0;transform:translateY(16px);transition:opacity .4s var(--ease),transform .4s var(--ease);transition-delay:.28s}
 .mobile-menu.is-open .mobile-theme{opacity:1;transform:none}
 .mobile-theme:hover{border-color:transparent} /* base .theme-toggle:hover sets a border colour; the row has no border */
 .mobile-theme>span{pointer-events:none} /* keep the <button> itself the tap target (iOS) */
@@ -280,11 +292,11 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(-
    animates from the current (visible) state to gone. */
 @keyframes cueOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(8px)}}
 .scroll-cue.is-dismissed{pointer-events:none;animation:cueOut .6s var(--ease) forwards}
-.scroll-cue span:first-child{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase}
+.scroll-cue span:first-child{font-size:var(--mono-small);letter-spacing:.28em;text-transform:uppercase}
 .scroll-line{position:relative;width:1px;height:36px;background:transparent;overflow:hidden}
 .scroll-line::after{content:'';position:absolute;top:0;left:0;width:1px;height:45%;background:var(--gold);animation:scrolldot 1.9s cubic-bezier(.6,0,.4,1) infinite}
 @keyframes scrolldot{0%{transform:translateY(-100%)}100%{transform:translateY(260%)}}
-.btn{display:inline-flex;align-items:center;gap:var(--space-xs);font-family:var(--font-mono);background:var(--gold);color:var(--on-gold);border-radius:6px;padding:14px 24px;font-weight:600;font-size:.84rem;text-decoration:none;white-space:nowrap;transition:transform .2s,box-shadow .25s}
+.btn{display:inline-flex;align-items:center;gap:var(--space-xs);font-family:var(--font-mono);background:var(--gold);color:var(--on-gold);border-radius:6px;padding:14px 24px;font-weight:600;font-size:var(--mono-medium);text-decoration:none;white-space:nowrap;transition:transform .2s,box-shadow .25s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px color-mix(in srgb, var(--gold) 28%, transparent)}
 .btn.ghost{background:var(--glass);color:var(--text);border:1px solid var(--line-2);backdrop-filter:blur(4px)}
 .btn.ghost:hover{border-color:var(--gold-line);background:var(--gold-dim);box-shadow:none}
@@ -302,9 +314,9 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(-
 /* top padding 0: the gap above each section is owned by the previous block's
    bottom padding (or the hero's margin), so the anchor sits right on its content */
 section.block{padding:0 var(--gutter) var(--space-2xl)}
-.label{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-l)}
+.label{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:var(--mono-small);font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-l)}
 .label::before{content:'';width:34px;height:1px;background:var(--line)}
-.label .mono{color:var(--text-mid);letter-spacing:.1em;text-transform:lowercase}
+.label .mono{font-size:var(--mono-small);color:var(--text-mid);letter-spacing:.1em;text-transform:lowercase}
 
 /* shared surface for anything using the panel color */
 .panel{border-radius:14px;overflow:hidden;background:var(--panel);backdrop-filter:blur(var(--panel-blur));-webkit-backdrop-filter:blur(var(--panel-blur))}
@@ -344,12 +356,14 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 @keyframes fillbar{from{width:8px}to{width:100%}}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
-.stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:color-mix(in srgb, var(--text-on-media) 62%, transparent);margin-bottom:14px;text-transform:uppercase}
+.stage-cap .id{display:block;font-size:var(--mono-small);letter-spacing:.12em;color:color-mix(in srgb, var(--text-on-media) 62%, transparent);margin-bottom:14px;text-transform:uppercase}
 .stage-cap h3{color:var(--text-on-media);margin-bottom:4px}
 .stage-cap p{color:var(--text-on-media);font-size:1.05rem;max-width:30ch;line-height:1.5}
 .stage-top{position:absolute;top:14px;right:16px;z-index:2;display:flex;align-items:center;gap:8px}
-.status{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-media);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-media-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
-.demo-cta{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--on-gold);background:var(--gold-media);border:1px solid var(--gold-media);border-radius:100px;padding:5px 12px;backdrop-filter:blur(6px);transition:transform .2s,box-shadow .25s}
+/* shared pill type: media-stage status badge + demo CTA */
+.status,.demo-cta{font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.08em;text-transform:uppercase}
+.status{display:inline-flex;align-items:center;gap:7px;color:var(--gold-media);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-media-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
+.demo-cta{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--on-gold);background:var(--gold-media);border:1px solid var(--gold-media);border-radius:100px;padding:5px 12px;backdrop-filter:blur(6px);transition:transform .2s,box-shadow .25s}
 .demo-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb, var(--gold-media) 35%, transparent)}
 .status .dot{width:6px;height:6px;border-radius:50%;background:var(--gold-media);box-shadow:0 0 0 0 color-mix(in srgb, var(--gold-media) 50%, transparent);animation:pulse 2s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
@@ -364,27 +378,28 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .feat{list-style:none;display:flex;flex-direction:column}
 .feat li{display:flex;align-items:baseline;gap:var(--space-s);padding:var(--space-s) 0;font-size:.96rem;color:var(--text);border-top:1px solid var(--line)}
 .feat li:first-child{border-top:none;padding-top:0}
-.feat li .mono{color:var(--gold);font-size:.74rem;flex:0 0 auto}
+.feat li .mono{color:var(--gold);font-size:var(--mono-small);flex:0 0 auto}
 .sc-main .tags{margin-top:var(--space-l)}
 .sc-side{padding:var(--space-l);display:flex;flex-direction:column;gap:var(--space-l)}
 .spec{display:flex;flex-direction:column}
 .spec-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-s);padding:13px 0;border-top:1px solid var(--line);font-size:.86rem}
 .spec-row:first-child{border-top:none;padding-top:0}
-.spec-row span{font-family:var(--font-mono);color:var(--text-muted);font-size:.72rem;letter-spacing:.04em}
+.spec-row span{color:var(--text-muted)}
 .spec-row b{font-weight:500;color:var(--text);white-space:nowrap;text-align:right}
 .spec-row b.gold{color:var(--gold)}
-.notify label{display:block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;color:var(--text-mid);margin-bottom:11px}
+.notify label{display:block;color:var(--text-mid);margin-bottom:11px}
 .notify-row{display:flex;gap:var(--space-2xs)}
-.notify-row input{flex:1;min-width:0;font-family:var(--font-mono);font-size:.78rem;color:var(--text);background:var(--glass-weak);border:1px solid var(--line-2);border-radius:7px;padding:11px 13px;outline:none;transition:border-color .2s}
+.notify-row input,.notify-row button{font-family:var(--font-mono);font-size:var(--mono-medium)}
+.notify-row input{flex:1;min-width:0;color:var(--text);background:var(--glass-weak);border:1px solid var(--line-2);border-radius:7px;padding:11px 13px;outline:none;transition:border-color .2s}
 .notify-row input::placeholder{color:var(--text-muted)}
 .notify-row input:focus{border-color:var(--gold-line)}
-.notify-row button{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:600;font-size:.78rem;color:var(--on-gold);background:var(--gold);border:none;border-radius:7px;padding:11px 16px;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.notify-row button{display:inline-flex;align-items:center;justify-content:center;font-weight:600;color:var(--on-gold);background:var(--gold);border:none;border-radius:7px;padding:11px 16px;cursor:pointer;white-space:nowrap;transition:opacity .2s}
 .notify-row button svg{display:block}
 .notify-row button:hover{opacity:.85}
-.notify-ok{font-family:var(--font-mono);font-size:.74rem;color:var(--gold);margin-top:10px;height:0;opacity:0;overflow:hidden;transition:opacity .3s}
+.notify-ok{font-family:var(--font-mono);font-size:var(--mono-small);color:var(--gold);margin-top:10px;height:0;opacity:0;overflow:hidden;transition:opacity .3s}
 .notify-ok.show{height:auto;opacity:1}
 .tags{display:flex;flex-wrap:wrap;gap:var(--space-2xs);margin-top:auto}
-.tag{font-family:var(--font-mono);font-size:.68rem;padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
+.tag{font-family:var(--font-mono);font-size:var(--mono-small);padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
 
 .cols{display:grid;grid-template-columns:var(--split-cols)}
 /* min-width:0 so this grid splits purely by the fr ratio, content-independent,
@@ -395,7 +410,7 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 /* button shrinks to its content instead of stretching to the column width */
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:42ch;text-wrap:pretty}
-.imprint{font-family:var(--font-mono);font-size:.82rem;}
+.imprint{font-family:var(--font-mono);font-size:var(--mono-medium);}
 .imprint-line{color:var(--text-mid);line-height:1.85;margin-bottom:2px}
 .imprint-row{display:flex;align-items:center;gap:var(--space-m);flex-wrap:wrap}
 /* margin-inline:auto centers the logo within the free space next to the address,
@@ -410,7 +425,7 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
    content box equals a card's box at every width and the text flushes with the left/
    right card edges. */
 footer{border-top:1px solid var(--line)}
-.foot{max-width:var(--container);margin:0 auto;padding:var(--space-m) var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:20px;color:var(--text-muted);font-family:var(--font-mono);font-size:.72rem;flex-wrap:wrap;text-transform:lowercase}
+.foot{max-width:var(--container);margin:0 auto;padding:var(--space-m) var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:20px;color:var(--text-muted);font-family:var(--font-mono);font-size:var(--mono-small);flex-wrap:wrap;text-transform:lowercase}
 
 .nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:1px solid var(--line-2);border-radius:6px;cursor:pointer;padding:8px;z-index:101}
 .nav-hamburger span{display:block;width:100%;height:1.5px;background:var(--text);transition:transform .35s var(--ease),opacity .25s}
