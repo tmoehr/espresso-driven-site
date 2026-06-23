@@ -146,8 +146,7 @@
 html{scroll-behavior:smooth;overflow-x:hidden;overscroll-behavior-x:none;background:var(--bg)}
 body{position:relative;max-width:100%;overflow-x:clip;font-family:'Space Grotesk',system-ui,sans-serif;background:transparent;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6{overflow-wrap:break-word}
-h2{font-size:2.4rem;letter-spacing:-.025em;line-height:1;font-weight:700}
-h3{font-family:var(--font-mono);font-weight:200; font-size:1.2rem;line-height:1; text-transform: uppercase;color: var(--gold)}
+h3{font-size:3.4rem;letter-spacing:-.025em;line-height:1;font-weight:700; text-transform: none; color: var(--text)}
 p{font-weight:400;overflow-wrap:break-word}
 /* Fallback background, shown only when WebGL is unavailable. Fixed to the viewport
    (like #bg-gl) so it can never extend past the visible area — on iOS Safari an
@@ -346,7 +345,7 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 @media(prefers-reduced-motion:reduce){.stage .bars button.active .fill{animation:none;width:100%}}
 .stage-cap{position:absolute;left:var(--space-l);bottom:34px;z-index:3;max-width:62%}
 .stage-cap .id{display:block;font-size:.72rem;letter-spacing:.12em;color:color-mix(in srgb, var(--text-on-media) 62%, transparent);margin-bottom:14px;text-transform:uppercase}
-.stage-cap h3{font-family:inherit;font-weight:700;text-transform:none;color:var(--text-on-media);font-size:3.4rem;letter-spacing:-.025em;line-height:1;margin-bottom:4px}
+.stage-cap h3{color:var(--text-on-media);margin-bottom:4px}
 .stage-cap p{color:var(--text-on-media);font-size:1.05rem;max-width:30ch;line-height:1.5}
 .stage-top{position:absolute;top:14px;right:16px;z-index:2;display:flex;align-items:center;gap:8px}
 .status{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-media);background:color-mix(in srgb, var(--ink) 70%, transparent);border:1px solid var(--gold-media-line);border-radius:100px;padding:5px 11px;backdrop-filter:blur(6px)}
@@ -396,7 +395,6 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 /* button shrinks to its content instead of stretching to the column width */
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:42ch;text-wrap:pretty}
-#contact-inner h3{font-family:inherit;font-weight:700;text-transform:none;color:var(--text);font-size:2.4rem;letter-spacing:-.025em;line-height:1}
 .imprint{font-family:var(--font-mono);font-size:.82rem;}
 .imprint-line{color:var(--text-mid);line-height:1.85;margin-bottom:2px}
 .imprint-row{display:flex;align-items:center;gap:var(--space-m);flex-wrap:wrap}
@@ -460,7 +458,7 @@ footer{border-top:1px solid var(--line)}
      narrow viewport and reintroduce a sideways scroll. */
   .sc-body{grid-template-columns:1fr}.sc-main{border-right:none;border-bottom:1px solid var(--line)}
   .sc-main,.sc-side{padding:var(--space-m)}
-  .stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap h3{font-size:2.4rem}
+  .stage-cap{left:var(--space-m);bottom:24px;max-width:84%}.stage-cap
   .stage .bars{bottom:18px;right:18px}.stage .bars button::before{top:-16px;bottom:-16px}
   .cols{grid-template-columns:1fr}.cols>div{padding:var(--space-m)}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
