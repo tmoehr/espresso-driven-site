@@ -42,6 +42,11 @@ function setMenu(open){
 }
 burger.addEventListener('click',()=>setMenu(!burger.classList.contains('is-open')));
 
+// Stagger the mobile-menu link entrance without hardwiring per-index CSS: feed each
+// link its position as --i (consumed by the transition-delay calc in styles.css).
+// Adding or removing links keeps the cascade intact — no CSS edit needed.
+mob.querySelectorAll('.mobile-nav a').forEach((a,i)=>a.style.setProperty('--i',i));
+
 // Theme switch: cycles Auto -> Light -> Dark on each click. 'Auto' (no data-theme
 // attribute) follows prefers-color-scheme; Light/Dark force the theme. All three
 // modes are persisted in localStorage — including 'auto', so a chosen 'auto' is

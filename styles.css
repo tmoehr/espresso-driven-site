@@ -98,6 +98,10 @@
      spec column, so their divider lines land at the same x. Collapses to 1fr on
      phones in the max-width:860px block. */
   --split-cols: 1.45fr .85fr;
+  /* About row: a fixed-width portrait column + flexible bio column. The portrait
+     edge is intentionally narrower than --split-cols so the photo reads as a
+     headshot, not a content panel. Collapses to 1fr on phones (max-width:860px). */
+  --about-cols: minmax(0, 240px) 1fr;
   /* Spacing scale — single source of truth for all vertical/inline rhythm.
      Vertical spacing between text levels is owned by container `gap`, never by
      the elements themselves, so abstände never stack. Steps are intentionally
@@ -401,6 +405,19 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .tags{display:flex;flex-wrap:wrap;gap:var(--space-2xs);margin-top:auto}
 .tag{font-family:var(--font-mono);font-size:var(--mono-small);padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
 
+/* About — a square portrait beside the bio, both top-aligned, on the shared .panel
+   surface. The portrait is a transparent cut-out, so it sits frameless directly on
+   the panel (no border/background) and reads as a headshot without a divider line. */
+.about{display:grid;grid-template-columns:var(--about-cols);align-items:start;gap:var(--space-l);padding:var(--space-l)}
+/* align-self:center keeps the bio top-aligned (row align-items:start) while the
+   portrait floats to the vertical centre of the taller bio column. */
+.about-portrait{aspect-ratio:1;align-self:center}
+.about-portrait img{width:100%;height:100%;object-fit:contain;display:block}
+.about-body{display:flex;flex-direction:column;gap:var(--space-m);min-width:0}
+.about-body .lead{font-size:1rem;line-height:1.75;color:var(--text);max-width:52ch}
+.about-body p{color:var(--text-mid);max-width:52ch;text-wrap:pretty}
+.about-body .tags{margin-top:0}
+
 .cols{display:grid;grid-template-columns:var(--split-cols)}
 /* min-width:0 so this grid splits purely by the fr ratio, content-independent,
    exactly like .sc-body above. Both grids then resolve to the same 1.45/.85 split
@@ -410,14 +427,23 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 /* button shrinks to its content instead of stretching to the column width */
 .cols .btn{align-self:flex-start}
 .cols p{color:var(--text-mid);max-width:42ch;text-wrap:pretty}
-.imprint{font-family:var(--font-mono);font-size:var(--mono-medium);}
+/* justify-content centres the row vertically in the imprint column, which the grid
+   stretches to the taller contact column's height. */
+/* align-items:center horizontally centres the row in the column — only meaningful in
+   the two-column layout; the mobile block below resets it to left-aligned. */
+.imprint{font-family:var(--font-mono);font-size:var(--mono-medium);justify-content:center;align-items:center}
 .imprint-line{color:var(--text-mid);line-height:1.85;margin-bottom:2px}
-.imprint-row{display:flex;align-items:center;gap:var(--space-m);flex-wrap:wrap}
-/* margin-inline:auto centers the logo within the free space next to the address,
-   not against the column edge */
-.imprint-logo{height:34px;flex-shrink:0;margin-inline:auto;background:var(--text-mid);opacity:.9}
+/* Logo stacked left-aligned above the address */
+/* Logo · divider · address, all vertically centred. The divider stretches to the
+   row height — which the taller address block sets — so it ends flush with the
+   address text top/bottom; the row gap gives it the slight breathing room L/R. */
+.imprint-row{display:flex;align-items:center;gap:var(--space-m)}
+.imprint-logo{height:34px;flex-shrink:0;background:var(--text-mid);opacity:.9}
+.imprint-sep{align-self:stretch;width:1px;flex-shrink:0;background:var(--line)}
 .links{display:flex;align-items:center;gap:var(--space-s);padding-top:var(--space-m);border-top:1px solid var(--line)}
-.links a{color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .2s}
+/* font set here (not inherited from a parent like .imprint) so the link keeps the
+   mono face + size wherever .links is used — imprint AND the about block. */
+.links a{font-family:var(--font-mono);font-size:var(--mono-medium);color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .2s}
 .links .sep{width:1px;height:12px;background:var(--line);margin: -6px}
 
 /* Footer rule runs full-bleed (border on the full-width <footer>); the text row aligns
@@ -445,9 +471,10 @@ footer{border-top:1px solid var(--line)}
 .mobile-nav{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .mobile-nav a{font-family:var(--font-mono);font-size:clamp(1.6rem,7vw,2.4rem);color:var(--text-mid);text-decoration:none;padding:10px 0;opacity:0;transform:translateY(16px);transition:color .2s,opacity .4s var(--ease),transform .4s var(--ease)}
 .mobile-menu.is-open .mobile-nav a{opacity:1;transform:none}
-.mobile-menu.is-open .mobile-nav a:nth-child(1){transition-delay:.08s}
-.mobile-menu.is-open .mobile-nav a:nth-child(2){transition-delay:.15s}
-.mobile-menu.is-open .mobile-nav a:nth-child(3){transition-delay:.22s}
+/* Index-independent entrance cascade: each link's position is fed in as --i (set
+   once in ui.js), so the stagger auto-scales to any number of links — no per-index
+   CSS to maintain. .08s base + .07s per step reproduces the original .08/.15/.22… */
+.mobile-menu.is-open .mobile-nav a{transition-delay:calc(.08s + var(--i,0) * .07s)}
 
 /* Collapse the header to the floating hamburger when the viewport is either narrow
    (phones) OR short (landscape phones / flat windows): a wide-but-flat window has no
@@ -477,6 +504,12 @@ footer{border-top:1px solid var(--line)}
   .stage .bars{bottom:18px;right:18px}.stage .bars button::before{top:-16px;bottom:-16px}
   .cols{grid-template-columns:1fr}.cols>div{padding:var(--space-m)}.cols>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
   .cols p{max-width:none}
+  /* single column: keep the imprint row left-aligned (centring is for 2-col only) */
+  .imprint{align-items:flex-start}
+  /* About stacks: a centred avatar on top, capped so it doesn't dominate the fold */
+  .about{grid-template-columns:1fr;gap:var(--space-m);padding:var(--space-m)}
+  .about-portrait{width:min(240px,45%);margin-inline:auto}
+  .about-body .lead,.about-body p{max-width:none}
   .links{flex-wrap:wrap}
   /* the e-mail address is one long unbreakable token — let it wrap on phones
      instead of overflowing its button */
