@@ -68,7 +68,7 @@
      (facet lighting + ambient occlusion) carries the 3D look — so this one value
      re-tints the whole field. Read into the WebGL shader as the u_base uniform
      (see the colour/tone probe in scripts/background.js). Dark default; light below. */
-  --bg-poly: #332722;
+  --bg-poly: #47372e;
   /* Relief tone-mapping, read into the shader as uniforms (these are scalars, not
      colours). Dark look is the default here; the light look is branched in the
      override block below. Dark = deep, contrasty; light = pale, flat latte. */
