@@ -262,6 +262,9 @@ attribute float a_ao;      // per-vertex ambient occlusion — DIFFERS per verte
 attribute vec2  a_bary;    // two of the triangle's barycentric coords (corner = 1,0,0
                            // / 0,1,0 / 0,0,1). Interpolated, the smallest of the three
                            // is the distance to the nearest edge -> single-pass wireframe
+uniform float u_scrollOffset; // vertical clip-space shift (parallax). The mesh is built
+                              // taller than the viewport; scrolling slides it up at a
+                              // fraction of the page's scroll speed (set from JS).
 varying vec3  v_normal;
 varying float v_ao;
 varying vec2  v_bary;
@@ -269,7 +272,7 @@ void main(){
   v_normal = a_normal;
   v_ao = a_ao;
   v_bary = a_bary;
-  gl_Position = vec4(a_pos, 0.0, 1.0);
+  gl_Position = vec4(a_pos.x, a_pos.y + u_scrollOffset, 0.0, 1.0);
 }
   </script>
 

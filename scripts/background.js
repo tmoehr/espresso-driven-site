@@ -50,6 +50,13 @@
   const SCROLL_LIGHT_GAIN = 0.25;         // extra phase speed per px/frame of scroll
   const SCROLL_VEL_EASE   = 6.0;           // how quickly the scroll-speed reading settles
 
+  // --- Parallax -------------------------------------------------------------
+  // The mesh is built taller than the viewport and slid up via a vertex-shader
+  // offset as the page scrolls, at this fraction of the scroll distance (0 = the
+  // old pinned look, 1 = scrolls 1:1 with content). The canvas stays fixed; only
+  // the u_scrollOffset uniform changes per frame, so the static-mesh design holds.
+  const PARALLAX_FACTOR = 0.2;
+
   // ---------------------------------------------------------------------------
   // value noise (smooth, coherent) for the height field
   // ---------------------------------------------------------------------------
@@ -173,15 +180,29 @@
   const BARY = [[1, 0], [0, 1], [0, 0]];
   const SEED = 1234.5;                       // fixed height pattern; point layout is random per load
   let vertexCount = 0;
+  let dpr = 1;                               // current device-pixel ratio (set in resize)
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+
+  // Extra canvas-pixel height the mesh needs below the viewport so it still covers
+  // the screen once it has slid up by PARALLAX_FACTOR of the page's full scroll
+  // distance. Zero under reduced motion -> mesh is exactly viewport-sized and pinned.
+  function parallaxExtentPx(){
+    if(reduceMotion) return 0;
+    const scrollRange = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    return scrollRange * dpr * PARALLAX_FACTOR;
+  }
 
   function buildMesh(W, H){
     const radius = Math.min(POLY_MAX_RADIUS_PX, Math.max(POLY_MIN_RADIUS_PX, Math.min(W, H) / POLY_DENSITY_DIV));
     const m = radius;                         // margin so the mesh overspills the screen
+    // Parallax: extend the mesh below the viewport so it still covers the screen
+    // after it slides up. Radius (polygon size) stays tied to the viewport's short
+    // side, so the relief looks identical — there's just more of it down the page.
+    const meshH = H + parallaxExtentPx();
     // Sample over an expanded rect, shift back, then pin the 4 far corners so the
     // convex hull strictly contains the viewport (no uncovered edges/corners).
-    const pts = poisson(W + 2 * m, H + 2 * m, radius).map(p => [p[0] - m, p[1] - m]);
-    pts.push([-m, -m], [W + m, -m], [-m, H + m], [W + m, H + m]);
+    const pts = poisson(W + 2 * m, meshH + 2 * m, radius).map(p => [p[0] - m, p[1] - m]);
+    pts.push([-m, -m], [W + m, -m], [-m, meshH + m], [W + m, meshH + m]);
 
     const tris = triangulate(pts);
     const noise = makeNoise(SEED);
@@ -281,6 +302,7 @@
   const uVignette       = gl.getUniformLocation(prog, 'u_vignette');
   const uGlint          = gl.getUniformLocation(prog, 'u_glint');
   const uGlintStrength  = gl.getUniformLocation(prog, 'u_glintStrength');
+  const uScrollOffset   = gl.getUniformLocation(prog, 'u_scrollOffset');
 
   // Colours + tone-mapping stay controllable from CSS, and the SAME tokens flip
   // per theme (dark default + light override block), so re-reading them is also how
@@ -318,7 +340,7 @@
   // enough that 2× is fine while still sparing huge 3×+ phone buffers.
   const DPR_CAP = 2;
   function resize(){
-    const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+    dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
     // Size to the canvas's CSS box (100vw/100vh), not innerWidth/innerHeight: on
     // iOS Safari innerHeight changes as the toolbar shows/hides while scrolling,
     // which would rebuild the mesh mid-scroll. The vh-based CSS box stays constant
@@ -335,12 +357,34 @@
   window.addEventListener('resize', resize);
   resize();
 
+  // The mesh's extra height comes from the document's scroll range, which can change
+  // after load (fonts/images settling, responsive reflow) without any window resize.
+  // Rebuild when the page height changes so the parallax extent stays exactly matched,
+  // debounced to one rebuild per frame. Skipped under reduced motion (mesh is
+  // viewport-sized and never slides, so the scroll range is irrelevant).
+  if(!reduceMotion && 'ResizeObserver' in window){
+    let lastH = document.documentElement.scrollHeight, pending = 0;
+    new ResizeObserver(() => {
+      const docH = document.documentElement.scrollHeight;
+      if(docH === lastH || pending) return;
+      lastH = docH;
+      pending = requestAnimationFrame(() => { pending = 0; buildMesh(canvas.width, canvas.height); });
+    }).observe(document.documentElement);
+  }
+
   // light direction from a wander phase
   function setLight(phase){
     const a = LIGHT_BASE_ANGLE + LIGHT_WANDER_AMP * Math.sin(phase);
     let x = Math.cos(a) * LIGHT_XY_RADIUS, y = Math.sin(a) * LIGHT_XY_RADIUS, z = LIGHT_Z;
     const inv = 1 / Math.hypot(x, y, z);
     gl.uniform3f(uLightDir, x * inv, y * inv, z * inv);
+  }
+
+  // Parallax: slide the mesh up by PARALLAX_FACTOR of the page's scroll distance.
+  // The mesh was built taller by exactly that range, so the viewport stays covered.
+  // NDC units — clip space spans 2 over the canvas height, matching ndcY in buildMesh.
+  function setScroll(){
+    gl.uniform1f(uScrollOffset, window.scrollY * dpr * PARALLAX_FACTOR / canvas.height * 2);
   }
   function draw(){ gl.drawArrays(gl.TRIANGLES, 0, vertexCount); }
 
@@ -377,6 +421,7 @@
     // phase advances at a slow idle rate, faster the quicker you scroll
     phase += dt * (LIGHT_BASE_SPEED + SCROLL_LIGHT_GAIN * scrollVel);
     setLight(phase);
+    setScroll();                                // slide the mesh for the parallax drift
     draw();
   }
 
