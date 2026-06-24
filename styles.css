@@ -409,9 +409,8 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
    surface. The portrait is a transparent cut-out, so it sits frameless directly on
    the panel (no border/background) and reads as a headshot without a divider line. */
 .about{display:grid;grid-template-columns:var(--about-cols);align-items:start;gap:var(--space-l);padding:var(--space-l)}
-/* align-self:center keeps the bio top-aligned (row align-items:start) while the
-   portrait floats to the vertical centre of the taller bio column. */
-.about-portrait{aspect-ratio:1;align-self:center}
+/* portrait sits at the top of the (taller) bio column — inherits align-items:start */
+.about-portrait{aspect-ratio:1}
 .about-portrait img{width:100%;height:100%;object-fit:contain;display:block}
 .about-body{display:flex;flex-direction:column;gap:var(--space-m);min-width:0}
 .about-body .lead{font-size:1rem;line-height:1.75;color:var(--text);max-width:52ch}
