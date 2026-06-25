@@ -334,7 +334,19 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .stage .slides{position:absolute;inset:0;z-index:0}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease)}
 .slide.active{opacity:1}
-.slide img{width:100%;height:100%;object-fit:cover;backface-visibility:hidden}
+.slide img{width:100%;height:100%;object-fit:cover;backface-visibility:hidden;transform-origin:center;transition:transform .7s var(--ease)}
+/* Ken Burns: the active slide slowly scales up from its centre, so the still
+   images feel alive. Duration runs a touch longer than the 5s autoplay
+   interval so the zoom is still moving at the cut and never visibly freezes
+   before the next slide swaps in. The .7s transform transition above eases the
+   outgoing slide back to scale 1 as it fades, instead of snapping. */
+.slide.active img{animation:kenburns 6s linear forwards}
+/* mirror the fillbar's pause rules (see below) so the zoom and the progress
+   dot stay in lockstep: frozen until the stage scrolls in, and on hover */
+.stage:not(.in-view) .slide.active img{animation-play-state:paused}
+@media (hover:hover){.stage:hover .slide.active img{animation-play-state:paused}}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.slide.active img{animation:none;transform:none}}
 /* bottom-up scrim so the caption stays legible over any slide */
 .stage::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb, var(--ink) 60%, transparent) 0%,color-mix(in srgb, var(--ink) 0%, transparent) 50%)}
 /* dot indicator: inactive dots are small grey circles; the active one elongates
