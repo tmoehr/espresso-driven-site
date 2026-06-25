@@ -143,7 +143,10 @@
 
     /* Compact: tabs replace the side-by-side layout so the panel never overloads phones. */
     @media (max-width:720px){
-      #hp-ui{width:100%}
+      /* Only the expanded panel needs the full width for its single-column tab layout. Minimized,
+         it keeps the content-driven width it has on wide screens, so the collapsed head looks the
+         same at every viewport size instead of stretching edge to edge. */
+      #hp-ui:not(.minimized){width:100%}
       .hp-tabs{display:flex}
       .hp-body{flex-direction:column}
       .hp-section{display:none;width:auto}
