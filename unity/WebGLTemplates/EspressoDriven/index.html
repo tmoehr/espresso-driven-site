@@ -88,6 +88,11 @@
       line-height:1;border-radius:6px;cursor:pointer;
       color:var(--text);background:transparent;border:1px solid var(--line);font-size:var(--mono-large)}
     .hp-head:hover .hp-min{border-color:var(--gold);color:var(--gold)}
+    /* Single chevron, rotated by state: points up while minimized (expand upward), flips to point
+       down when open. The .minimized class on #hp-ui is the only state source — JS never touches
+       the glyph — and the .2s transition matches the template's other transitions. */
+    .hp-min svg{display:block;transition:transform .2s}
+    #hp-ui:not(.minimized) .hp-min svg{transform:rotate(180deg)}
 
     /* Tabs: shown only in compact mode (see media query). */
     .hp-tabs{display:none;gap:8px}
@@ -172,7 +177,9 @@
       <div id="hp-ui" class="panel minimized" aria-label="HelioPath controls">
         <div class="hp-head">
           <h2>Settings</h2>
-          <button class="hp-min" id="hp-min" title="Expand" aria-label="Expand settings">+</button>
+          <button class="hp-min" id="hp-min" title="Expand" aria-label="Expand settings" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>
+          </button>
         </div>
 
         <div class="hp-tabs" role="tablist">
@@ -550,9 +557,10 @@
     document.querySelector(".hp-head").onclick = function () {
       var btn = el("hp-min");
       var min = document.querySelector("#hp-ui").classList.toggle("minimized");
-      btn.textContent = min ? "+" : "-";
+      // The chevron's direction is pure CSS (rotated off .minimized); JS only keeps the labels in sync.
       btn.title = min ? "Expand" : "Minimize";
       btn.setAttribute("aria-label", min ? "Expand settings" : "Minimize settings");
+      btn.setAttribute("aria-expanded", min ? "false" : "true");
     };
 
     // ── Fullscreen ─────────────────────────────────────────────────────────────────
