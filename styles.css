@@ -454,7 +454,13 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .links{display:flex;align-items:center;gap:var(--space-s);padding-top:var(--space-m);border-top:1px solid var(--line)}
 /* font set here (not inherited from a parent like .imprint) so the link keeps the
    mono face + size wherever .links is used — imprint AND the about block. */
-.links a{font-family:var(--font-mono);font-size:var(--mono-medium);color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .2s}
+.links a{font-family:var(--font-mono);font-size:var(--mono-medium);line-height:1;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .2s}
+/* display:block drops the inline SVG's baseline gap (a WebKit/iOS quirk that
+   otherwise nudges the icon off the text's vertical centre); flex:none keeps it
+   from shrinking when the row wraps. */
+/* tiny optical nudge: the mono glyphs sit a hair high in their line box, so the
+   icon is lifted 1px to share their optical centre rather than the geometric one. */
+.links a svg{display:block;flex:none;margin-top:-1px}
 .links .sep{width:1px;height:12px;background:var(--line);margin: -6px}
 
 /* Footer rule runs full-bleed (border on the full-width <footer>); the text row aligns
