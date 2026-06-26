@@ -349,7 +349,7 @@
     var hpUnity = null;            // resolved Unity instance
     var hpDb = null;               // parsed location database
     var hpManual = false;          // true once the user picks a fixed time (vs. system time)
-    var currentOffsetHours = 0;    // UTC offset of the selected place, for "now" in place-local time
+    var hpNowDrive = false;        // set while the Now button awaits the place's wall clock from Unity
 
     function hpSend(method, value) {
       if (!hpUnity) return;
@@ -367,6 +367,16 @@
       else hpSend("SetLocalTime", manualIso());
       hpSend("SetDayDuration", Math.round(secondsFromSlider(parseFloat(el("hp-daylength").value))));
       document.querySelector("#hp-ui").classList.add("ready");
+    };
+
+    // Unity -> JS: the selected place's current local wall clock (daylight-saving-adjusted in C#), as a
+    // zone-less "YYYY-MM-DDTHH:mm". Answers a RequestPlaceNow call: fill the date/time inputs, and when the
+    // Now button asked for it, also drive the sun from that time (round-trips back through C# DST, so the
+    // shown time and the rendered sun agree). The DST rule table lives only in C#; the page never replicates it.
+    window.onHelioPathPlaceNow = function (iso) {
+      el("hp-date").value = iso.slice(0, 10);
+      el("hp-time").value = iso.slice(11, 16);
+      if (hpNowDrive) { hpNowDrive = false; sendManualTime(); }
     };
 
     // ── Location ───────────────────────────────────────────────────────────────────
@@ -395,14 +405,15 @@
         var p = (c.Places || [])[place.value | 0];
         if (!p) return;
         var lat = p.Coordinates.Latitude, lon = p.Coordinates.Longitude, off = p.UtcOffsetHours;
-        currentOffsetHours = off;
-        hpSend("SetLocation", lat.toFixed(4) + "," + lon.toFixed(4) + "," + off);
+        // Pass the place's standard offset AND its DST rule (enum int) so C# applies summer time to every
+        // local-time conversion; the sun position itself is always computed in UTC and unaffected.
+        hpSend("SetLocation", lat.toFixed(4) + "," + lon.toFixed(4) + "," + off + "," + (p.Dst | 0));
         el("hp-coords").textContent =
           lat.toFixed(2) + "°, " + lon.toFixed(2) + "°  ·  UTC" + (off >= 0 ? "+" : "") + off;
-        // In manual mode re-send the time so the new place's offset is honoured; otherwise keep
-        // the date/time inputs showing the new place's current wall clock for when the user switches.
+        // In manual mode re-send the time so the new place's offset/DST is honoured; otherwise preview the
+        // new place's current wall clock (asked back from Unity, so it is DST-correct) for when the user switches.
         if (hpManual) hpSend("SetLocalTime", manualIso());
-        else          setInputsToPlaceNow();
+        else          hpSend("RequestPlaceNow");
       }
 
       country.onchange = function () { buildPlaceOptions(); place.value = "0"; applyPlace(); };
@@ -419,17 +430,6 @@
     }
 
     // ── Time ─────────────────────────────────────────────────────────────────────
-    // Current wall-clock at the selected place = UTC now shifted by the place's offset; returned
-    // as { date:"YYYY-MM-DD", time:"HH:mm" } for the split date/time inputs.
-    function placeLocalNow() {
-      var shifted = new Date(Date.now() + currentOffsetHours * 3600000).toISOString();
-      return { date: shifted.slice(0, 10), time: shifted.slice(11, 16) };
-    }
-    function setInputsToPlaceNow() {
-      var p = placeLocalNow();
-      el("hp-date").value = p.date;
-      el("hp-time").value = p.time;
-    }
     // The split inputs combined into the "YYYY-MM-DDTHH:mm" the bridge's SetLocalTime expects.
     function manualIso() { return el("hp-date").value + "T" + el("hp-time").value; }
     function sendManualTime() {
@@ -467,8 +467,10 @@
         else    hpSend("SetLocalTime", manualIso());
       };
       el("hp-now").onclick = function () {
-        setInputsToPlaceNow();   // always the selected place's current local time
-        sendManualTime();
+        // Ask Unity for the place's current wall clock (DST-correct); the callback fills the inputs and,
+        // because hpNowDrive is set, drives the sun from it. Keeps all daylight-saving math in C#.
+        hpNowDrive = true;
+        hpSend("RequestPlaceNow");
       };
       el("hp-date").onchange = sendManualTime;
       el("hp-time").onchange = sendManualTime;
@@ -553,7 +555,7 @@
     }
 
     // The whole head row is the toggle target: clicking the title — or the button, whose click
-    // bubbles up to here — minimizes/expands the panel. The button stays for its visible +/- affordance.
+    // bubbles up to here — minimizes/expands the panel. The button stays for its visible +/− affordance.
     document.querySelector(".hp-head").onclick = function () {
       var btn = el("hp-min");
       var min = document.querySelector("#hp-ui").classList.toggle("minimized");
@@ -609,7 +611,7 @@
       streamingAssetsUrl: "StreamingAssets",
       companyName:    "espressodriven",
       productName:    "HelioPath",
-      productVersion: "1.0.2",
+      productVersion: "1.1.0",
       showBanner:     unityShowBanner,
     };
 
