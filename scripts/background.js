@@ -51,11 +51,12 @@
   const SCROLL_VEL_EASE   = 6.0;           // how quickly the scroll-speed reading settles
 
   // --- Parallax -------------------------------------------------------------
-  // The mesh is built taller than the viewport and slid up via a vertex-shader
+  // The mesh can be built taller than the viewport and slid up via a vertex-shader
   // offset as the page scrolls, at this fraction of the scroll distance (0 = the
-  // old pinned look, 1 = scrolls 1:1 with content). The canvas stays fixed; only
-  // the u_scrollOffset uniform changes per frame, so the static-mesh design holds.
-  const PARALLAX_FACTOR = 0.2;
+  // background stays pinned/fixed, 1 = scrolls 1:1 with content). The canvas stays
+  // fixed; only the u_scrollOffset uniform changes per frame, so the static-mesh
+  // design holds. Set to 0: the background is fixed and does not react to scroll.
+  const PARALLAX_FACTOR = 0;
 
   // ---------------------------------------------------------------------------
   // value noise (smooth, coherent) for the height field

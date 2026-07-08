@@ -83,7 +83,7 @@
   --bg-glint:           var(--gold);
   --bg-glint-strength:  3.0; /* 0 = off; how strongly lit edges pick up the accent */
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
-  --bg-parallax-velocity: 0.3; /* fallback parallax speed relative to scroll */
+  --bg-parallax-velocity: 0; /* 0 = fallback background stays fixed; >0 parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
      and side gutter. The header nav, hero, the .wrap card column AND the footer all
      derive from these, so the cards and the footer share one column and one gutter.
