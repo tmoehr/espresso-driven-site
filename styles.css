@@ -11,7 +11,7 @@
      for the forced-light attribute — CSS can't OR a media query with a selector).
      Tokens derived via var() (--gold-dim/-line, --bg-fade) auto-update with their
      source and are not repeated in the override. */
-  --bg:         #1a120f;
+  --bg: #241815;
   --text:       #efe7dd;
   --text-mid:   #bcb0a3;
   --text-muted: #867a6e;
@@ -68,7 +68,7 @@
      (facet lighting + ambient occlusion) carries the 3D look — so this one value
      re-tints the whole field. Read into the WebGL shader as the u_base uniform
      (see the colour/tone probe in scripts/background.js). Dark default; light below. */
-  --bg-poly: #47372e;
+  --bg-poly: #59453a;
   /* Relief tone-mapping, read into the shader as uniforms (these are scalars, not
      colours). Dark look is the default here; the light look is branched in the
      override block below. Dark = deep, contrasty; light = pale, flat latte. */
