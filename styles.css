@@ -81,7 +81,7 @@
      Colour follows --gold (re-resolves per theme); strength is dialled down on the
      pale light field below so it stays a hint, never a distraction. */
   --bg-glint:           var(--gold);
-  --bg-glint-strength:  3.0; /* 0 = off; how strongly lit edges pick up the accent */
+  --bg-glint-strength:  0; /* 0 = off; how strongly lit edges pick up the accent */
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0; /* 0 = fallback background stays fixed; >0 parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
