@@ -134,7 +134,7 @@
     --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
     --bg-poly:#fffaf2;
     --bg-shadow-level:0.92; --bg-highlight-level:1.06; --bg-ao-floor:0.80; --bg-vignette:0.12;
-    --bg-glint-strength:5;
+    --bg-glint-strength:0;
     --hero-logo-saturate:1;
   }
 }
@@ -147,7 +147,7 @@
   --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
   --bg-poly:#fffaf2;
   --bg-shadow-level:0.92; --bg-highlight-level:1.06; --bg-ao-floor:0.80; --bg-vignette:0.12;
-  --bg-glint-strength:5;
+  --bg-glint-strength:0;
   --hero-logo-saturate:1;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
