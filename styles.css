@@ -69,11 +69,11 @@
      uniforms via the colour probe in scripts/background.js. Ordered darkest→lightest;
      the shader mixes espresso→crema by the noise field. DARK is the default here;
      the LIGHT (latte) palette lives in the override blocks below. */
-  --espresso:   #171611; /* deep, almost-black crema base */
-  --dark-brown: #33221e;
-  --mid-brown:  #59483e;
-  --caramel:    #7a6a5c;
-  --crema:      #ccb499; /* rare warm sheen on the ridges */
+  --espresso:   #1a120c; /* deep, almost-black espresso base */
+  --dark-brown: #3d2417;
+  --mid-brown:  #6e4a30;
+  --caramel:    #a5743c;
+  --crema:      #dcab68; /* rare warm crema sheen on the ridges */
   /* Swirl tone-mapping (scalars, read as shader uniforms). Dark = deep + contrasty:
      a low brightness floor and a strong vignette keep the field dark. The light
      override below flattens it to a pale latte. */
