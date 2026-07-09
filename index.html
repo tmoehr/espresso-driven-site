@@ -282,91 +282,102 @@
 
   <script src="scripts/ui.js"></script>
 
-  <!-- Live low-poly relief background: a triangulated surface (#bg-gl) lit by a
-       single directional light that slowly wanders — faster while scrolling. The
-       mesh (irregular triangles, per-face normals, per-vertex ambient occlusion)
-       is generated on the CPU in scripts/background.js; the shaders below only
-       light it. Replaces the former static images/espresso_bg.webp fallback. -->
+  <!-- Live espresso-swirl background (#bg-gl): a marbled coffee gradient built from
+       fbm value noise + domain warping in the fragment shader below, drifting over
+       time and churned further by scroll position. Colours + tone come from CSS
+       tokens (per theme) via scripts/background.js. Full-screen triangle, so the
+       vertex shader is trivial. Falls back to images/espresso_bg.webp with no WebGL. -->
   <script id="bg-vert" type="x-shader/x-vertex">
-attribute vec2  a_pos;     // vertex position, already in clip space (-1..1)
-attribute vec3  a_normal;  // FLAT face normal — identical for a triangle's 3 vertices,
-                           // so it interpolates to a constant -> crisp facets
-attribute float a_ao;      // per-vertex ambient occlusion — DIFFERS per vertex,
-                           // so the GPU interpolates it into a soft gradient INSIDE
-                           // each polygon (the "shadow" gradients seen in the look)
-attribute vec2  a_bary;    // two of the triangle's barycentric coords (corner = 1,0,0
-                           // / 0,1,0 / 0,0,1). Interpolated, the smallest of the three
-                           // is the distance to the nearest edge -> single-pass wireframe
-uniform float u_scrollOffset; // vertical clip-space shift (parallax). The mesh is built
-                              // taller than the viewport; scrolling slides it up at a
-                              // fraction of the page's scroll speed (set from JS).
-varying vec3  v_normal;
-varying float v_ao;
-varying vec2  v_bary;
-void main(){
-  v_normal = a_normal;
-  v_ao = a_ao;
-  v_bary = a_bary;
-  gl_Position = vec4(a_pos.x, a_pos.y + u_scrollOffset, 0.0, 1.0);
-}
+attribute vec2 a_pos;   // full-screen triangle, already in clip space (-1..1)
+void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
   </script>
 
   <script id="bg-frag" type="x-shader/x-fragment">
-precision mediump float;
+precision highp float;
 
-uniform vec2 u_resolution;
-uniform vec3 u_lightDir;    // single light direction (unit), wandered from JS
-uniform vec3 u_base;        // base tone, fed from CSS (--bg-poly) — single hue,
-                            // brightness alone carries the relief
+uniform vec2  u_resolution;
+uniform float u_time;       // animation clock (seconds * SPEED), from JS
+uniform float u_scroll;     // smoothed scroll progress — churns the swirl further
+uniform float u_swirl;      // domain-warp strength (baked constant, set once)
 
-// Tone mapping, fed from CSS so each theme tunes the relief without code changes
-// (see the colour/tone probe in scripts/background.js). Dark keeps the field deep
-// and contrasty; light keeps it a pale, flat latte.
-uniform float u_shadowLevel;    // --bg-shadow-level : facet brightness facing away
-uniform float u_highlightLevel; // --bg-highlight-level : facet brightness facing the light
-uniform float u_aoFloor;        // --bg-ao-floor : strongest darkening AO can apply
-uniform float u_vignette;       // --bg-vignette : edge falloff strength
-uniform vec3  u_fadeColor;      // --bg-fade : edge-fade colour at the viewport edges
-uniform vec3  u_glint;          // --bg-glint : accent colour grazing edges flash in
-uniform float u_glintStrength;  // --bg-glint-strength : 0 = off
+// Colours + tone come from CSS custom properties (per theme) so the page and the
+// shader share one source of truth — see the probe in scripts/background.js.
+uniform vec3  u_fadeColor;  // --bg-fade  : edge-fade colour at the top/bottom edges
+uniform vec3  u_espresso;   // --espresso : deep, almost-black base
+uniform vec3  u_darkBrown;  // --dark-brown
+uniform vec3  u_midBrown;   // --mid-brown
+uniform vec3  u_caramel;    // --caramel
+uniform vec3  u_crema;      // --crema    : rare warm highlight on the ridges
+uniform float u_toneFloor;  // --swirl-floor  : baseline brightness (dark low, light high)
+uniform float u_toneLift;   // --swirl-lift   : extra brightness on lit ridges
+uniform float u_vignette;   // --bg-vignette  : edge falloff strength
 
-varying vec3  v_normal;
-varying float v_ao;
-varying vec2  v_bary;
+const float FADE_SPAN = 0.18;  // how far the top/bottom edge fade reaches (geometry, not theme)
 
-const float FADE_SPAN = 0.16;  // how far the top/bottom edge fade reaches (geometry, not theme)
-
-// Edge-glint tuning (geometry/look, not theme — themes scale it via u_glintStrength).
-const float GLINT_EDGE_WIDTH   = 0.01;//0.09; // barycentric line half-width; polygons are near-uniform in size, so this reads as a roughly constant on-screen thickness without needing pixel derivatives
-const float GLINT_LIGHT_FOCUS  = 5.0;  // higher -> only facets near-perfectly aligned with the light glint, so fewer edges fire at once (pow(facet,K): K=12 was effectively invisible)
-const float GLINT_RIDGE_FOCUS  = 0.05;  // gentle bias toward tilted ridge facets; kept <1 so the soft relief facets aren't crushed to black (the light-focus term already quiets the big flat areas)
+// --- value noise (Inigo Quilez style) ---
+float hash(vec2 p){
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+float noise(in vec2 x){
+  vec2 i = floor(x);
+  vec2 f = fract(x);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+float fbm(vec2 p){
+  float v = 0.0;
+  float a = 0.5;
+  mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+  for(int i = 0; i < 6; i++){
+    v += a * noise(p);
+    p = m * p;
+    a *= 0.5;
+  }
+  return v;
+}
 
 void main(){
-  vec3 n = normalize(v_normal);
-
-  // --- the one light: crisp per-facet Lambert term (dynamic, follows the light) ---
-  float facet = max(dot(n, u_lightDir), 0.0);
-  float light = mix(u_shadowLevel, u_highlightLevel, facet);
-
-  // --- ambient occlusion: soft gradient inside polygons (static, baked geometry) ---
-  float ao = mix(u_aoFloor, 1.0, clamp(v_ao, 0.0, 1.0));
-
-  vec3 col = u_base * light * ao;
-
-  // --- accent edge-glint: tint fragments near a polygon edge gold, but only on
-  // facets the wandering light grazes (LIGHT_FOCUS) and that actually tilt up into
-  // a ridge (RIDGE_FOCUS). Both gates keep it to a few edges that migrate as the
-  // light moves. Composited before the vignette/fade so it dims toward the edges too.
-  float edgeDist = min(min(v_bary.x, v_bary.y), 1.0 - v_bary.x - v_bary.y);
-  float edgeMask = 1.0 - smoothstep(0.0, GLINT_EDGE_WIDTH, edgeDist);
-  // max(...,0.0) guards the base: on mediump (iOS) normalize() can nudge n.z just
-  // over 1.0, and pow() of a negative base is NaN -> black fragments across the big
-  // flat facets. Clamping keeps it 0 there, which is what we want anyway.
-  float glint = pow(facet, GLINT_LIGHT_FOCUS) * pow(max(1.0 - n.z, 0.0), GLINT_RIDGE_FOCUS);
-  col = mix(col, u_glint, clamp(edgeMask * glint * u_glintStrength, 0.0, 1.0));
-
-  // gentle vignette so the field sits back from the page edges
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 p = uv;
+  p.x *= u_resolution.x / u_resolution.y;   // keep swirls round
+  p *= 3.0;                                  // a few vortices across the screen
+
+  float t  = u_time;
+  float sc = u_scroll;
+  float w  = u_swirl;
+
+  // a slow common drift so the whole surface eases in one direction,
+  // like liquid settling rather than shimmering in place
+  vec2 drift = vec2(sin(t * 0.06) * 0.10, t * 0.025);
+
+  // domain warping: feed noise through itself twice -> marbled vortices.
+  // small, de-synced time coefficients keep the motion subtle and natural
+  vec2 q;
+  q.x = fbm(p + drift + vec2(0.0, 1.0) + 0.035 * t);
+  q.y = fbm(p + drift + vec2(5.2, 1.3) - 0.028 * t);
+
+  vec2 r;
+  r.x = fbm(p + w * q + vec2(1.7, 9.2) + 0.045 * t + sc);
+  r.y = fbm(p + w * q + vec2(8.3, 2.8) - 0.038 * t + sc * 0.75);
+
+  float f = fbm(p + w * r);
+
+  // --- espresso palette: near-black crema with warm reddish ridges ---
+  vec3 col = mix(u_espresso, u_midBrown, clamp(f * f * 2.6, 0.0, 1.0));
+  col = mix(col, u_darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
+  col = mix(col, u_caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
+  col = mix(col, u_crema,     clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen
+
+  // tone map: S-curve the noise, then lift brightness from a per-theme floor. Dark
+  // keeps a low floor (deep) ; light raises it near 1 (flat, pale latte).
+  float fc = smoothstep(0.15, 0.85, f);
+  col *= u_toneFloor + u_toneLift * fc;
   vec2 vig = uv - 0.5;
   col *= 1.0 - u_vignette * dot(vig, vig);
 
