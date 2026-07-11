@@ -410,6 +410,8 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .notify-row button:hover{opacity:.85}
 .notify-ok{font-family:var(--font-mono);font-size:var(--mono-small);color:var(--gold);margin-top:10px;height:0;opacity:0;overflow:hidden;transition:opacity .3s}
 .notify-ok.show{height:auto;opacity:1}
+/* Sidebar store CTA — full-width, centred, reuses the shared .btn token */
+.asset-cta .btn{width:100%;justify-content:center}
 .tags{display:flex;flex-wrap:wrap;gap:var(--space-2xs);margin-top:auto}
 .tag{font-family:var(--font-mono);font-size:var(--mono-small);padding:5px 11px;border-radius:5px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
 

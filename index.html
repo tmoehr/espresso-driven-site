@@ -41,7 +41,8 @@
        color-scheme:light dark + prefers-color-scheme decide. The ||'dark' maps the
        first-visit null to dark; the catch falls back to dark if storage is blocked. -->
   <script>
-    try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}
+    document.documentElement.setAttribute('data-theme','dark');
+    // try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}
   </script>
 
   <!-- Structured data: lets search engines model the brand + site as entities
@@ -164,7 +165,9 @@
             <div class="slide"><img src="images/heliopath/effects.webp" srcset="images/heliopath/effects.webp 1x, images/heliopath/effects@2x.webp 2x" width="1136" height="430" alt="HelioPath sunlight effects" loading="lazy" decoding="async"></div>
           </div>
           <div class="stage-top">
+            <!-- Kept for reuse on the next unreleased asset — HelioPath is live now.
             <span class="status"><span class="dot"></span>Coming Soon</span>
+            -->
             <a class="demo-cta" href="/demo/heliopath/">Try demo</a>
           </div>
           <div class="stage-cap">
@@ -204,8 +207,16 @@
                 Tools/Utilities</b></div>
               <div class="spec-row"><span>Pipeline</span><b>URP | HDRP</b></div>
               <div class="spec-row"><span>Unity</span><b>2022.3 +</b></div>
+              <!-- Kept for reuse on the next unreleased asset — HelioPath is live now.
               <div class="spec-row"><span>Status</span><b class="gold">In the roaster</b></div>
+              -->
             </div>
+            <div class="asset-cta">
+              <a class="btn" href="https://assetstore.unity.com/packages/slug/384752" target="_blank" rel="noopener">View on Asset Store</a>
+            </div>
+            <!-- "Notify me at launch" — kept for reuse on the next unreleased asset.
+                 The JS handler in scripts/ui.js guards on #notify-form, so it no-ops
+                 while this is commented out.
             <div class="notify">
               <label for="notify-email">Notify me at launch</label>
               <form class="notify-row" id="notify-form">
@@ -214,6 +225,7 @@
               </form>
               <p class="notify-ok" id="notify-ok">Opening your mail app and hit send to lock it in.</p>
             </div>
+            -->
           </aside>
         </div>
       </article>
