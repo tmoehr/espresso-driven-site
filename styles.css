@@ -77,12 +77,12 @@
   /* Swirl tone-mapping (scalars, read as shader uniforms). Dark = deep + contrasty:
      a low brightness floor and a strong vignette keep the field dark. The light
      override below flattens it to a pale latte. */
-  --swirl-floor: 0.4; /* baseline brightness of the darkest swirl areas */
-  --swirl-lift:  0.7; /* extra brightness the lit ridges gain over the floor */
+  --swirl-floor: 0.15; /* baseline brightness of the darkest swirl areas */
+  --swirl-lift:  0.80; /* extra brightness the lit ridges gain over the floor */
   --bg-vignette: 0.55; /* edge falloff strength (read by the shader) */
-  --swirl-saturation: 0.6; /* central colour-saturation knob for the whole background
+  --swirl-saturation: .25; /* central colour-saturation knob for the whole background
                               (both themes): 0 = greyscale, 1 = palette as-is, >1 = richer */
-  --facet-density: 60; /* low-poly facets: triangles across the viewport height. The
+  --facet-density: 30; /* low-poly facets: triangles across the viewport height. The
                           shader snaps each fragment to its triangle's centroid, so the
                           swirl reads as flat coffee facets. 0 = smooth (per-pixel). */
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
