@@ -129,26 +129,39 @@
    floor, slim highlight lift, faint vignette) so the field reads as latte paper. */
 @media (prefers-color-scheme: light){
   :root:not([data-theme]){
-    --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+    --bg: #faf4ed;
+    --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
     --accent: #804a00; --on-gold:#fdf6ea;
     --gold-media: #cc811f;
     --panel: rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
     --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-    --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
-    --espresso:#cbbfb0; --dark-brown:#d6cabb; --mid-brown:#e0d5c6; --caramel:#ece2d2; --crema:#f7f0e2;
-    --swirl-floor:0.90; --swirl-lift:0.12; --bg-vignette:0.12;
+    --theme-color:#f4efe7;
+    --theme-color-menu: #ece8e1;
+    --espresso: #f0a030;
+    --dark-brown: #ffffff;
+    --mid-brown: #ffffff;
+    --caramel: #f0a030;
+    --crema: #b17200;
+    --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.0;
+    --swirl-saturation: .2;
     --hero-logo-saturate:1;
   }
 }
 :root[data-theme="light"]{
-  --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+  --bg:#faf4ed; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
   --accent:#804a00; --on-gold:#fdf6ea;
   --gold-media: #cc811f;
   --panel:rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
   --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-  --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
-  --espresso:#cbbfb0; --dark-brown:#d6cabb; --mid-brown:#e0d5c6; --caramel:#ece2d2; --crema:#f7f0e2;
-  --swirl-floor:0.90; --swirl-lift:0.12; --bg-vignette:0.12;
+  --theme-color:#f4efe7;
+  --theme-color-menu: #ece8e1;
+  --espresso: #f0a030;
+  --dark-brown: #ffffff;
+  --mid-brown: #ffffff;
+  --caramel: #f0a030;
+  --crema: #b17200;
+  --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.0;
+  --swirl-saturation: .2;
   --hero-logo-saturate:1;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
