@@ -60,6 +60,8 @@
   const uToneFloor = gl.getUniformLocation(prog, 'u_toneFloor');
   const uToneLift  = gl.getUniformLocation(prog, 'u_toneLift');
   const uVignette  = gl.getUniformLocation(prog, 'u_vignette');
+  const uSaturation = gl.getUniformLocation(prog, 'u_saturation');
+  const uFacetDensity = gl.getUniformLocation(prog, 'u_facetDensity');
 
   // Colours + tone stay controllable from CSS, and the SAME tokens flip per theme
   // (dark default + light override block), so re-reading them is also how a theme
@@ -89,6 +91,8 @@
     gl.uniform1f(uToneFloor, num('--swirl-floor', 0.25));
     gl.uniform1f(uToneLift,  num('--swirl-lift',  0.20));
     gl.uniform1f(uVignette,  num('--bg-vignette', 0.55));
+    gl.uniform1f(uSaturation, num('--swirl-saturation', 1.0));
+    gl.uniform1f(uFacetDensity, num('--facet-density', 0));
   }
   applyTheme();
 

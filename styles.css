@@ -72,14 +72,19 @@
   --espresso:   #1a120c; /* deep, almost-black espresso base */
   --dark-brown: #3d2417;
   --mid-brown:  #6e4a30;
-  --caramel:    #a5743c;
-  --crema:      #dcab68; /* rare warm crema sheen on the ridges */
+  --caramel: #664825;
+  --crema: #997b48; /* rare warm crema sheen on the ridges */
   /* Swirl tone-mapping (scalars, read as shader uniforms). Dark = deep + contrasty:
      a low brightness floor and a strong vignette keep the field dark. The light
      override below flattens it to a pale latte. */
-  --swirl-floor: 0.25; /* baseline brightness of the darkest swirl areas */
-  --swirl-lift:  0.20; /* extra brightness the lit ridges gain over the floor */
+  --swirl-floor: 0.4; /* baseline brightness of the darkest swirl areas */
+  --swirl-lift:  0.7; /* extra brightness the lit ridges gain over the floor */
   --bg-vignette: 0.55; /* edge falloff strength (read by the shader) */
+  --swirl-saturation: 0.6; /* central colour-saturation knob for the whole background
+                              (both themes): 0 = greyscale, 1 = palette as-is, >1 = richer */
+  --facet-density: 60; /* low-poly facets: triangles across the viewport height. The
+                          shader snaps each fragment to its triangle's centroid, so the
+                          swirl reads as flat coffee facets. 0 = smooth (per-pixel). */
   --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
   --bg-parallax-velocity: 0; /* 0 = fallback background stays fixed; >0 parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
