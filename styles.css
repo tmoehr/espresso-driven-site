@@ -142,9 +142,9 @@
     --mid-brown: #ffffff;
     --caramel: #f0a030;
     --crema: #b17200;
-    --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.0;
+    --swirl-floor:0.95; --swirl-lift:0.2; --bg-vignette:0.0;
     --swirl-saturation: .2;
-    --hero-logo-saturate:1;
+    --hero-logo-saturate:.8;
   }
 }
 :root[data-theme="light"]{
@@ -160,9 +160,9 @@
   --mid-brown: #ffffff;
   --caramel: #f0a030;
   --crema: #b17200;
-  --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.0;
+  --swirl-floor:0.95; --swirl-lift:0.2; --bg-vignette:0.0;
   --swirl-saturation: .2;
-  --hero-logo-saturate:1;
+  --hero-logo-saturate:.8;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* overflow-x:hidden on the ROOT element is what actually stops the page from
