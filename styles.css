@@ -27,7 +27,7 @@
   --line-2:     #352a22;
   --glass:      rgb(12 9 7 / 0.5);   /* ghost button / hamburger pill */
   --glass-weak: rgb(12 9 7 / 0.3);   /* input field */
-  --scrim-menu: rgb(22 13 8 / 0.74); /* full-screen mobile menu */
+  --scrim-menu: rgb(31 23 21 / 0.74); /* full-screen mobile menu */
 
   /* Media-overlay tokens sit over app screenshots: the dark scrim + light text stay
      fixed in BOTH themes so the shots stay legible. The accent over media is its own
@@ -40,8 +40,8 @@
   --gold-media-line: color-mix(in srgb, var(--gold-media) 32%, transparent);
 
   /* theme-color for the iOS status/address bar (applied by ui.js) */
-  --theme-color:      #340f02;
-  --theme-color-menu: #160d08;
+  --theme-color:      #1f1715;
+  --theme-color-menu: #1f1715;
 
   /* Two typefaces, by role:
        --font-text — long-form text: body copy, headings (set on <body>, inherited everywhere)
@@ -120,24 +120,24 @@
    floor, slim highlight lift, faint vignette) so the field reads as latte paper. */
 @media (prefers-color-scheme: light){
   :root:not([data-theme]){
-    --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+    --bg: #f2eee6; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
     --accent: #804a00; --on-gold:#fdf6ea;
     --gold-media: #cc811f;
     --panel: rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
-    --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-    --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
+    --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(242 238 230 / 0.5);
+    --theme-color:#f2eee6; --theme-color-menu: #f2eee6;
     --swirl-bg: #ffffff; --swirl-fg: #b3a696;
     --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.5;
     --hero-logo-saturate:1;
   }
 }
 :root[data-theme="light"]{
-  --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+  --bg:#f2eee6; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
   --accent:#804a00; --on-gold:#fdf6ea;
   --gold-media: #cc811f;
   --panel:rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
-  --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-  --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
+  --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(242 238 230 / 0.5);
+  --theme-color:#f2eee6; --theme-color-menu: #f2eee6;
   --swirl-bg: #ffffff; --swirl-fg: #b3a696;
   --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.5;
   --hero-logo-saturate:1;
@@ -172,7 +172,7 @@ p{font-weight:400;overflow-wrap:break-word}
    show/hide (see resize() in index.html). */
 #bg-gl{position:fixed;top:0;left:0;width:100%;height:100vh;display:block;z-index:-2;pointer-events:none}
 /* warm film grain */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.42;mix-blend-mode:overlay;
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .mono{font-family:var(--font-mono)}
 
