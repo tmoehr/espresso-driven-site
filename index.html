@@ -297,7 +297,7 @@
        fbm value noise + domain warping in the fragment shader below, drifting over
        time and churned further by scroll position. Colours + tone come from CSS
        tokens (per theme) via scripts/background.js. Full-screen triangle, so the
-       vertex shader is trivial. Falls back to images/espresso_bg.webp with no WebGL. -->
+       vertex shader is trivial. Falls back to the solid --bg colour with no WebGL. -->
   <script id="bg-vert" type="x-shader/x-vertex">
 attribute vec2 a_pos;   // full-screen triangle, already in clip space (-1..1)
 void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }

@@ -11,11 +11,9 @@
   // a full-screen triangle, so no antialias/depth/stencil needed.
   const attrs = { alpha: false, antialias: false, depth: false, stencil: false };
   const gl = canvas.getContext('webgl', attrs) || canvas.getContext('experimental-webgl', attrs);
-  // No WebGL: leave the canvas transparent so the static espresso_bg.webp
-  // fallback (body::before, z-index:-3) shows through instead.
+  // No WebGL: leave the canvas transparent so the solid --bg on <html>
+  // (the theme's dark/light background colour) shows through instead.
   if(!gl) return;
-  // Shader is live — hide the fallback image (see html.has-webgl in styles.css).
-  document.documentElement.classList.add('has-webgl');
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

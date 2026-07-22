@@ -85,8 +85,6 @@
   --facet-density: 30; /* low-poly facets: triangles across the viewport height. The
                           shader snaps each fragment to its triangle's centroid, so the
                           swirl reads as flat coffee facets. 0 = smooth (per-pixel). */
-  --bg-parallax: 0px; /* y-offset of the fallback background, updated by scroll JS */
-  --bg-parallax-velocity: 0; /* 0 = fallback background stays fixed; >0 parallax speed relative to scroll */
   /* Layout — central page measures, the single source of truth for the page width
      and side gutter. The header nav, hero, the .wrap card column AND the footer all
      derive from these, so the cards and the footer share one column and one gutter.
@@ -176,31 +174,12 @@ body{position:relative;max-width:100%;overflow-x:clip;font-family:var(--font-tex
 h1,h2,h3,h4,h5,h6{overflow-wrap:break-word}
 h3{font-size:2.4rem;letter-spacing:-.025em;line-height:1;font-weight:700; text-transform: none; color: var(--text)}
 p{font-weight:400;overflow-wrap:break-word}
-/* Fallback background, shown only when WebGL is unavailable. Fixed to the viewport
-   (like #bg-gl) so it can never extend past the visible area — on iOS Safari an
-   absolute, document-tall layer would otherwise peek into the notch/safe-area and
-   overscroll regions. It sits one layer below #bg-gl (z-index:-3), so when the
-   shader runs its opaque canvas paints right over it. The top/bottom fade into
-   --bg is carried by this layer's own mask (the shader bakes its own fade in),
-   so each background carries its fade and nothing can shift relative to it. */
-body::before{content:'';position:fixed;inset:0;height:100vh;z-index:-3;pointer-events:none;
-  background-image:url('images/espresso_bg.webp');
-  background-repeat:repeat-y;
-  background-size:100% auto;
-  background-position:center var(--bg-parallax,0px);
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 200px,#000 calc(100% - 200px),transparent 100%);
-          mask-image:linear-gradient(to bottom,transparent 0,#000 200px,#000 calc(100% - 200px),transparent 100%)}
-/* When the shader is running (html.has-webgl, set by JS) the opaque canvas covers
-   everything, so the fallback image is not needed — and removing it means the iOS
-   toolbar-transition/overscroll strip reveals only --bg instead of the fallback. */
-html.has-webgl body::before{display:none}
-/* The fallback image is a dark espresso photo; in the light theme just show the
-   solid --bg instead of a dark band (only reached when WebGL is unavailable). */
-@media (prefers-color-scheme: light){ :root:not([data-theme]) body::before{display:none} }
-:root[data-theme="light"] body::before{display:none}
+/* When WebGL is unavailable the #bg-gl canvas stays transparent, so the solid
+   --bg on <html> shows through — that theme colour (dark/light) IS the fallback
+   background, no image involved. */
 /* full-page background: a live WebGL low-poly relief (#bg-gl, mesh + shaders in
-   scripts/background.js / index.html), fixed behind all content, over the fallback
-   image above. A single directional light slowly wanders across the facets —
+   scripts/background.js / index.html), fixed behind all content, over the solid
+   --bg. A single directional light slowly wanders across the facets —
    faster while scrolling. The fade to --bg at the top/bottom viewport edges is
    computed inside the fragment shader, so it moves with the canvas (a separate
    fixed overlay jitters against the live canvas during iOS toolbar transitions). */
