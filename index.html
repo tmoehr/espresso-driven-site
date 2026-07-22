@@ -314,16 +314,11 @@ uniform float u_swirl;      // domain-warp strength (baked constant, set once)
 // Colours + tone come from CSS custom properties (per theme) so the page and the
 // shader share one source of truth — see the probe in scripts/background.js.
 uniform vec3  u_fadeColor;  // --bg-fade  : edge-fade colour at the top/bottom edges
-uniform vec3  u_espresso;   // --espresso : deep, almost-black base
-uniform vec3  u_darkBrown;  // --dark-brown
-uniform vec3  u_midBrown;   // --mid-brown
-uniform vec3  u_caramel;    // --caramel
-uniform vec3  u_crema;      // --crema    : rare warm highlight on the ridges
+uniform vec3  u_swirlBg;    // --swirl-bg : darker background tone the field settles into
+uniform vec3  u_swirlFg;    // --swirl-fg : lighter foreground tone the lit ridges reach
 uniform float u_toneFloor;  // --swirl-floor  : baseline brightness (dark low, light high)
 uniform float u_toneLift;   // --swirl-lift   : extra brightness on lit ridges
 uniform float u_vignette;   // --bg-vignette  : edge falloff strength
-uniform float u_saturation; // --swirl-saturation : central colour-saturation knob (0 grey … 1 as-is … >1 richer)
-uniform float u_facetDensity; // --facet-density : triangles across the viewport height (0 = smooth)
 
 const float FADE_SPAN = 0.18;  // how far the top/bottom edge fade reaches (geometry, not theme)
 
@@ -357,27 +352,9 @@ float fbm(vec2 p){
 
 void main(){
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-
-  // aspect-corrected sample coordinate. y is normalised to 1, so one unit spans one
-  // viewport height in BOTH axes -> a square lattice below reads as square on screen.
-  vec2 base = vec2(uv.x * u_resolution.x / u_resolution.y, uv.y);
-
-  // Low-poly facets: snap the sample point to the centroid of the triangle it lands in,
-  // so every fragment in a facet reads the same noise -> one flat coffee colour per
-  // facet. The lattice is fixed in screen space (facets never move); only the colours
-  // flowing through it change, and coherently — neighbouring centroids sample
-  // neighbouring noise, never per-facet random. u_facetDensity 0 leaves it per-pixel.
-  if(u_facetDensity > 0.5){
-    vec2 g     = base * u_facetDensity;         // grid space
-    vec2 cell  = floor(g);
-    vec2 fp    = fract(g);
-    // split each square cell along its anti-diagonal into two right triangles
-    float upper = step(1.0, fp.x + fp.y);       // 0 = lower-left tri, 1 = upper-right tri
-    vec2 centroid = cell + mix(vec2(1.0/3.0), vec2(2.0/3.0), upper);
-    base = centroid / u_facetDensity;
-  }
-
-  vec2 p = base * 3.0;                          // a few vortices across the screen
+  vec2 p = uv;
+  p.x *= u_resolution.x / u_resolution.y;   // keep swirls round
+  p *= 3.0;                                  // a few vortices across the screen
 
   float t  = u_time;
   float sc = u_scroll;
@@ -399,17 +376,14 @@ void main(){
 
   float f = fbm(p + w * r);
 
-  // --- espresso palette: near-black crema with warm reddish ridges ---
-  vec3 col = mix(u_espresso, u_midBrown, clamp(f * f * 2.6, 0.0, 1.0));
-  col = mix(col, u_darkBrown, clamp(length(q) * 0.9, 0.0, 1.0));
-  col = mix(col, u_caramel,   clamp(r.x * r.x * 1.1, 0.0, 1.0));
-  col = mix(col, u_crema,     clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen
-
-  // central saturation knob: pull the coffee colour toward its own luminance (grey) or
-  // push past it. Applied before tone/vignette so those only scale brightness. Rec.709
-  // luma so equal-brightness hues desaturate to the same grey.
-  float luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
-  col = mix(vec3(luma), col, u_saturation);
+  // --- two-tone espresso field: blend background→foreground by the warped noise ---
+  // Same layering as the old five-colour mix, collapsed onto two colours: the primary
+  // marble (f) and the sparse sheen (r) reach toward the foreground; the warped troughs
+  // (length(q)) settle back to the background, keeping the field's depth.
+  vec3 col = mix(u_swirlBg, u_swirlFg, clamp(f * f * 2.6, 0.0, 1.0));
+  col = mix(col, u_swirlBg, clamp(length(q) * 0.9, 0.0, 1.0));
+  col = mix(col, u_swirlFg, clamp(r.x * r.x * 1.1, 0.0, 1.0));
+  col = mix(col, u_swirlFg, clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen
 
   // tone map: S-curve the noise, then lift brightness from a per-theme floor. Dark
   // keeps a low floor (deep) ; light raises it near 1 (flat, pale latte).

@@ -64,27 +64,20 @@
   --panel-blur: 6px;
   --hero-logo-saturate: .8; /* dark default; light theme lifts it to full saturation below */
   --bg-fade: var(--bg); /* colour the swirl fades into at the top/bottom viewport edges */
-  /* Espresso-swirl background palette — a marbled coffee gradient (fbm value noise
-     + domain warping) painted by the WebGL shader. Read in as the u_espresso…u_crema
-     uniforms via the colour probe in scripts/background.js. Ordered darkest→lightest;
-     the shader mixes espresso→crema by the noise field. DARK is the default here;
-     the LIGHT (latte) palette lives in the override blocks below. */
-  --espresso:   #1a120c; /* deep, almost-black espresso base */
-  --dark-brown: #3d2417;
-  --mid-brown:  #6e4a30;
-  --caramel: #664825;
-  --crema: #997b48; /* rare warm crema sheen on the ridges */
+  /* Espresso-swirl background — a marbled coffee gradient (fbm value noise + domain
+     warping) painted by the WebGL shader. The field is blended from just TWO colours,
+     read as the u_swirlBg / u_swirlFg uniforms via the colour probe in
+     scripts/background.js: --swirl-bg is the darker "background" tone the troughs settle
+     into, --swirl-fg the lighter "foreground" tone the lit ridges reach. DARK is the
+     default here; the LIGHT (latte) values live in the override blocks below. */
+  --swirl-bg: #1a120c; /* darkest swirl tone — the field's background colour */
+  --swirl-fg: #b38f6b; /* lightest swirl tone — the foreground colour on the ridges */
   /* Swirl tone-mapping (scalars, read as shader uniforms). Dark = deep + contrasty:
      a low brightness floor and a strong vignette keep the field dark. The light
      override below flattens it to a pale latte. */
-  --swirl-floor: 0.15; /* baseline brightness of the darkest swirl areas */
-  --swirl-lift:  0.80; /* extra brightness the lit ridges gain over the floor */
+  --swirl-floor: 0.25; /* baseline brightness of the darkest swirl areas */
+  --swirl-lift:  0.20; /* extra brightness the lit ridges gain over the floor */
   --bg-vignette: 0.55; /* edge falloff strength (read by the shader) */
-  --swirl-saturation: .25; /* central colour-saturation knob for the whole background
-                              (both themes): 0 = greyscale, 1 = palette as-is, >1 = richer */
-  --facet-density: 30; /* low-poly facets: triangles across the viewport height. The
-                          shader snaps each fragment to its triangle's centroid, so the
-                          swirl reads as flat coffee facets. 0 = smooth (per-pixel). */
   /* Layout — central page measures, the single source of truth for the page width
      and side gutter. The header nav, hero, the .wrap card column AND the footer all
      derive from these, so the cards and the footer share one column and one gutter.
@@ -127,40 +120,27 @@
    floor, slim highlight lift, faint vignette) so the field reads as latte paper. */
 @media (prefers-color-scheme: light){
   :root:not([data-theme]){
-    --bg: #faf4ed;
-    --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+    --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
     --accent: #804a00; --on-gold:#fdf6ea;
     --gold-media: #cc811f;
     --panel: rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
     --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-    --theme-color:#f4efe7;
-    --theme-color-menu: #ece8e1;
-    --espresso: #f0a030;
-    --dark-brown: #ffffff;
-    --mid-brown: #ffffff;
-    --caramel: #f0a030;
-    --crema: #b17200;
-    --swirl-floor:0.95; --swirl-lift:0.2; --bg-vignette:0.0;
-    --swirl-saturation: .2;
-    --hero-logo-saturate:.8;
+    --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
+    --swirl-bg: #ffffff; --swirl-fg: #b3a696;
+    --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.5;
+    --hero-logo-saturate:1;
   }
 }
 :root[data-theme="light"]{
-  --bg:#faf4ed; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
+  --bg:#d9d5ce; --text:#2a1d15; --text-mid:#5c4a3c; --text-muted:#8a7666;
   --accent:#804a00; --on-gold:#fdf6ea;
   --gold-media: #cc811f;
   --panel:rgb(255 255 255 / 0.16); --line-2:#e2d3bf;
   --glass:rgb(255 255 255 / 0.5); --glass-weak:rgb(255 255 255 / 0.45); --scrim-menu: rgb(255 250 242 / 0.5);
-  --theme-color:#f4efe7;
-  --theme-color-menu: #ece8e1;
-  --espresso: #f0a030;
-  --dark-brown: #ffffff;
-  --mid-brown: #ffffff;
-  --caramel: #f0a030;
-  --crema: #b17200;
-  --swirl-floor:0.95; --swirl-lift:0.2; --bg-vignette:0.0;
-  --swirl-saturation: .2;
-  --hero-logo-saturate:.8;
+  --theme-color:#f4efe7; --theme-color-menu: #ece8e1;
+  --swirl-bg: #ffffff; --swirl-fg: #b3a696;
+  --swirl-floor:1; --swirl-lift:0.2; --bg-vignette:0.5;
+  --hero-logo-saturate:1;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* overflow-x:hidden on the ROOT element is what actually stops the page from
@@ -192,7 +172,7 @@ p{font-weight:400;overflow-wrap:break-word}
    show/hide (see resize() in index.html). */
 #bg-gl{position:fixed;top:0;left:0;width:100%;height:100vh;display:block;z-index:-2;pointer-events:none}
 /* warm film grain */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;mix-blend-mode:overlay;
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.42;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .mono{font-family:var(--font-mono)}
 

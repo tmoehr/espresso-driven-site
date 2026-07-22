@@ -50,16 +50,11 @@
   const uScroll = gl.getUniformLocation(prog, 'u_scroll');
   gl.uniform1f(gl.getUniformLocation(prog, 'u_swirl'), SWIRL);   // constant, set once
   const uFade      = gl.getUniformLocation(prog, 'u_fadeColor');
-  const uEspresso  = gl.getUniformLocation(prog, 'u_espresso');
-  const uDarkBrown = gl.getUniformLocation(prog, 'u_darkBrown');
-  const uMidBrown  = gl.getUniformLocation(prog, 'u_midBrown');
-  const uCaramel   = gl.getUniformLocation(prog, 'u_caramel');
-  const uCrema     = gl.getUniformLocation(prog, 'u_crema');
+  const uSwirlBg = gl.getUniformLocation(prog, 'u_swirlBg');
+  const uSwirlFg = gl.getUniformLocation(prog, 'u_swirlFg');
   const uToneFloor = gl.getUniformLocation(prog, 'u_toneFloor');
   const uToneLift  = gl.getUniformLocation(prog, 'u_toneLift');
   const uVignette  = gl.getUniformLocation(prog, 'u_vignette');
-  const uSaturation = gl.getUniformLocation(prog, 'u_saturation');
-  const uFacetDensity = gl.getUniformLocation(prog, 'u_facetDensity');
 
   // Colours + tone stay controllable from CSS, and the SAME tokens flip per theme
   // (dark default + light override block), so re-reading them is also how a theme
@@ -75,12 +70,9 @@
       const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number);
       return [(m[0]||0)/255, (m[1]||0)/255, (m[2]||0)/255];
     };
-    gl.uniform3fv(uFade,      rgb('--bg-fade'));
-    gl.uniform3fv(uEspresso,  rgb('--espresso'));
-    gl.uniform3fv(uDarkBrown, rgb('--dark-brown'));
-    gl.uniform3fv(uMidBrown,  rgb('--mid-brown'));
-    gl.uniform3fv(uCaramel,   rgb('--caramel'));
-    gl.uniform3fv(uCrema,     rgb('--crema'));
+    gl.uniform3fv(uFade,    rgb('--bg-fade'));
+    gl.uniform3fv(uSwirlBg, rgb('--swirl-bg'));
+    gl.uniform3fv(uSwirlFg, rgb('--swirl-fg'));
     probe.remove();
     const num = (name, fallback) => {
       const v = parseFloat(getComputedStyle(rootEl).getPropertyValue(name));
@@ -89,8 +81,6 @@
     gl.uniform1f(uToneFloor, num('--swirl-floor', 0.25));
     gl.uniform1f(uToneLift,  num('--swirl-lift',  0.20));
     gl.uniform1f(uVignette,  num('--bg-vignette', 0.55));
-    gl.uniform1f(uSaturation, num('--swirl-saturation', 1.0));
-    gl.uniform1f(uFacetDensity, num('--facet-density', 0));
   }
   applyTheme();
 
