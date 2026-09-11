@@ -2,3 +2,4 @@
 .DS_Store
 *~lock~
 *.af
+.nocache_server.py
