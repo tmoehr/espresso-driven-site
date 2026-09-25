@@ -285,6 +285,23 @@ nav{--nav-link-pad-x:14px;max-width:var(--container);margin:0 auto;padding:var(-
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px color-mix(in srgb, var(--gold) 28%, transparent)}
 .btn.ghost{background:var(--glass);color:var(--text);border:1px solid var(--line-2);backdrop-filter:blur(4px)}
 .btn.ghost:hover{border-color:var(--gold-line);background:var(--gold-dim);box-shadow:none}
+/* Call-to-action modifier: a gold halo repeatedly swells out of the button and fades
+   (the "look here" pulse), and on hover the label rolls up and a copy of it rolls in
+   from below. The copy is the label's own text-shadow, offset by --cta-roll, so the
+   text lives in the markup only once. isolation:isolate lets the halo sit at z-index:-1
+   behind the button fill without slipping behind the panel. Only transform/opacity
+   animate, so the pulse stays on the compositor. */
+.btn.cta{--cta-roll:1.6em;--cta-pulse:2.6s;--cta-pulse-count:3;position:relative;isolation:isolate}
+.btn.cta::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:color-mix(in srgb, var(--gold) 50%, transparent);opacity:0;pointer-events:none}
+/* The pulse only runs once ui.js marks the button .in-view (first scroll into view),
+   and only --cta-pulse-count times, so it greets the visitor and then goes quiet. */
+.btn.cta.in-view::before{animation:ctaPulse var(--cta-pulse) ease-out var(--cta-pulse-count)}
+/* The pulse fires in the first ~45% of the cycle, then rests so it reads as a nudge, not a flicker */
+@keyframes ctaPulse{0%{opacity:1;transform:scale(1)}45%,100%{opacity:0;transform:scale(1.08,1.3)}}
+.btn.cta .btn-label{display:block;overflow:hidden;line-height:var(--cta-roll)}
+.btn.cta .btn-label>span{display:block;text-shadow:0 var(--cta-roll) currentColor;transition:transform .45s var(--ease)}
+.btn.cta:hover .btn-label>span,.btn.cta:focus-visible .btn-label>span{transform:translateY(calc(-1 * var(--cta-roll)))}
+@media(prefers-reduced-motion:reduce){.btn.cta.in-view::before{animation:none}.btn.cta .btn-label>span{transition:none}}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 .a{opacity:0;animation:fadeUp .75s var(--ease) forwards}
@@ -389,7 +406,7 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .notify-row button:hover{opacity:.85}
 .notify-ok{font-size:var(--text-small);color:var(--gold);margin-top:10px;height:0;opacity:0;overflow:hidden;transition:opacity .3s}
 .notify-ok.show{height:auto;opacity:1}
-/* Sidebar CTAs (store + live demo), stacked full-width, reuse the shared .btn */
+/* Sidebar CTAs (live demo first as the primary action, then store), stacked full-width, reuse the shared .btn */
 .asset-cta{display:flex;flex-direction:column;gap:var(--space-2xs)}
 .asset-cta .btn{width:100%;justify-content:center}
 .tags{display:flex;flex-wrap:wrap;gap:var(--space-2xs);margin-top:auto}

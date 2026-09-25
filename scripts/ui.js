@@ -9,6 +9,21 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
   window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:'smooth'});
 }));
 
+// One-shot "has been seen" flag: adds .in-view the first time el is at least
+// `threshold` visible, then stops observing. CSS keys scroll-triggered motion off
+// that class (carousel autoplay, CTA pulse). Without IntersectionObserver the class
+// is set immediately so nothing stays stuck in its paused state.
+function markInView(el,threshold){
+  if(!('IntersectionObserver' in window)){el.classList.add('in-view');return;}
+  const io=new IntersectionObserver(es=>{
+    if(es.some(e=>e.isIntersecting)){el.classList.add('in-view');io.disconnect();}
+  },{threshold});
+  io.observe(el);
+}
+// Fully on screen, so the whole halo pulse is actually seen rather than half-clipped
+const CTA_VISIBLE_RATIO=1;
+document.querySelectorAll('.btn.cta').forEach(b=>markInView(b,CTA_VISIBLE_RATIO));
+
 const rootEl=document.documentElement;
 const burger=document.querySelector('.nav-hamburger'),mob=document.querySelector('.mobile-menu'),themeMeta=document.querySelector('meta[name="theme-color"]');
 const cssVar=name=>getComputedStyle(rootEl).getPropertyValue(name).trim();
@@ -115,13 +130,8 @@ mob.querySelectorAll('.mobile-nav a').forEach((a,i)=>a.style.setProperty('--i',i
   // Don't start the autoplay timer until the stage has been scrolled into view —
   // otherwise slide 1's 5s fill elapses (and advances) before the visitor gets
   // here. CSS pauses the fill while .in-view is absent; this arms it on first
-  // sight. One-shot (disconnect), mirroring the scroll-cue's arm-once pattern.
-  if('IntersectionObserver' in window){
-    const vio=new IntersectionObserver(es=>{
-      if(es.some(e=>e.isIntersecting)){stage.classList.add('in-view');vio.disconnect();}
-    },{threshold:.35});
-    vio.observe(stage);
-  }else stage.classList.add('in-view');
+  // sight, via the shared one-shot markInView.
+  markInView(stage,.35);
   go(0);
 })();
 
