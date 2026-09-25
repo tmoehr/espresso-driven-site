@@ -326,28 +326,32 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
    floor on narrow screens, and on wide ones it only ever grows flatter — never
    narrower. Unlike aspect-ratio + max-height, this never shrinks the width. */
 .module{container-type:inline-size}
-.stage{position:relative;height:min(62.5cqw,430px);overflow:hidden}
+/* --slide-dur: how long a still stays up (the fill bar's run); a video slide overrides it
+   on its own dot with the clip length (ui.js). --slide-fade: the cross-fade between slides,
+   kept long so stills and the video melt into each other rather than cut. */
+.stage{--slide-dur:5s;--slide-fade:1.4s;position:relative;height:min(62.5cqw,430px);overflow:hidden}
 .stage .slides{position:absolute;inset:0;z-index:0}
-.slide{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease)}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity var(--slide-fade) ease-in-out}
 .slide.active{opacity:1}
-.slide img{width:100%;height:100%;object-fit:cover;backface-visibility:hidden;transform-origin:center;transition:transform .7s var(--ease)}
+/* The video is 16:9 while the stage runs 16:10 on phones and flatter on desktop, so both
+   media kinds are cover-cropped to whatever the stage currently is. */
+.slide :is(img,video){display:block;width:100%;height:100%;object-fit:cover;backface-visibility:hidden}
+.slide img{transform-origin:center;transition:transform var(--slide-fade) var(--ease)}
 /* Ken Burns: the active slide slowly scales up from its centre, so the still
-   images feel alive. Duration runs a touch longer than the 5s autoplay
-   interval so the zoom is still moving at the cut and never visibly freezes
-   before the next slide swaps in. The .7s transform transition above eases the
+   images feel alive. Duration spans the autoplay interval plus the cross-fade so
+   the zoom is still moving through the cut and never visibly freezes before the
+   next slide swaps in. The --slide-fade transform transition above eases the
    outgoing slide back to scale 1 as it fades, instead of snapping. */
-.slide.active img{animation:kenburns 6s linear forwards}
-/* mirror the fillbar's pause rules (see below) so the zoom and the progress
-   dot stay in lockstep: frozen until the stage scrolls in, and on hover */
+.slide.active img{animation:kenburns calc(var(--slide-dur) + var(--slide-fade)) linear forwards}
+/* mirror the fillbar's pause rule (see below) so the zoom and the progress
+   dot stay in lockstep: frozen until the stage scrolls in */
 .stage:not(.in-view) .slide.active img{animation-play-state:paused}
-@media (hover:hover){.stage:hover .slide.active img{animation-play-state:paused}}
 @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.06)}}
 @media(prefers-reduced-motion:reduce){.slide.active img{animation:none;transform:none}}
 /* bottom-up scrim so the caption stays legible over any slide */
 .stage::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb, var(--ink) 60%, transparent) 0%,color-mix(in srgb, var(--ink) 0%, transparent) 50%)}
 /* dot indicator: inactive dots are small grey circles; the active one elongates
-   into a gold pill whose brighter fill rides the autoplay progress (5s), paused
-   while the stage is hovered */
+   into a gold pill whose brighter fill rides the autoplay progress (--slide-dur) */
 .stage .bars{position:absolute;bottom:24px;right:24px;z-index:4;display:flex;gap:4px}
 .stage .bars button{position:relative;width:8px;height:8px;padding:0;border:none;border-radius:99px;background:color-mix(in srgb, var(--text-on-media) 32%, transparent);cursor:pointer;transition:width .25s,background .25s}
 .stage .bars button:hover{background:color-mix(in srgb, var(--text-on-media) 60%, transparent)}
@@ -355,14 +359,15 @@ section.block{padding:0 var(--gutter) var(--space-2xl)}
 .stage .bars button::before{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-10px}
 .stage .bars button.active{width:22px;background:color-mix(in srgb, var(--gold-media) 28%, transparent)}
 .stage .bars .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--gold-media)}
-.stage .bars button.active .fill{animation:fillbar 5s linear forwards}
+.stage .bars button.active .fill{animation:fillbar var(--slide-dur) linear forwards}
 /* Hold autoplay until the stage scrolls into view (JS adds .in-view), so
    slide 1's timer doesn't elapse before the visitor reaches the section.
    Pausing at frame 0 holds the fill at its `from` (the 8px dot). */
 .stage:not(.in-view) .bars button.active .fill{animation-play-state:paused}
-/* only on real hover devices — on touch, :hover sticks after a swipe and would
-   freeze the fill, stalling autoplay */
-@media (hover:hover){.stage:hover .bars button.active .fill{animation-play-state:paused}}
+/* A video slide's timer is slaved to the clip: ui.js flags its dot .is-playing only
+   while the video is actually playing, so buffering or a blocked autoplay holds the
+   fill instead of letting it run ahead of the picture. */
+.stage .bars button.is-video.active:not(.is-playing) .fill{animation-play-state:paused}
 /* start at the dot diameter (8px) so the fill is a circle from the first frame
    and only ever stretches into the pill — never a thin vertical sliver */
 @keyframes fillbar{from{width:8px}to{width:100%}}

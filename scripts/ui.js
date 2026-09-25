@@ -11,12 +11,17 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
 
 // One-shot "has been seen" flag: adds .in-view the first time el is at least
 // `threshold` visible, then stops observing. CSS keys scroll-triggered motion off
-// that class (carousel autoplay, CTA pulse). Without IntersectionObserver the class
-// is set immediately so nothing stays stuck in its paused state.
-function markInView(el,threshold){
-  if(!('IntersectionObserver' in window)){el.classList.add('in-view');return;}
+// that class (carousel autoplay, CTA pulse); the optional onView callback covers
+// motion CSS can't start on its own (the carousel video). Without
+// IntersectionObserver it fires immediately so nothing stays stuck paused.
+// The ratio check matters: isIntersecting is already true for a single visible
+// pixel, and the observer also calls back once right on observe(), so testing it
+// alone would fire as soon as the element merely peeks into the viewport.
+function markInView(el,threshold,onView){
+  const mark=()=>{el.classList.add('in-view');if(onView)onView();};
+  if(!('IntersectionObserver' in window)){mark();return;}
   const io=new IntersectionObserver(es=>{
-    if(es.some(e=>e.isIntersecting)){el.classList.add('in-view');io.disconnect();}
+    if(es.some(e=>e.isIntersecting&&e.intersectionRatio>=threshold)){mark();io.disconnect();}
   },{threshold});
   io.observe(el);
 }
@@ -102,15 +107,47 @@ mob.querySelectorAll('.mobile-nav a').forEach((a,i)=>a.style.setProperty('--i',i
 
 // Asset showcase carousel: cross-fade slides, navigable via the segment bars,
 // arrow keys and swipe. Autoplay rides the active bar's CSS fill animation —
-// its animationend advances the slide, and CSS pauses the fill on hover.
+// its animationend advances the slide. Hover deliberately does not pause it.
 // Reduced-motion fills instantly (no animationend), so it never auto-advances.
+// A video slide plays once from the start each time it becomes active: its dot's
+// --slide-dur is set to the clip length minus the cross-fade, so the shared
+// fill/animationend path advances it too and the clip's last --slide-fade seconds
+// keep playing underneath the fade instead of freezing on the final frame. The
+// outgoing video is only paused once its fade has finished (transitionend). The
+// video starts together with the timer (stage scrolled into view), and the timer
+// only advances while the video really plays (.is-playing, see styles.css), so the
+// two can't drift apart. Reduced motion leaves it on its poster.
 (function(){
   const stage=document.querySelector('.stage');
   if(!stage)return;
   const slides=[...stage.querySelectorAll('.slide')];
   const bars=[...stage.querySelectorAll('.bars button')];
   const fills=bars.map(b=>b.querySelector('.fill'));
-  let i=0;
+  const videos=slides.map(s=>s.querySelector('video'));
+  const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let i=0,seen=false;
+  const fadeSec=parseFloat(getComputedStyle(stage).getPropertyValue('--slide-fade'));
+  videos.forEach((v,k)=>{
+    if(!v)return;
+    const setDur=()=>bars[k].style.setProperty('--slide-dur',Math.max(v.duration-fadeSec,0)+'s');
+    if(v.readyState>=HTMLMediaElement.HAVE_METADATA)setDur();else v.addEventListener('loadedmetadata',setDur);
+    bars[k].classList.add('is-video');
+    const setPlaying=on=>()=>bars[k].classList.toggle('is-playing',on);
+    v.addEventListener('playing',setPlaying(true));
+    ['pause','waiting','ended'].forEach(t=>v.addEventListener(t,setPlaying(false)));
+    slides[k].addEventListener('transitionend',e=>{
+      if(e.target===slides[k]&&e.propertyName==='opacity'&&!slides[k].classList.contains('active'))v.pause();
+    });
+  });
+  function syncVideos(){
+    videos.forEach((v,k)=>{
+      if(!v)return;
+      const active=k===i;
+      if(active&&seen&&!reducedMotion)v.play().catch(()=>{});
+      // an outgoing video keeps running through its fade; transitionend pauses it
+      else if(active)v.pause();
+    });
+  }
   function go(n){
     i=(n+slides.length)%slides.length;
     slides.forEach((s,k)=>s.classList.toggle('active',k===i));
@@ -118,6 +155,8 @@ mob.querySelectorAll('.mobile-nav a').forEach((a,i)=>a.style.setProperty('--i',i
     // restart the fill animation on the newly active bar
     const f=fills[i];
     if(f){f.style.animation='none';void f.offsetWidth;f.style.animation='';}
+    if(videos[i])videos[i].currentTime=0;
+    syncVideos();
   }
   const next=()=>go(i+1),prev=()=>go(i-1);
   fills.forEach(f=>f.addEventListener('animationend',()=>{if(slides.length>1)next();}));
@@ -131,7 +170,7 @@ mob.querySelectorAll('.mobile-nav a').forEach((a,i)=>a.style.setProperty('--i',i
   // otherwise slide 1's 5s fill elapses (and advances) before the visitor gets
   // here. CSS pauses the fill while .in-view is absent; this arms it on first
   // sight, via the shared one-shot markInView.
-  markInView(stage,.35);
+  markInView(stage,.35,()=>{seen=true;syncVideos();});
   go(0);
 })();
 
