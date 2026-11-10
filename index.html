@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
-  <meta name="theme-color" content="#1a110f">
-  <title>espressodriven | Unity Assets, brewed through Espresso-Driven Development.</title>
+  <meta name="theme-color" content="#120d0a">
+  <title>espressodriven | Unity Assets, brewed through Espresso-Driven Development</title>
   <meta name="description" content="Lightweight, professional Unity assets, engineered with caffeine &amp; care. Built by a senior Unity dev for effortless, drop-in setup.">
   <link rel="canonical" href="https://www.espressodriven.com/">
   <link rel="icon" href="/images/logo/logo.svg" type="image/svg+xml">
@@ -15,33 +15,33 @@
   <!-- Open Graph / social share preview -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="espressodriven">
-  <meta property="og:title" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development.">
+  <meta property="og:title" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development">
   <meta property="og:description" content="Lightweight, professional Unity assets, engineered with caffeine &amp; care. Built by a senior Unity dev for effortless, drop-in setup.">
   <meta property="og:url" content="https://www.espressodriven.com/">
   <meta property="og:image" content="https://www.espressodriven.com/images/og.jpg">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development.">
+  <meta property="og:image:alt" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development">
 
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development.">
+  <meta name="twitter:title" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development">
   <meta name="twitter:description" content="Lightweight, professional Unity assets, engineered with caffeine &amp; care. Built by a senior Unity dev for effortless, drop-in setup.">
   <meta name="twitter:image" content="https://www.espressodriven.com/images/og.jpg">
-  <meta name="twitter:image:alt" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development.">
+  <meta name="twitter:image:alt" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+  <!-- Satoshi for text, Bricolage Grotesque for headings: upright and calm, it stands clearly apart
+       from the italic crema wordmark, and its display details keep it distinct from Satoshi. -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Apply the theme before first paint so there's no flash of the wrong theme.
-       Default on first visit (nothing stored) is DARK. A stored 'light'/'dark'
-       wins; a stored 'auto' (an explicit choice) leaves the attribute off so
-       color-scheme:light dark + prefers-color-scheme decide. The ||'dark' maps the
-       first-visit null to dark; the catch falls back to dark if storage is blocked. -->
+  <!-- Theme before first paint. Same storage key as the live site; dark by default. -->
   <script>
-    try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}
+    try{ var t = localStorage.getItem("theme"); if(t === "light") document.documentElement.dataset.theme = "light"; }catch(e){}
   </script>
 
   <!-- Structured data: lets search engines model the brand + site as entities
@@ -77,218 +77,204 @@
   </script>
 </head>
 <body>
-  <canvas id="bg-gl" aria-hidden="true"></canvas>
 
-  <header>
-    <nav>
-      <div class="brand">
-        <span class="logo" role="img" aria-label="espressodriven"></span>
-      </div>
-      <div class="nav-right">
-        <div class="nav-links">
-          <a href="#assets" class="nav-link">assets</a>
-          <a href="#about" class="nav-link">about</a>
-          <a href="#contact" class="nav-link">contact</a>
-          <a href="#imprint" class="nav-link">imprint</a>
-        </div>
-        <button class="theme-toggle" type="button" aria-label="Theme umschalten">
-          <svg data-icon="auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none"/></svg>
-          <svg data-icon="light" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
-          <svg data-icon="dark" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  </svg>
+
+  <header class="nav" id="nav">
+    <div class="container">
+      <a class="nav-logo" href="#top" aria-label="espressodriven, back to top"><span class="wordmark" aria-hidden="true"></span></a>
+      <nav class="nav-links" id="nav-links" aria-label="Main">
+        <a class="link" href="#assets">Assets</a>
+        <a class="link" href="#about">About</a>
+        <a class="link" href="#contact">Contact</a>
+        <a class="link" href="#imprint">Imprint</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
+          <svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+          <svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
+          <svg class="icon icon-menu" aria-hidden="true"><use href="#i-menu"/></svg>
+          <svg class="icon icon-close" aria-hidden="true"><use href="#i-close"/></svg>
         </button>
       </div>
-      <button class="nav-hamburger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
-    </nav>
+    </div>
   </header>
 
-  <div class="mobile-menu" aria-hidden="true">
-    <div class="mobile-menu-inner">
-      <div class="mobile-logo-wrap">
-        <span class="logo mobile-logo" role="img" aria-label="espressodriven"></span>
-      </div>
-      <nav class="mobile-nav">
-        <a href="#assets">assets</a>
-        <a href="#about">about</a>
-        <a href="#contact">contact</a>
-        <a href="#imprint">imprint</a>
-      </nav>
-      <!-- Bottom zone: takes the remaining space below the links (flex:1) and
-           centres the switch in it, so it sits midway between the links and the
-           screen bottom. The whole row is the button (label + icon), so the larger
-           'Theme' area is tappable; shares .theme-toggle for the JS handler and
-           icon-switching CSS. -->
-      <div class="mobile-menu-foot">
-        <button class="theme-toggle mobile-theme" type="button" aria-label="Theme umschalten">
-          <span>Theme</span>
-          <svg data-icon="auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none"/></svg>
-          <svg data-icon="light" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
-          <svg data-icon="dark" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <section class="hero">
-    <div class="hero-top">
-      <div class="hero-head a a2">
-        <img class="hero-logo" src="images/logo/logo_crema.webp" alt="espressodriven">
-      </div>
-      <div class="hero-foot">
-        <h1 class="hero-sub">
-          <span class="a a3">Unity Assets, brewed through</span>
-          <span class="a a4">Espresso-Driven Development.</span>
-        </h1>
-      </div>
-    </div>
-    <div class="hero-gap hero-gap--upper" aria-hidden="true"></div>
-    <div class="hero-actions a a5">
-      <a href="#assets" class="btn">Browse assets</a>
-      <a href="#contact" class="btn ghost">Contact</a>
-    </div>
-    <div class="hero-gap hero-gap--lower" aria-hidden="true"></div>
-    <a href="#assets" class="scroll-cue a a6" aria-label="Scroll to assets"><span>Scroll</span><span class="scroll-line"></span></a>
-  </section>
-
-  <div class="wrap">
-    <section class="block" id="assets">
-      <h2 class="label">Assets<span class="label-sub">What's in the cup?</span></h2>
-      <article class="module panel">
-        <div class="stage">
-          <div class="slides">
-            <div class="slide active"><video src="images/heliopath/timelapse.mp4" poster="images/heliopath/timelapse_poster.jpg" width="1920" height="1080" muted playsinline preload="metadata" aria-label="HelioPath time-lapse from sunrise to midday"></video></div>
-            <div class="slide"><img src="images/heliopath/editor_sceneview_skybox.webp" srcset="images/heliopath/editor_sceneview_skybox.webp 1x, images/heliopath/editor_sceneview_skybox@2x.webp 2x" width="1136" height="430" alt="HelioPath Sceneview Gizmos" loading="lazy" decoding="async"></div>
-            <div class="slide"><img src="images/heliopath/effects.webp" srcset="images/heliopath/effects.webp 1x, images/heliopath/effects@2x.webp 2x" width="1136" height="430" alt="HelioPath sunlight effects" loading="lazy" decoding="async"></div>
-          </div>
-          <div class="stage-top">
-            <!-- Kept for reuse on the next unreleased asset — HelioPath is live now.
-            <span class="status"><span class="dot"></span>Coming Soon</span>
-            -->
-          </div>
-          <div class="stage-cap">
-            <h3>HelioPath</h3>
-            <p>Geographically accurate sun &amp; daylight for Unity.</p>
-          </div>
-          <div class="bars" aria-label="Choose slide">
-            <button class="active" type="button" aria-label="Slide 1"><span class="fill"></span></button>
-            <button type="button" aria-label="Slide 2"><span class="fill"></span></button>
-            <button type="button" aria-label="Slide 3"><span class="fill"></span></button>
+  <main id="top">
+    <!-- ═════════════ Hero: the live espresso swirl (scripts/background.js) ═════════════ -->
+    <section class="hero">
+      <canvas id="bg-gl" aria-hidden="true"></canvas>
+      <div class="container">
+        <img class="hero-logo" src="images/logo/logo_crema.webp" width="1340" height="499" alt="espressodriven">
+        <div class="hero-foot">
+          <h1><span class="line">Unity Assets, brewed through</span> <span class="line"><span class="nowrap">Espresso-Driven</span> Development</span></h1>
+          <div class="hero-actions">
+            <a href="#assets" class="btn btn-primary">Browse assets</a>
+            <a href="#contact" class="btn btn-line">Contact</a>
           </div>
         </div>
-        <div class="sc-body">
-          <div class="sc-main">
-            <p class="lead">Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p>
-            <ul class="feat">
-              <li>Geographically accurate sun position from latitude, longitude, date &amp; time</li>
-              <li>Procedural sky &amp; dynamic daylight simulation</li>
-              <li>VR / AR ready | runs in URP &amp; HDRP</li>
-              <li>Drop-in sunlight effects: one component, no setup required</li>
-              <li>Ships with AI Skills, so your coding agent sets up sun, sky and effects for you</li>
-            </ul>
-            <div class="tags">
-              <span class="tag">Day Night Cycle</span>
-              <span class="tag">Deterministic DST Rules</span>
-              <span class="tag">ArchViz</span>
-              <span class="tag">Lightweight</span>
+      </div>
+    </section>
+
+    <!-- ═════════════ Assets ═════════════ -->
+    <section class="section" id="assets" aria-labelledby="assets-title">
+      <div class="container section-head">
+        <h2 id="assets-title">Assets</h2>
+        <p>What's in the cup?</p>
+      </div>
+
+      <!-- The time-lapse runs from sunrise to midday; scroll position is the clock. -->
+      <article class="story" id="story" aria-labelledby="heliopath-title">
+        <div class="story-sticky">
+          <div class="story-frame">
+            <!-- All-intra encodes (every frame a keyframe) so scroll seeking stays instant. app.js picks the cut that fits the viewport. -->
+            <video id="story-video" muted playsinline preload="auto" aria-label="HelioPath time-lapse from sunrise to midday"
+              data-landscape="media/heliopath-landscape" data-portrait="media/heliopath-portrait"></video>
+          </div>
+          <div class="story-overlay">
+            <div class="container">
+              <div class="story-steps" id="story-steps">
+                <div class="story-step" data-active="true">
+                  <h3 id="heliopath-title">HelioPath</h3>
+                  <p class="tagline">Geographically accurate sun &amp; daylight for Unity.</p>
+                </div>
+                <div class="story-step"><p class="lead">Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p></div>
+                <div class="story-step"><p>Geographically accurate sun position from latitude, longitude, date &amp; time</p></div>
+                <div class="story-step"><p>Procedural sky &amp; dynamic daylight simulation</p></div>
+                <div class="story-step"><p>VR / AR ready | runs in URP &amp; HDRP</p></div>
+                <div class="story-step"><p>Drop-in sunlight effects: one component, no setup required</p></div>
+                <div class="story-step"><p>Ships with AI Skills, so your coding agent sets up sun, sky and effects for you</p></div>
+              </div>
+              <div class="story-rail" aria-hidden="true">
+                <div class="story-rail-bar"><span></span></div>
+                <div class="story-rail-labels"><span>Sunrise</span><span>Midday</span></div>
+              </div>
             </div>
           </div>
-          <aside class="sc-side">
-            <div class="spec">
-              <div class="spec-row"><span>Category</span><b>
-                Tools/Utilities</b></div>
-              <div class="spec-row"><span>Pipeline</span><b>URP | HDRP</b></div>
-              <div class="spec-row"><span>Unity</span><b>2022.3 +</b></div>
-              <div class="spec-row"><span>AI Support</span><b>Claude Skills</b></div>
-              <!-- Kept for reuse on the next unreleased asset — HelioPath is live now.
-              <div class="spec-row"><span>Status</span><b class="gold">In the roaster</b></div>
-              -->
-            </div>
-            <div class="asset-cta">
-              <a class="btn cta" href="/demo/heliopath/"><span class="btn-label"><span>Try the live demo</span></span></a>
-              <a class="btn ghost" href="https://assetstore.unity.com/packages/slug/384752" target="_blank" rel="noopener">Get it on Asset Store</a>
-            </div>
-            <!-- "Notify me at launch" — kept for reuse on the next unreleased asset.
-                 The JS handler in scripts/ui.js guards on #notify-form, so it no-ops
-                 while this is commented out.
-            <div class="notify">
-              <label for="notify-email">Notify me at launch</label>
-              <form class="notify-row" id="notify-form">
-                <input type="email" id="notify-email" name="email" placeholder="Enter your email" required aria-label="Your email">
-                <button type="submit" aria-label="Notify me"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg></button>
-              </form>
-              <p class="notify-ok" id="notify-ok">Opening your mail app and hit send to lock it in.</p>
-            </div>
-            -->
-          </aside>
         </div>
       </article>
-    </section>
 
-    <section class="block" id="about">
-      <h2 class="label">About<span class="label-sub">Who's behind the bar?</span></h2>
-      <div class="about panel">
-        <div class="about-portrait">
-          <img src="images/me.webp" width="480" height="480" alt="Thomas Möhr" loading="lazy" decoding="async">
-        </div>
-        <div class="about-body">
-          <h3>Senior Unity Developer</h3>
-          <p class="lead">Good code is like good espresso: compact, strong, and right to the point.</p>
-          <p>I'm Thomas Möhr. My focus is on UI/UX and XR, with virtual reality as my house specialty. The whole Unity ecosystem keeps
-            me fascinated. Clean code is my base ingredient. And agentic coding? That's my extra shot
-            of caffeine right now.</p>
-          <p>At espressodriven.com I serve up house-roasted assets. Freshly ground, double extracted,
-            lightweight, and ready to drop straight into your project.</p>
-          <p>Pull up a chair, grab a cup. The first sip's on me.</p>
-          <div class="tags">
-            <span class="tag">C#</span>
-            <span class="tag">XR</span>
-            <span class="tag">Agentic Coding</span>
-            <span class="tag">100% Arabica</span>
-          </div>
-          <div class="links">
-            <a href="https://www.linkedin.com/in/moehr/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg> LinkedIn</a>
-          </div>
+      <div class="container">
+        <div class="get" id="get">
+          <!-- Image slot: a screenshot of the WebGL demo goes here once delivered (see .demo-card img). -->
+          <a class="demo-card demo-card--plain sunlit" href="/demo/heliopath/">
+            <span class="demo-mark" aria-hidden="true"><svg class="icon"><use href="#i-play"/></svg></span>
+            <h3>Try the live demo</h3>
+            <p>HelioPath running in WebGL, right in your browser.</p>
+            <span class="btn btn-crema"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>Open demo</span>
+          </a>
+          <aside class="get-side sunlit" aria-label="HelioPath details">
+            <dl class="specs">
+              <div><dt>Category</dt><dd>Tools/Utilities</dd></div>
+              <div><dt>Pipeline</dt><dd>URP | HDRP</dd></div>
+              <div><dt>Unity</dt><dd>2022.3 +</dd></div>
+              <div><dt>AI Support</dt><dd>Claude Skills</dd></div>
+            </dl>
+            <ul class="tags" aria-label="Tags">
+              <li>Day Night Cycle</li>
+              <li>Deterministic DST Rules</li>
+              <li>ArchViz</li>
+              <li>Lightweight</li>
+            </ul>
+            <a class="btn btn-primary" href="https://assetstore.unity.com/packages/slug/384752" target="_blank" rel="noopener">Get it on Asset Store <svg class="icon icon-nudge" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </aside>
         </div>
       </div>
     </section>
 
-    <section class="block" id="contact" style="padding-top:0">
-      <h2 class="label">Contact<span class="label-sub">Say moin!</span></h2>
-      <div class="cols panel">
-        <div id="contact-inner">
-          <h3>Get in touch</h3>
-          <p>Got a question, feedback or a feature request? Or maybe a coffee bean tip we shouldn't miss? Let me know.</p>
-          <a href="mailto:hello@espressodriven.com" class="btn">hello@espressodriven.com</a>
+    <!-- ═════════════ About ═════════════ -->
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="about-title">About</h2>
+          <p>Who's behind the bar?</p>
         </div>
-        <div id="imprint" class="imprint">
-          <div class="imprint-row">
-            <span class="logo imprint-logo" role="img" aria-label="espressodriven"></span>
-            <span class="imprint-sep" aria-hidden="true"></span>
-            <div class="imprint-address">
-              <p class="imprint-line">Thomas Möhr</p>
-              <p class="imprint-line">Böttcherstr. 6</p>
-              <p class="imprint-line">18439 Stralsund</p>
-              <p class="imprint-line">Germany</p>
+        <blockquote class="quote">Good code is like good espresso: compact, strong, and right to the point.</blockquote>
+        <div class="about">
+          <figure class="portrait">
+            <img src="images/me.webp" width="1072" height="1072" alt="Thomas Möhr" loading="lazy" decoding="async">
+          </figure>
+          <div class="about-body">
+            <h3>Senior Unity Developer</h3>
+            <div class="about-text">
+              <p>I'm Thomas Möhr. My focus is on UI/UX and XR, with virtual reality as my house specialty. The whole Unity ecosystem keeps me fascinated. Clean code is my base ingredient. And agentic coding? That's my extra shot of caffeine right now.</p>
+              <p>At espressodriven.com I serve up house-roasted assets. Freshly ground, double extracted, lightweight, and ready to drop straight into your project.</p>
+              <p class="signoff">Pull up a chair, grab a cup. The first sip's on me.</p>
+            </div>
+            <div class="about-foot">
+              <ul class="tags" aria-label="Skills">
+                <li>C#</li>
+                <li>XR</li>
+                <li>Agentic Coding</li>
+                <li>100% Arabica</li>
+              </ul>
+              <a class="btn btn-line" href="https://www.linkedin.com/in/moehr/" target="_blank" rel="noopener">LinkedIn <svg class="icon icon-nudge" aria-hidden="true"><use href="#i-arrow"/></svg></a>
             </div>
           </div>
         </div>
       </div>
     </section>
-  </div>
 
-  <footer>
-    <div class="foot">
-      <span>©<span id="year"></span> espressodriven</span>
-      <span>Brewed in Stralsund</span>
+    <!-- ═════════════ Contact ═════════════ -->
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="contact-title">Contact</h2>
+          <p>Say moin!</p>
+        </div>
+        <div class="contact">
+          <div class="contact-intro">
+            <h3>Get in touch</h3>
+            <p>Got a question, feedback or a feature request? Or maybe a coffee bean tip we shouldn't miss? Let me know.</p>
+          </div>
+          <a class="mail" href="mailto:hello@espressodriven.com">hello@<wbr>espresso<wbr>driven.com</a>
+          <div class="mail-actions">
+            <a class="btn btn-crema" href="mailto:hello@espressodriven.com">Write an email</a>
+            <button class="btn btn-line" id="copy-mail" type="button" data-copy="hello@espressodriven.com">
+              <span class="copy-idle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg></span>
+              <span class="copy-idle">Copy address</span>
+              <span class="copy-done"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Copied</span>
+            </button>
+            <span class="visually-hidden" id="copy-status" role="status"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div>
+        <span class="wordmark" role="img" aria-label="espressodriven"></span>
+        <p>©<span id="year">2026</span> espressodriven. Brewed in Stralsund.</p>
+      </div>
+      <nav aria-label="Elsewhere">
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a class="link" href="https://assetstore.unity.com/packages/slug/384752" target="_blank" rel="noopener">Asset Store</a></li>
+          <li><a class="link" href="https://www.linkedin.com/in/moehr/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a class="link" href="/demo/heliopath/">Live demo</a></li>
+        </ul>
+      </nav>
+      <div id="imprint">
+        <h2>Imprint</h2>
+        <address>Thomas Möhr<br>Böttcherstr. 6<br>18439 Stralsund<br>Germany</address>
+      </div>
     </div>
   </footer>
 
-  <script src="scripts/ui.js"></script>
-
-  <!-- Live espresso-swirl background (#bg-gl): a marbled coffee gradient built from
-       fbm value noise + domain warping in the fragment shader below, drifting over
-       time and churned further by scroll position. Colours + tone come from CSS
-       tokens (per theme) via scripts/background.js. Full-screen triangle, so the
-       vertex shader is trivial. Falls back to the solid --bg colour with no WebGL. -->
+  <!-- Swirl shaders; scripts/background.js reads them by id. -->
   <script id="bg-vert" type="x-shader/x-vertex">
 attribute vec2 a_pos;   // full-screen triangle, already in clip space (-1..1)
 void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
@@ -392,7 +378,7 @@ void main(){
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
   </script>
-
   <script src="scripts/background.js"></script>
+  <script src="scripts/app.js" type="module"></script>
 </body>
 </html>

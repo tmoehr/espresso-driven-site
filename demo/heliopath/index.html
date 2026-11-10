@@ -11,7 +11,11 @@
   <script>try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <!-- Satoshi, the site's text face, for the header; JetBrains Mono for the settings panel. -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <!-- Single source of truth: every colour token and the whole dark/light/auto theme system
        live in the site stylesheet. The demo is served from /demo/heliopath/, so this
        root-absolute path resolves to the very same cached file the main page uses. -->
@@ -22,129 +26,136 @@
        only (a) reset the few page-wide globals that don't fit a full-bleed canvas app and
        (b) lay out the Unity overlay UI, which exists only in the demo. */
     html,body{height:100%;overflow:hidden}
-    body::before{display:none}              /* drop the site's relief-photo fallback layer */
     #app{position:relative;height:100dvh}
 
-    /* Header: reuse the page's header/nav look from styles.css verbatim (translucent blur bar,
-       bottom hairline, centred nav, 22px masked logo) — so it is the exact same height and logo
-       as the page. Unlike the page's position:fixed header, this one OVERLAYS the stage (absolute,
-       pinned to the top): the Unity canvas runs full-height underneath and shows through the blur.
-       The page header also collapses to a hamburger on narrow/short viewports; the demo has no
-       hamburger, so we keep the full bar interactive at every size. */
-    #app header{position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:auto;padding-top:env(safe-area-inset-top);
-      background:color-mix(in srgb, var(--bg) 70%, transparent);
-      backdrop-filter:blur(var(--header-blur));-webkit-backdrop-filter:blur(var(--header-blur));
-      border-bottom:1px solid var(--line)}
-    /* Restore the padding the collapse rule zeroes, and force the exact page-header height: the
-       demo has no 34px theme control, so its row would be shorter — derive the height from the
-       same tokens the page header uses (control + top & bottom nav padding). */
-    #app nav{padding:var(--nav-pad-y) var(--gutter);min-height:calc(var(--nav-control-h) + 2 * var(--nav-pad-y))}
-    .title{font-family:var(--font-mono);font-size:var(--mono-medium);letter-spacing:.12em;
-      text-transform:uppercase;color:var(--text-mid)}
+    /* Header: the site's own nav from styles.css (same height, wordmark and glass bar), held in
+       its scrolled state because the scene always runs underneath it. No title: the scene and
+       the wordmark say where you are. Only the way back sits on the right, as an icon button
+       with its label kept for screen readers and as a tooltip. */
+    .nav{padding-top:env(safe-area-inset-top)}
+    .demo-back{margin-left:auto}   /* the site's .icon-btn, like the theme toggle on the page */
 
     #stage{position:absolute;inset:0}   /* fills the whole app; the header overlays its top */
     #unity-canvas{width:100%;height:100%;display:block;background:var(--bg)}
 
     #loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:18px;background:var(--bg)}
+      justify-content:center;gap:var(--gap-m);background:var(--bg)}
     #loader.hidden{display:none}
-    .loading-label{font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.14em;
-      text-transform:uppercase;color:var(--text-muted)}
-    .bar{width:min(280px,60vw);height:3px;border-radius:100px;overflow:hidden;
-      background:color-mix(in srgb, var(--gold) 14%, transparent)}
-    .bar>span{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+    .loading-label{font-size:var(--fs-s);color:var(--fg-muted)}
+    .bar{width:min(280px,60vw);height:2px;border-radius:2px;overflow:hidden;
+      background:color-mix(in srgb, var(--crema) 18%, transparent)}
+    .bar>span{display:block;height:100%;width:0;background:var(--crema);transition:width var(--t-fast) var(--ease-out)}
 
-    /* Fullscreen toggle — top-right, just below the overlaid header; hidden by JS where real
-       fullscreen is unavailable (iOS). The top offset is the header height (same tokens as
-       #app nav) plus a 14px gap, so the button never overlaps the bar at any safe-area inset. */
-    .fullscreen-btn{position:absolute;top:calc(env(safe-area-inset-top) + var(--nav-control-h) + 2 * var(--nav-pad-y) + 14px);right:14px;z-index:5;
-      font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.08em;text-transform:uppercase;
-      color:var(--text);background:var(--glass);
-      border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;
-      backdrop-filter:blur(6px);transition:color .2s,border-color .2s}
-    .fullscreen-btn:hover{color:var(--gold);border-color:var(--gold)}
+    /* Quiet controls over the scene share one surface: the nav's glass, so the header, the
+       fullscreen button and the panel read as one family. */
+    /* Builds on the shared .icon-btn (tap size, round, icon centred) and adds the glass surface,
+       so it matches the back arrow in the header. The icon swaps with the fullscreen state. */
+    .fullscreen-btn{position:absolute;top:calc(env(safe-area-inset-top) + var(--nav-h) + var(--gap-m));z-index:5;
+      right:calc(max(0px, (100% - var(--container)) / 2) + var(--gutter));  /* same column as the back arrow */
+      color:var(--fg);background:var(--nav-glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+      box-shadow:inset 0 0 0 1px var(--line);
+      transition:box-shadow var(--t-fast) var(--ease-out),background-color var(--t-fast) var(--ease-out)}
+    .fullscreen-btn:hover{background:var(--nav-glass);box-shadow:inset 0 0 0 1px var(--line-strong)}
+    /* In fullscreen there is no header to line up with, so the button moves into the corner.
+       Two rules because a selector list with an unknown pseudo-class would drop both. */
+    #stage:fullscreen .fullscreen-btn{top:calc(env(safe-area-inset-top) + var(--gap-m));right:calc(env(safe-area-inset-right) + var(--gap-m))}
+    #stage:-webkit-full-screen .fullscreen-btn{top:calc(env(safe-area-inset-top) + var(--gap-m));right:calc(env(safe-area-inset-right) + var(--gap-m))}
+    .fullscreen-btn .icon-exit{display:none}
+    .fullscreen-btn[data-active="true"] .icon-enter{display:none}
+    .fullscreen-btn[data-active="true"] .icon-exit{display:block}
 
-    #unity-warning{position:absolute;left:12px;top:12px;z-index:20;max-width:60ch;  /* above the header so a transient banner is never hidden */
-      font-family:var(--font-mono);font-size:var(--mono-small);line-height:1.4}
+    #unity-warning{position:absolute;left:var(--gap-m);top:var(--gap-m);z-index:60;max-width:60ch;  /* above the header so a transient banner is never hidden */
+      font-size:var(--fs-xs);line-height:1.4}
 
     /* ── HelioPath overlay (replaces the in-build UI Toolkit panel) ─────────────────
-       Pure DOM over the canvas; the frosted look is a CSS backdrop-filter, so the
-       UIBackdropBlurFeature / blur RenderTexture are no longer needed. Controls drive
-       the sun through HelioPathWebBridge via unityInstance.SendMessage. Bottom-centered. */
-    /* The panel surface (blur, radius, rounded clipping) comes from the shared .panel class, like
-       the main site's panels. Demo only: take --panel's RGB but pin the alpha to 0.32 (double the
-       token's 0.16) so the controls stay legible over the live, often bright 3D scene. Relative-
-       colour syntax keeps it theme-aware — the RGB still flips with the theme, only alpha is fixed. */
-    #hp-ui{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:4;
-      max-width:calc(100% - 28px);display:none;flex-direction:column;gap:14px;padding:16px;color:var(--text);
-      background:rgb(from var(--panel) r g b / 0.5)}
+       Pure DOM over the canvas. Controls drive the sun through HelioPathWebBridge via
+       unityInstance.SendMessage. Bottom-centred. The surface is the nav glass, which is nearly
+       opaque, so labels stay legible over a bright sky; the blur only softens what shows through.
+       Type is JetBrains Mono, as in the panel's first version: an instrument panel reads well in
+       a monospace, and the figures line up by themselves. Compact on purpose, it sits on the scene. */
+    #hp-ui{
+      --panel-font: "JetBrains Mono", ui-monospace, monospace;
+      --panel-fs-s: .75rem;      /* labels, values, buttons */
+      --panel-fs-m: .8125rem;    /* inputs, switch labels, tabs */
+      --panel-fs-l: 1rem;        /* panel title */
+      --panel-gap: 12px;         /* between fields and sections */
+      --panel-gap-tight: 6px;    /* label to its control */
+      position:absolute;left:50%;bottom:var(--gap-m);transform:translateX(-50%);z-index:4;
+      max-width:calc(100% - 2 * var(--gap-m));display:none;flex-direction:column;gap:var(--panel-gap);
+      padding:var(--gap-m);color:var(--fg);font-family:var(--panel-font);
+      background:var(--nav-glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+      border:1px solid var(--line);border-radius:var(--r-l)}
     #hp-ui.ready{display:flex}
     #hp-ui.minimized .hp-tabs,#hp-ui.minimized .hp-body{display:none}
 
-    .hp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
-    .hp-head h2{margin:0;font-family:var(--font-mono);font-size:var(--mono-large); letter-spacing:.14em;
-      text-transform:uppercase;color:var(--text-mid);font-weight:600;}
-    .hp-min{appearance:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
-      line-height:1;border-radius:6px;cursor:pointer;
-      color:var(--text);background:transparent;border:1px solid var(--line);font-size:var(--mono-large)}
-    .hp-head:hover .hp-min{border-color:var(--gold);color:var(--gold)}
+    .hp-head{display:flex;align-items:center;justify-content:space-between;gap:var(--panel-gap);cursor:pointer}
+    .hp-head h2{margin:0;font:500 var(--panel-fs-l)/1.2 var(--panel-font);color:var(--fg)}
+    .hp-min{appearance:none;width:24px;height:24px;display:grid;place-items:center;
+      border-radius:calc(var(--r-s) - 2px);cursor:pointer;color:var(--fg-muted);background:transparent;border:1px solid var(--line);
+      transition:color var(--t-fast) var(--ease-out),border-color var(--t-fast) var(--ease-out)}
+    .hp-head:hover .hp-min{color:var(--fg);border-color:var(--line-strong)}
     /* Single chevron, rotated by state: points up while minimized (expand upward), flips to point
        down when open. The .minimized class on #hp-ui is the only state source — JS never touches
-       the glyph — and the .2s transition matches the template's other transitions. */
-    .hp-min svg{display:block;transition:transform .2s}
+       the glyph. */
+    .hp-min svg{display:block;transition:transform var(--t-fast) var(--ease-out)}
     #hp-ui:not(.minimized) .hp-min svg{transform:rotate(180deg)}
 
-    /* Tabs: shown only in compact mode (see media query). */
-    .hp-tabs{display:none;gap:8px}
-    .hp-tab{flex:1;appearance:none;cursor:pointer;font-family:var(--font-mono);font-size:var(--mono-small);
-      letter-spacing:.08em;text-transform:uppercase;padding:7px 10px;border-radius:7px;
-      color:var(--text-muted);background:transparent;border:1px solid var(--line)}
-    .hp-tab.active{color:var(--on-gold);background:var(--gold);border-color:var(--gold)}
+    /* Tabs: shown only in compact mode (see media query). The highlight is one shared surface
+       that slides from the last tab to the new one. JS sets --tab-index and --tab-count, so the
+       slide is a transform only and works for any number of equal-width tabs. */
+    .hp-tabs{--tab-pad:4px;--tab-gap:4px;position:relative;display:none;gap:var(--tab-gap);padding:var(--tab-pad);
+      border-radius:var(--r-s);background:color-mix(in srgb, var(--fg) 6%, transparent)}
+    .hp-tabs::before{content:"";position:absolute;top:var(--tab-pad);bottom:var(--tab-pad);left:var(--tab-pad);
+      width:calc((100% - 2 * var(--tab-pad) - (var(--tab-count, 3) - 1) * var(--tab-gap)) / var(--tab-count, 3));
+      transform:translateX(calc(var(--tab-index, 0) * (100% + var(--tab-gap))));
+      border-radius:calc(var(--r-s) - var(--tab-pad));background:var(--bg-raised);box-shadow:0 0 0 1px var(--line);
+      transition:transform var(--t-med) var(--ease-out)}
+    .hp-tab{position:relative;flex:1;appearance:none;cursor:pointer;font:500 var(--panel-fs-m)/1 var(--panel-font);
+      padding:8px 6px;border:0;background:transparent;color:var(--fg-muted);transition:color var(--t-med) var(--ease-out)}
+    .hp-tab.active{color:var(--fg)}
+    @media (prefers-reduced-motion: reduce){ .hp-tabs::before{transition:none} }
 
     /* Body: three side-by-side sections on wide screens, one tabbed column when compact. */
-    .hp-body{display:flex;flex-direction:row;gap:22px}
-    .hp-section{display:flex;flex-direction:column;gap:14px;width:264px;max-width:100%}
-    .hp-section + .hp-section{padding-left:22px;border-left:1px solid var(--line)}
-    .hp-section-title{font-family:var(--font-mono);font-size: var(--mono-small);letter-spacing:.12em;
-      text-transform:uppercase;color:var(--gold);margin:0}
+    .hp-body{display:flex;flex-direction:row;gap:var(--gap-l)}
+    .hp-section{display:flex;flex-direction:column;gap:var(--panel-gap);width:264px;max-width:100%}
+    .hp-section + .hp-section{padding-left:var(--gap-l);border-left:1px solid var(--line)}
+    .hp-section-title{font:500 var(--panel-fs-s)/1.2 var(--panel-font);color:var(--crema);margin:0}
 
-    .hp-field{display:flex;flex-direction:column;gap:6px}
-    .hp-field label{font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.1em;
-      text-transform:uppercase;color:var(--text-mid)}
-    .hp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .hp-field{display:flex;flex-direction:column;gap:var(--panel-gap-tight)}
+    .hp-field label{font-size:var(--panel-fs-s);color:var(--fg-muted)}
+    .hp-row{display:flex;gap:var(--panel-gap-tight);align-items:center;flex-wrap:wrap}
 
-    #hp-ui select,#hp-ui input[type="date"],#hp-ui input[type="time"]{color:var(--text);
-      font-family:var(--font-mono);font-size:var(--mono-medium);padding:7px 9px;border-radius:7px;
-      border:1px solid var(--line);background:var(--glass-weak)}
+    #hp-ui select,#hp-ui input[type="date"],#hp-ui input[type="time"]{color:var(--fg);
+      font:400 var(--panel-fs-m)/1.2 var(--panel-font);padding:7px 9px;
+      border-radius:calc(var(--r-s) - 2px);border:1px solid var(--line);background:color-mix(in srgb, var(--fg) 6%, transparent)}
     #hp-ui select{width:100%}
     /* Real min-width (not 0) + flex:auto so Safari/macOS keeps its native date/time fields wide
        enough to click and edit; .hp-row wraps (flex-wrap) when the panel is too narrow for both. */
     #hp-ui input[type="date"],#hp-ui input[type="time"]{flex:1 1 auto;min-width:8em}
-    #hp-ui select:focus,#hp-ui input:focus{outline:none;border-color:var(--gold)}
-    #hp-ui select option{background:var(--bg);color:var(--text)}
+    #hp-ui select:focus-visible,#hp-ui input:focus-visible{outline:2px solid var(--crema);outline-offset:1px}
+    #hp-ui select option{background:var(--bg);color:var(--fg)}
 
-    .hp-btn{flex:1;appearance:none;cursor:pointer;font-family:var(--font-mono);font-size:var(--mono-small);
-      letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-radius:7px;
-      color:var(--text);background:transparent;border:1px solid var(--line);
-      transition:color .2s,border-color .2s,background .2s}
-    .hp-btn:hover{border-color:var(--gold);color:var(--gold)}
-    .hp-btn--inline{flex:0 0 auto;padding:8px 12px}
+    .hp-btn{flex:1;appearance:none;cursor:pointer;font:500 var(--panel-fs-s)/1 var(--panel-font);
+      padding:8px 10px;border-radius:calc(var(--r-s) - 2px);color:var(--fg);background:transparent;border:1px solid var(--line-strong);
+      transition:border-color var(--t-fast) var(--ease-out)}
+    .hp-btn:hover{border-color:var(--fg)}
+    .hp-btn--inline{flex:0 0 auto}
 
-    .hp-switch{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
-    .hp-switch span{font-family:var(--font-mono);font-size:var(--mono-small);letter-spacing:.04em;color:var(--text)}
-    .hp-toggle{position:relative;width:40px;height:22px;border-radius:100px;flex:0 0 auto;
-      background:color-mix(in srgb, var(--text-muted) 40%, transparent);transition:background .2s}
+    .hp-switch{display:flex;align-items:center;justify-content:space-between;gap:var(--panel-gap);cursor:pointer}
+    .hp-switch span{font-size:var(--panel-fs-m);color:var(--fg)}
+    .hp-toggle{position:relative;width:40px;height:22px;border-radius:11px;flex:0 0 auto;
+      background:color-mix(in srgb, var(--fg) 18%, transparent);transition:background-color var(--t-fast) var(--ease-out)}
     .hp-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
-      border-radius:50%;background:var(--text);transition:transform .2s}
-    .hp-switch.on .hp-toggle{background:var(--gold)}
-    .hp-switch.on .hp-toggle::after{transform:translateX(18px);background:var(--on-gold)}
+      border-radius:50%;background:var(--fg);transition:transform var(--t-fast) var(--ease-out)}
+    .hp-switch.on .hp-toggle{background:var(--crema)}
+    .hp-switch.on .hp-toggle::after{transform:translateX(18px);background:var(--on-crema)}
 
-    #hp-ui input[type="range"]{width:100%;accent-color:var(--gold)}
+    #hp-ui input[type="range"]{width:100%;margin:0;accent-color:var(--crema)}
     .hp-range-head{display:flex;align-items:baseline;justify-content:space-between}
-    .hp-range-head .val{font-family:var(--font-mono);font-size:var(--mono-small);color:var(--gold)}
-    .hp-sub{display:flex;flex-direction:column;gap:6px;transition:opacity .2s}
+    .hp-range-head .val{font-size:var(--panel-fs-s);color:var(--fg)}
+    .hp-sub{display:flex;flex-direction:column;gap:var(--panel-gap-tight);transition:opacity var(--t-fast) var(--ease-out)}
     .hp-sub.dim{opacity:.4;pointer-events:none}
-    .hp-coords{font-family:var(--font-mono);font-size:var(--mono-small);color:var(--text-muted)}
+    .hp-coords{font-size:var(--panel-fs-s);color:var(--fg-muted)}
 
     /* Compact: tabs replace the side-by-side layout so the panel never overloads phones. */
     @media (max-width:720px){
@@ -163,18 +174,19 @@
 </head>
 <body>
   <div id="app">
-    <header>
-      <nav>
-        <span class="logo" role="img" aria-label="espressodriven"></span>
-        <span class="title">HelioPath.Demo</span>
-        <a class="nav-link" href="https://www.espressodriven.com/#assets">back</a>
-      </nav>
+    <header class="nav" data-scrolled="true">
+      <div class="container">
+        <a class="nav-logo" href="/" aria-label="espressodriven, home"><span class="wordmark" aria-hidden="true"></span></a>
+        <a class="icon-btn demo-back" href="/#assets" aria-label="Back to assets" title="Back to assets">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+        </a>
+      </div>
     </header>
     <div id="stage">
       <canvas id="unity-canvas" tabindex="-1"></canvas>
 
       <!-- HelioPath HTML overlay. Populated/shown once the location database arrives. -->
-      <div id="hp-ui" class="panel minimized" aria-label="HelioPath controls">
+      <div id="hp-ui" class="minimized" aria-label="HelioPath controls">
         <div class="hp-head">
           <h2>Settings</h2>
           <button class="hp-min" id="hp-min" title="Expand" aria-label="Expand settings" aria-expanded="false">
@@ -290,19 +302,22 @@
         <div class="loading-label">Loading HelioPath &hellip;</div>
         <div class="bar"><span id="bar-fill"></span></div>
       </div>
-      <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
+      <button class="icon-btn fullscreen-btn" id="fullscreen-btn" type="button" aria-label="Enter fullscreen" title="Fullscreen">
+        <svg class="icon icon-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        <svg class="icon icon-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+      </button>
       <div id="unity-warning"></div>
     </div>
   </div>
 
   <script>
-    // Keep the iOS status/address-bar tint in step with the active theme: read the same
-    // --theme-color token the main site uses and, while on 'auto', re-read it when the OS
+    // Keep the iOS status/address-bar tint in step with the active theme: read the page
+    // background token and, while on 'auto', re-read it when the OS
     // flips light/dark (the page colours themselves already follow via the CSS media query).
     (function syncThemeColor() {
       var meta = document.querySelector('meta[name="theme-color"]');
       function apply() {
-        var c = getComputedStyle(document.documentElement).getPropertyValue("--theme-color").trim();
+        var c = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
         if (c && meta) meta.setAttribute("content", c);
       }
       apply();
@@ -542,10 +557,14 @@
 
     // ── Tabs (compact mode) ──────────────────────────────────────────────────────
     function wireTabs() {
+      var bar = document.querySelector(".hp-tabs");
       var tabs = document.querySelectorAll(".hp-tab");
-      tabs.forEach(function (t) {
+      // The sliding highlight (.hp-tabs::before) is positioned from these two values in CSS.
+      bar.style.setProperty("--tab-count", tabs.length);
+      tabs.forEach(function (t, i) {
         t.onclick = function () {
           var name = t.dataset.tab;
+          bar.style.setProperty("--tab-index", i);
           tabs.forEach(function (x) { x.classList.toggle("active", x === t); });
           document.querySelectorAll(".hp-section").forEach(function (s) {
             s.classList.toggle("active", s.dataset.section === name);
@@ -578,7 +597,10 @@
     }
     function updateFsLabel() {
       var active = document.fullscreenElement || document.webkitFullscreenElement;
-      document.querySelector("#fullscreen-btn").textContent = active ? "Exit" : "Fullscreen";
+      var btn = document.querySelector("#fullscreen-btn");
+      btn.dataset.active = active ? "true" : "false";
+      btn.title = active ? "Exit fullscreen" : "Fullscreen";
+      btn.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
     }
     function wireFullscreen() {
       var btn = document.querySelector("#fullscreen-btn");

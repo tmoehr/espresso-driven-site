@@ -8,7 +8,7 @@ No German anywhere.
 Every content section (excluding the footer) must have a corresponding nav link in the header.
 Links appear in the same order as their sections in the DOM.
 
-Current order: Assets → Contact → Imprint
+Current order: Assets → About → Contact → Imprint (Imprint lives in the footer)
 
 When adding a new section:
 1. Add `id="<name>"` to the `<section>` element
