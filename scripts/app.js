@@ -6,7 +6,8 @@
 
 // ───────────────────────── Constants ─────────────────────────
 
-const THEME_NAMES = { auto: "Auto", light: "Light", dark: "Dark" };   // modes from scripts/theme.js
+// Modes from scripts/theme.js, named like the menu of a coffee bar.
+const THEME_NAMES = { auto: "House blend", light: "Light roast", dark: "Dark roast" };
 const NAV_SCROLL_THRESHOLD = 8;
 const CUE_DISMISS_AT = 0.15;    // the hero's scroll cue leaves after this share of a viewport
 const COPY_RESET_MS = 2000;
