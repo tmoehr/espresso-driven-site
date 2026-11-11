@@ -32,12 +32,11 @@
   <meta name="twitter:image:alt" content="espressodriven | Unity Assets, brewed through Espresso-Driven Development">
   <link rel="preconnect" href="https://api.fontshare.com">
   <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- The heading face is needed for the first screen; it is self-hosted (see @font-face in styles.css). -->
+  <link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- Satoshi for text, Bricolage Grotesque for headings: upright and calm, it stands clearly apart
        from the italic crema wordmark, and its display details keep it distinct from Satoshi. -->
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <!-- Theme before first paint (auto, light or dark; dark by default). Shared with the demo page. -->
   <script src="scripts/theme.js"></script>
@@ -140,7 +139,7 @@
     <section class="section" id="assets" aria-labelledby="assets-title">
       <div class="container section-head">
         <h2 id="assets-title">Assets</h2>
-        <p>What's in the cup?</p>
+        <p>What’s in the cup?</p>
       </div>
 
       <!-- The time-lapse runs from sunrise to midday; scroll position is the clock. -->
@@ -161,7 +160,7 @@
                 <div class="story-step"><p class="lead">Realistic sun position and daylight control for Unity scenes. Accurate solar trajectories computed from geographic location, date and time. Built for archviz, open-world games and cinematic lighting.</p></div>
                 <div class="story-step"><p>Geographically accurate sun position from latitude, longitude, date &amp; time</p></div>
                 <div class="story-step"><p>Procedural sky &amp; dynamic daylight simulation</p></div>
-                <div class="story-step"><p>VR / AR ready | runs in URP &amp; HDRP</p></div>
+                <div class="story-step"><p>VR / AR ready · runs in URP &amp; HDRP</p></div>
                 <div class="story-step"><p>Drop-in sunlight effects: one component, no setup required</p></div>
                 <div class="story-step"><p>Ships with AI Skills, so your coding agent sets up sun, sky and effects for you</p></div>
               </div>
@@ -189,8 +188,8 @@
           <aside class="get-side get-card" aria-label="HelioPath details">
             <dl class="specs">
               <div><dt>Category</dt><dd>Tools/Utilities</dd></div>
-              <div><dt>Pipeline</dt><dd>URP | HDRP</dd></div>
-              <div><dt>Unity</dt><dd>2022.3 +</dd></div>
+              <div><dt>Pipeline</dt><dd>URP · HDRP</dd></div>
+              <div><dt>Unity</dt><dd>2022.3+</dd></div>
               <div><dt>AI Support</dt><dd>Claude Skills</dd></div>
             </dl>
             <ul class="tags" aria-label="Tags">
@@ -210,7 +209,7 @@
       <div class="container">
         <div class="section-head">
           <h2 id="about-title">About</h2>
-          <p>Who's behind the bar?</p>
+          <p>Who’s behind the bar?</p>
         </div>
         <blockquote class="quote">Good code is like good espresso: compact, strong, and right to the point.</blockquote>
         <div class="about">
@@ -220,9 +219,9 @@
           <div class="about-body">
             <h3>Senior Unity Developer</h3>
             <div class="about-text">
-              <p>I'm Thomas Möhr. My focus is on UI/UX and XR, with virtual reality as my house specialty. The whole Unity ecosystem keeps me fascinated. Clean code is my base ingredient. And agentic coding? That's my extra shot of caffeine right now.</p>
+              <p>I’m Thomas Möhr. My focus is on UI/UX and XR, with virtual reality as my house specialty. The whole Unity ecosystem keeps me fascinated. Clean code is my base ingredient. And agentic coding? That’s my extra shot of caffeine right now.</p>
               <p>At espressodriven.com I serve up house-roasted assets. Freshly ground, double extracted, lightweight, and ready to drop straight into your project.</p>
-              <p class="signoff">Pull up a chair, grab a cup. The first sip's on me.</p>
+              <p class="signoff">Pull up a chair, grab a cup. The first sip’s on me.</p>
             </div>
             <div class="about-foot">
               <ul class="tags" aria-label="Skills">
@@ -246,7 +245,7 @@
           <p>Say moin!</p>
         </div>
         <div class="contact">
-          <p class="contact-intro">Got a question, feedback or a feature request? Or maybe a coffee bean tip we shouldn't miss? Let me know.</p>
+          <p class="contact-intro">Got a question, feedback or a feature request? Or maybe a coffee bean tip we shouldn’t miss? Let me know.</p>
           <a class="mail" href="mailto:hello@espressodriven.com">hello@<wbr>espresso<wbr>driven.com</a>
           <div class="mail-actions">
             <a class="btn btn-crema" href="mailto:hello@espressodriven.com">Write an email</a>
@@ -266,7 +265,7 @@
     <div class="container">
       <div>
         <span class="wordmark" role="img" aria-label="espressodriven"></span>
-        <p>©<span id="year">2026</span> espressodriven. Brewed in Stralsund.</p>
+        <p>© <span id="year">2026</span> espressodriven. Brewed in Stralsund.</p>
       </div>
       <nav aria-label="Elsewhere">
         <h2>Elsewhere</h2>

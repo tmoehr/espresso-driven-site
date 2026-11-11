@@ -3,6 +3,23 @@
    backdrop (the brand) and the HelioPath time-lapse (the product), scrubbed by
    scroll. Everything else is quiet, precise typography. */
 
+/* ═════════════ Fonts ═════════════ */
+/* Self-hosted variable fonts, latin subset, all under the SIL Open Font License (texts in
+   fonts/). Satoshi is not here: its licence does not allow redistributing the files, which a
+   public repository would do, so it still loads from Fontshare. */
+@font-face{
+  font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 400 600; font-display: swap;
+  src: url("fonts/bricolage-grotesque-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family: "Fraunces"; font-style: italic; font-weight: 400 500; font-display: swap;
+  src: url("fonts/fraunces-italic-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 500; font-display: swap;
+  src: url("fonts/jetbrains-mono-latin.woff2") format("woff2");
+}
+
 /* ═════════════ Tokens ═════════════ */
 :root{
   /* Dark is the default theme, as on the live site. */
@@ -36,6 +53,10 @@
   /* ── Type ── */
   --font-display: "Bricolage Grotesque", "Satoshi", system-ui, sans-serif;
   --font-text:    "Satoshi", system-ui, sans-serif;
+  /* The italic serif echoes the wordmark. Used sparingly: the quote and the section asides. */
+  --font-accent:  "Fraunces", Georgia, serif;
+  --fw-display:        500;
+  --fw-display-strong: 600;   /* section titles and the product name */
 
   --fs-xs:  0.8125rem;
   --fs-s:   0.9375rem;
@@ -46,6 +67,7 @@
   --fs-3xl: clamp(2.75rem, 1.2rem + 6vw, 7.5rem);
 
   --tracking-tight: -0.03em;   /* large display sizes */
+  --tracking-mail: -0.025em;   /* the address is one long word: a touch looser than the titles, and still one line on a laptop */
   --tracking-display: -0.01em; /* display face at heading sizes */
 
   /* ── Space & shape ── */
@@ -257,7 +279,7 @@ a{ color: inherit; }
 .hero-logo{ width: min(52rem, 100%); }
 .hero-foot{ display: grid; justify-items: center; gap: var(--gap-l); }
 .hero h1{
-  font: 500 var(--fs-xl)/1.15 var(--font-display);
+  font: var(--fw-display) var(--fs-xl)/1.15 var(--font-display);
   letter-spacing: var(--tracking-display);
   max-width: 24ch;
 }
@@ -289,8 +311,8 @@ a{ color: inherit; }
 /* ═════════════ Section heads ═════════════ */
 .section{ padding-top: var(--section); }
 .section-head{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--gap-s) var(--gap-l); margin-bottom: var(--gap-xl); }
-.section-head h2{ font: 500 var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
-.section-head p{ font-size: var(--fs-l); color: var(--fg-muted); }
+.section-head h2{ font: var(--fw-display-strong) var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
+.section-head p{ font: italic 400 var(--fs-l)/1.2 var(--font-accent); color: var(--fg-muted); }
 
 /* ═════════════ Story: HelioPath, scrubbed by scroll ═════════════ */
 .story{ position: relative; height: calc(var(--story-screens) * 100svh); }
@@ -334,9 +356,9 @@ a{ color: inherit; }
   transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
 }
 .story-step[data-active="true"]{ opacity: 1; transform: none; }
-.story-step h3{ font: 500 var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
+.story-step h3{ font: var(--fw-display-strong) var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
 .story-step .tagline{ margin-top: .75rem; font-size: var(--fs-l); color: var(--film-accent); }
-.story-step p{ font: 500 var(--fs-xl)/1.25 var(--font-display); letter-spacing: var(--tracking-display); }
+.story-step p{ font: var(--fw-display) var(--fs-xl)/1.25 var(--font-display); letter-spacing: var(--tracking-display); }
 .story-step .lead{ font: 400 var(--fs-l)/1.5 var(--font-text); letter-spacing: 0; }
 
 .story-rail{ flex: 0 1 18rem; display: grid; gap: var(--gap-s); font-size: var(--fs-xs); color: var(--film-fg-muted); font-variant-numeric: tabular-nums; }
@@ -370,7 +392,7 @@ a{ color: inherit; }
 .demo-card p{ color: var(--fg-muted); max-width: 34ch; }
 
 /* Every h3 outside the film shares one style. */
-.demo-card h3, .about-body h3{ font: 500 var(--fs-xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); }
+.demo-card h3, .about-body h3{ font: var(--fw-display) var(--fs-xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); }
 .demo-card .btn{ align-self: flex-start; }
 
 /* The play mark sits on the footage, so it uses the film's colours in both themes. */
@@ -404,8 +426,7 @@ a{ color: inherit; }
 /* ═════════════ About ═════════════ */
 .quote{
   /* One step below the section h2, so the heading keeps the lead. */
-  font: 500 var(--fs-xl)/1.15 var(--font-display);
-  letter-spacing: var(--tracking-display);
+  font: italic 400 var(--fs-xl)/1.2 var(--font-accent);
   max-width: 28ch;
   margin-bottom: clamp(3rem, 7vw, 5.5rem);
   text-wrap: balance;
@@ -426,8 +447,8 @@ a{ color: inherit; }
 .contact-intro{ max-width: 40rem; color: var(--fg-muted); font-size: var(--fs-l); }
 .mail{
   display: block;
-  font: 500 var(--fs-3xl)/.95 var(--font-display);
-  letter-spacing: var(--tracking-tight);
+  font: var(--fw-display) var(--fs-3xl)/.95 var(--font-display);
+  letter-spacing: var(--tracking-mail);
   text-decoration: none;
   transition: color var(--t-med) var(--ease-out);
 }
@@ -479,7 +500,7 @@ a{ color: inherit; }
     display: flex; flex-direction: column; justify-content: center; gap: var(--gap-s);
     padding: var(--nav-h) var(--gutter);
     background: var(--bg); color: var(--fg);
-    font: 500 var(--fs-2xl)/1.1 var(--font-display);
+    font: var(--fw-display) var(--fs-2xl)/1.1 var(--font-display);
     opacity: 0; visibility: hidden;
     transition: opacity var(--t-med) var(--ease-out), visibility var(--t-med);
   }

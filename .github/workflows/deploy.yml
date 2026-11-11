@@ -38,7 +38,7 @@ jobs:
           # 'unity' holds the Unity-WebGL source/template, not site output.
           rsync -a --exclude='.git' --exclude='.github' --exclude='_site' --exclude='unity' ./ _site/
           # Append ?v=<sha> to local .css/.js refs only. The match requires the
-          # path to end in exactly .css" or .js", so the Google Fonts <link>
+          # path to end in exactly .css" or .js", so the Fontshare <link>
           # (ends in &display=swap") and .svg refs are left untouched.
           for f in _site/*.html; do
             sed -i -E "s/(href|src)=\"([^\"]+\.(css|js))\"/\1=\"\2?v=${SHA}\"/g" "$f"
