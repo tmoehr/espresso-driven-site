@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Generate the Open Graph / social share preview image (1200x630).
 
-Takes the original crema wordmark photo and crops it to the 1200x630 OG
-aspect ratio, keeping the (centered) wordmark centered. Output: images/og.png
+Takes a capture of the hero (dark theme; wordmark and headline only, without
+navigation, buttons or scroll cue) and crops it to the 1200x630 OG aspect
+ratio, keeping the centered wordmark centered. Output: images/og.jpg
 """
 from pathlib import Path
 
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "images/og-source.jpg"   # original crema wordmark photo
+SRC = ROOT / "images/og-source.jpg"   # hero capture, 2x the target size
 OUT = ROOT / "images/og.jpg"
 
 TARGET_W, TARGET_H = 1200, 630
