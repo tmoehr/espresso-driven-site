@@ -66,15 +66,7 @@ function initNav() {
   const toggle = document.getElementById("nav-toggle");
   const links = document.getElementById("nav-links");
 
-  const cup = document.getElementById("nav-cup");
-  let shownLevel = "";
-  const onScroll = () => {
-    nav.dataset.scrolled = String(scrollY > NAV_SCROLL_THRESHOLD);
-    // The cup is full at the top and empty at the end of the page. Two decimals: enough for
-    // an 8px bowl, and most scroll events then write nothing.
-    const level = (1 - window.siteScroll.progress()).toFixed(2);
-    if (level !== shownLevel) { shownLevel = level; cup.style.setProperty("--cup-level", level); }
-  };
+  const onScroll = () => { nav.dataset.scrolled = String(scrollY > NAV_SCROLL_THRESHOLD); };
   addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 

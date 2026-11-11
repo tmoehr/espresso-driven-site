@@ -106,15 +106,6 @@
         </button>
       </nav>
       <div class="nav-actions">
-        <!-- What's in the cup? Full at the top of the page, drunk up by the end (app.js sets --cup-level). -->
-        <span class="nav-cup" id="nav-cup" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 24 24">
-            <clipPath id="cup-bowl"><path d="M5 8h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z"/></clipPath>
-            <g clip-path="url(#cup-bowl)"><rect class="nav-cup-fill" x="5" y="9.5" width="12" height="8.5"/></g>
-            <path d="M5 8h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z"/>
-            <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M4 21h14"/>
-          </svg>
-        </span>
         <button class="icon-btn theme-toggle nav-theme" type="button">
           <svg class="icon theme-icon-auto" aria-hidden="true"><use href="#i-auto"/></svg>
           <svg class="icon theme-icon-light" aria-hidden="true"><use href="#i-sun"/></svg>
@@ -399,7 +390,6 @@ void main(){
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
   </script>
-  <script src="scripts/scroll.js"></script>
   <script src="scripts/background.js"></script>
   <script src="scripts/app.js" type="module"></script>
 </body>
