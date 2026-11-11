@@ -99,11 +99,7 @@
     }
   }
 
-  // Cache the scrollable height instead of reading scrollHeight every frame (a potential layout
-  // read). ResizeObserver catches reflows (font swaps, etc.) that change the page height.
-  let scrollMax = 0;
-  const updateScrollMax = () => { scrollMax = document.documentElement.scrollHeight - innerHeight; };
-  const scrollProgress = () => scrollMax > 0 ? Math.min(window.scrollY / scrollMax, 1) : 0;
+  const scrollProgress = window.siteScroll.progress;   // scripts/scroll.js
   // Full strength in the hero, easing down to the resting level over the first screen.
   const strength = () => 1 - (1 - REST_STRENGTH) * Math.min(window.scrollY / innerHeight, 1);
 
@@ -117,12 +113,10 @@
 
   applyTheme();
   resize();
-  updateScrollMax();
   sun = scrollProgress();
   draw();
 
-  window.addEventListener('resize', () => { resize(); updateScrollMax(); draw(); });
-  if('ResizeObserver' in window) new ResizeObserver(updateScrollMax).observe(document.documentElement);
+  window.addEventListener('resize', () => { resize(); draw(); });
   // Theme switch (or a live OS change on 'auto'): re-read the tokens and repaint.
   window.addEventListener('themechange', () => { applyTheme(); draw(); });
 

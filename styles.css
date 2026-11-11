@@ -88,6 +88,7 @@
   --r-pill: 999px;
   --tap: 44px;
   --icon-s: 16px;   /* quiet controls, one step below the 18px .icon */
+  --icon-m: 22px;   /* the nav cup: large enough to read its level */
   --nav-h: 72px;
 
   /* ── Motion ── */
@@ -222,6 +223,7 @@ a{ color: inherit; }
   -webkit-backdrop-filter: none; backdrop-filter: none;
   box-shadow: none;
   color: var(--film-fg);
+  --cup-fill: var(--film-accent);
 }
 .nav .container{ display: flex; align-items: center; gap: var(--gap-l); min-height: var(--nav-h); }
 .nav-logo{ color: inherit; padding: 8px 0; }
@@ -229,6 +231,14 @@ a{ color: inherit; }
 .nav-links{ display: flex; gap: clamp(1rem, 2.6vw, 2.25rem); margin-left: auto; font-size: var(--fs-s); }
 .nav-links a{ display: inline-flex; align-items: center; min-height: var(--tap); }
 .nav-actions{ display: flex; align-items: center; gap: 4px; }
+/* The cup empties as the page is read: its coffee is scaled from the bottom of the bowl. */
+.nav-cup{ display: grid; place-items: center; width: var(--tap); height: var(--tap); }
+.nav-cup .icon{ width: var(--icon-m); height: var(--icon-m); }
+.nav-cup-fill{
+  fill: var(--cup-fill, var(--crema)); stroke: none;
+  transform-box: fill-box; transform-origin: 50% 100%;
+  transform: scaleY(var(--cup-level, 1));
+}
 .icon-btn{
   width: var(--tap); height: var(--tap);
   display: inline-grid; place-items: center;
