@@ -5,8 +5,7 @@
 
 // ───────────────────────── Constants ─────────────────────────
 
-const THEME_KEY = "theme";                  // same key as the live site
-const THEME_COLOR = { dark: "#120d0a", light: "#f4efe8" };
+const THEME_NAMES = { auto: "Auto", light: "Light", dark: "Dark" };   // modes from scripts/theme.js
 const NAV_SCROLL_THRESHOLD = 8;
 const COPY_RESET_MS = 2000;
 
@@ -19,39 +18,28 @@ const PORTRAIT_QUERY = "(orientation: portrait)";
 const VIDEO_EXT = ".mp4";
 const POSTER_EXT = ".jpg";
 
-// Sunlight on the get block: the real sun over Stralsund, the way HelioPath thinks about it.
-const STRALSUND = { lat: 54.309, lon: 13.082 };
-const SUN_UPDATE_MS = 60_000;          // the sun moves ~0.25° a minute, so once a minute is plenty
-const SUN_AZIMUTH_RANGE = [45, 315];   // NE sunrise to NW sunset at midsummer → left to right edge
-const SUN_ELEVATION_MAX = 60;          // ~59° at midsummer noon in Stralsund → top edge
-const SUN_ELEVATION_MIN = -12;         // nautical dusk: the glow has sunk below the cards
-
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
 // ───────────────────────── Theme ─────────────────────────
 
 function initTheme() {
-  const root = document.documentElement;
-  const button = document.getElementById("theme-toggle");
-  const meta = document.querySelector('meta[name="theme-color"]');
+  // scripts/theme.js owns the mode and applies it; this only wires the switches and their labels.
+  const theme = window.siteTheme;
+  const buttons = [...document.querySelectorAll(".theme-toggle")];
+  const next = () => theme.modes[(theme.modes.indexOf(theme.mode) + 1) % theme.modes.length];
 
-  function apply(theme) {
-    root.dataset.theme = theme;
-    meta.content = THEME_COLOR[theme];
-    button.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
-    // background.js re-reads its colours from CSS on this event, and re-measures its canvas
-    // on resize: light mode hides the canvas, so it drops to 0×0 there and stops costing GPU time.
-    dispatchEvent(new Event("themechange"));
-    dispatchEvent(new Event("resize"));
+  function label() {
+    const text = `Theme ${THEME_NAMES[theme.mode]}${theme.mode === "auto" ? ", follows system" : ""}. Switch to ${THEME_NAMES[next()]}`;
+    for (const button of buttons) {
+      button.setAttribute("aria-label", text);
+      button.title = text;
+      const name = button.querySelector(".theme-name");
+      if (name) name.textContent = THEME_NAMES[theme.mode];
+    }
   }
-
-  button.addEventListener("click", () => {
-    const next = root.dataset.theme === "light" ? "dark" : "light";
-    try { localStorage.setItem(THEME_KEY, next); } catch { /* storage blocked: theme still switches */ }
-    apply(next);
-  });
-  apply(root.dataset.theme === "light" ? "light" : "dark");
+  for (const button of buttons) button.addEventListener("click", () => { theme.set(next()); label(); });
+  label();
 }
 
 // ───────────────────────── Navigation ─────────────────────────
@@ -188,66 +176,26 @@ function initStory() {
   });
 }
 
-// ───────────────────────── Sunlight ─────────────────────────
+// ───────────────────────── Swirl inside the cards ─────────────────────────
 
-const DEG = Math.PI / 180;
-const MS_PER_DAY = 86_400_000;
-const J2000_FROM_UNIX_EPOCH = 2440587.5 - 2451545.0;   // Julian day offset
-
-/**
- * Solar elevation and azimuth (degrees, azimuth clockwise from north) for a moment and place.
- * Low-precision almanac formulas, good to a fraction of a degree, which is far more than a glow needs.
- */
-function sunPosition(date, lat, lon) {
-  const d = date.getTime() / MS_PER_DAY + J2000_FROM_UNIX_EPOCH;
-  const anomaly = (357.529 + 0.98560028 * d) * DEG;
-  const meanLon = 280.459 + 0.98564736 * d;
-  const eclipticLon = (meanLon + 1.915 * Math.sin(anomaly) + 0.020 * Math.sin(2 * anomaly)) * DEG;
-  const obliquity = (23.439 - 0.00000036 * d) * DEG;
-  const rightAscension = Math.atan2(Math.cos(obliquity) * Math.sin(eclipticLon), Math.cos(eclipticLon)) / DEG;
-  const declination = Math.asin(Math.sin(obliquity) * Math.sin(eclipticLon));
-  const siderealDeg = (18.697374558 + 24.06570982441908 * d) * 15;
-  const hourAngle = (siderealDeg + lon - rightAscension) * DEG;
-  const phi = lat * DEG;
-
-  const elevation = Math.asin(Math.sin(phi) * Math.sin(declination) + Math.cos(phi) * Math.cos(declination) * Math.cos(hourAngle)) / DEG;
-  const azimuth = Math.atan2(
-    -Math.sin(hourAngle) * Math.cos(declination),
-    Math.sin(declination) * Math.cos(phi) - Math.cos(declination) * Math.sin(phi) * Math.cos(hourAngle),
-  ) / DEG;
-  return { elevation, azimuth: (azimuth + 360) % 360 };
-}
-
-function initSunlight() {
+// One swirl canvas spans the get block; its mask is the cards' rounded shapes, so the field shows
+// only inside them. Rebuilt on resize, which is rare, so the SVG string costs nothing per frame.
+function initCardSwirl() {
   const block = document.getElementById("get");
-  const cards = [...block.querySelectorAll(".sunlit")];
-  const [azFrom, azTo] = SUN_AZIMUTH_RANGE;
+  const canvas = block.querySelector(".get-swirl");
+  const cards = [...block.querySelectorAll(".get-card")];
 
-  // Geometry: every card paints the block-sized gradient, offset to where the card sits.
-  function measure() {
+  function mask() {
     const box = block.getBoundingClientRect();
-    block.style.setProperty("--light-w", `${box.width}px`);
-    block.style.setProperty("--light-h", `${box.height}px`);
-    block.style.setProperty("--light-long", `${Math.max(box.width, box.height)}px`);
-    for (const card of cards) {
+    const rects = cards.map((card) => {
       const r = card.getBoundingClientRect();
-      card.style.setProperty("--light-x", `${box.left - r.left}px`);
-      card.style.setProperty("--light-y", `${box.top - r.top}px`);
-    }
+      const radius = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0;
+      return `<rect x="${r.left - box.left}" y="${r.top - box.top}" width="${r.width}" height="${r.height}" rx="${radius}"/>`;
+    }).join("");
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${box.width}" height="${box.height}">${rects}</svg>`;
+    canvas.style.setProperty("--swirl-mask", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
   }
-  new ResizeObserver(measure).observe(block);
-
-  // Position: azimuth runs left to right, elevation bottom to top. Below the horizon the
-  // light sinks past the bottom edge, so at night only a faint rim is left.
-  function place() {
-    const { elevation, azimuth } = sunPosition(new Date(), STRALSUND.lat, STRALSUND.lon);
-    const x = clamp01((azimuth - azFrom) / (azTo - azFrom));
-    const y = 1 - Math.max(elevation, SUN_ELEVATION_MIN) / SUN_ELEVATION_MAX;
-    block.style.setProperty("--sun-x", `${(x * 100).toFixed(1)}%`);
-    block.style.setProperty("--sun-y", `${(y * 100).toFixed(1)}%`);
-  }
-  place();
-  setInterval(place, SUN_UPDATE_MS);
+  new ResizeObserver(mask).observe(block);
 }
 
 // ───────────────────────── Copy email ─────────────────────────
@@ -274,5 +222,5 @@ document.getElementById("year").textContent = String(new Date().getFullYear());
 initTheme();
 initNav();
 initStory();
-initSunlight();
+initCardSwirl();
 initCopy();

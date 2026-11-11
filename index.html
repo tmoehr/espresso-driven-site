@@ -39,10 +39,8 @@
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <!-- Theme before first paint. Same storage key as the live site; dark by default. -->
-  <script>
-    try{ var t = localStorage.getItem("theme"); if(t === "light") document.documentElement.dataset.theme = "light"; }catch(e){}
-  </script>
+  <!-- Theme before first paint (auto, light or dark; dark by default). Shared with the demo page. -->
+  <script src="scripts/theme.js"></script>
 
   <!-- Structured data: lets search engines model the brand + site as entities
        (Organization knowledge panel, sitename in results). -->
@@ -82,6 +80,7 @@
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+    <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
@@ -97,11 +96,19 @@
         <a class="link" href="#about">About</a>
         <a class="link" href="#contact">Contact</a>
         <a class="link" href="#imprint">Imprint</a>
+        <!-- Phones: the switch lives at the foot of the menu, out of the way. -->
+        <button class="theme-toggle menu-theme" type="button">
+          Theme <span class="theme-name"></span>
+          <svg class="icon theme-icon-auto" aria-hidden="true"><use href="#i-auto"/></svg>
+          <svg class="icon theme-icon-light" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="icon theme-icon-dark" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
       </nav>
       <div class="nav-actions">
-        <button class="icon-btn theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
-          <svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
-          <svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <button class="icon-btn theme-toggle nav-theme" type="button">
+          <svg class="icon theme-icon-auto" aria-hidden="true"><use href="#i-auto"/></svg>
+          <svg class="icon theme-icon-light" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="icon theme-icon-dark" aria-hidden="true"><use href="#i-moon"/></svg>
         </button>
         <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
           <svg class="icon icon-menu" aria-hidden="true"><use href="#i-menu"/></svg>
@@ -114,7 +121,7 @@
   <main id="top">
     <!-- ═════════════ Hero: the live espresso swirl (scripts/background.js) ═════════════ -->
     <section class="hero">
-      <canvas id="bg-gl" aria-hidden="true"></canvas>
+      <canvas id="bg-gl" data-swirl aria-hidden="true"></canvas>
       <div class="container">
         <img class="hero-logo" src="images/logo/logo_crema.webp" width="1340" height="499" alt="espressodriven">
         <div class="hero-foot">
@@ -167,14 +174,16 @@
 
       <div class="container">
         <div class="get" id="get">
+          <!-- The swirl from the hero, seen through both cards (see .get-swirl). -->
+          <canvas class="get-swirl" data-swirl aria-hidden="true"></canvas>
           <!-- Image slot: a screenshot of the WebGL demo goes here once delivered (see .demo-card img). -->
-          <a class="demo-card demo-card--plain sunlit" href="/demo/heliopath/">
+          <a class="demo-card demo-card--plain get-card" href="/demo/heliopath/">
             <span class="demo-mark" aria-hidden="true"><svg class="icon"><use href="#i-play"/></svg></span>
             <h3>Try the live demo</h3>
             <p>HelioPath running in WebGL, right in your browser.</p>
             <span class="btn btn-crema"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>Open demo</span>
           </a>
-          <aside class="get-side sunlit" aria-label="HelioPath details">
+          <aside class="get-side get-card" aria-label="HelioPath details">
             <dl class="specs">
               <div><dt>Category</dt><dd>Tools/Utilities</dd></div>
               <div><dt>Pipeline</dt><dd>URP | HDRP</dd></div>

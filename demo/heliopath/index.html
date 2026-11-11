@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>HelioPath | espressodriven</title>
   <meta name="theme-color" content="#1a110f">
-  <!-- Apply the persisted theme (auto/light/dark) before first paint, exactly like the main
-       site, so the demo opens in the mode the visitor chose — no flash of the wrong theme.
-       localStorage is per-origin, so the choice made on www.espressodriven.com carries over. -->
-  <script>try{var t=localStorage.getItem('theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://api.fontshare.com">
@@ -20,6 +16,9 @@
        live in the site stylesheet. The demo is served from /demo/heliopath/, so this
        root-absolute path resolves to the very same cached file the main page uses. -->
   <link rel="stylesheet" href="/styles.css">
+  <!-- The site's theme (auto, light or dark) before first paint. localStorage is per origin, so
+       the mode chosen on the main page carries over; it also keeps theme-color in step. -->
+  <script src="/scripts/theme.js"></script>
   <style>
     /* Demo-only component styles. No colours or fonts are (re)defined here — everything
        references the shared tokens from styles.css, so the two can never drift. These rules
@@ -311,21 +310,6 @@
   </div>
 
   <script>
-    // Keep the iOS status/address-bar tint in step with the active theme: read the page
-    // background token and, while on 'auto', re-read it when the OS
-    // flips light/dark (the page colours themselves already follow via the CSS media query).
-    (function syncThemeColor() {
-      var meta = document.querySelector('meta[name="theme-color"]');
-      function apply() {
-        var c = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
-        if (c && meta) meta.setAttribute("content", c);
-      }
-      apply();
-      matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-        if (!document.documentElement.hasAttribute("data-theme")) apply(); // only matters in 'auto'
-      });
-    })();
-
     var canvas        = document.querySelector("#unity-canvas");
     var loader        = document.querySelector("#loader");
     var barFill       = document.querySelector("#bar-fill");

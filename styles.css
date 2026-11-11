@@ -24,9 +24,6 @@
   --film-accent:   #e8c49b;   /* crema, lifted for contrast on footage */
   --film-ink:      12 8 6;    /* rgb channels of the scrim, used with an alpha */
 
-  /* Sunlight across the get block: one light, seen through both cards. */
-  --sun-glow: color-mix(in srgb, var(--crema) 22%, transparent);
-
   /* Read by scripts/background.js (the live site's swirl shader). Dark theme only:
      on light ground the swirl reads as smoke, so light mode hides it (see .hero). */
   --bg-fade:     var(--bg);
@@ -67,6 +64,7 @@
   --r-l: 20px;
   --r-pill: 999px;
   --tap: 44px;
+  --icon-s: 16px;   /* quiet controls, one step below the 18px .icon */
   --nav-h: 72px;
 
   /* ── Motion ── */
@@ -184,9 +182,15 @@ a{ color: inherit; }
   transition: background-color var(--t-fast) var(--ease-out);
 }
 .icon-btn:hover{ background: var(--line); }
-.theme-toggle .icon-sun{ display: none; }
-:root[data-theme="light"] .theme-toggle .icon-sun{ display: block; }
-:root[data-theme="light"] .theme-toggle .icon-moon{ display: none; }
+/* Theme switch: cycles auto, light, dark (scripts/theme.js). It shows the current mode's icon.
+   Desktop keeps it small and muted in the bar; phones get it at the foot of the menu instead. */
+.theme-toggle .icon{ display: none; width: var(--icon-s); height: var(--icon-s); }
+:root[data-theme-mode="auto"]  .theme-toggle .theme-icon-auto,
+:root[data-theme-mode="light"] .theme-toggle .theme-icon-light,
+:root[data-theme-mode="dark"]  .theme-toggle .theme-icon-dark{ display: block; }
+.nav-theme{ color: var(--fg-muted); transition: color var(--t-fast) var(--ease-out), background-color var(--t-fast) var(--ease-out); }
+.nav-theme:hover{ color: var(--fg); }
+.menu-theme{ display: none; }
 .nav-toggle{ display: none; }
 .nav-toggle .icon-close{ display: none; }
 .nav-toggle[aria-expanded="true"] .icon-menu{ display: none; }
@@ -301,23 +305,26 @@ a{ color: inherit; }
 
 /* After the film: where to get it. */
 .get{
+  position: relative; isolation: isolate;
   display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--gap-m); margin-top: var(--gap-xl);
-  /* Where the sun stands, in % of the whole block. app.js sets the real position over Stralsund. */
-  --sun-x: 85%; --sun-y: 10%;
-  /* Glow size in px from the block's longer side, with a fixed aspect: percentages of the
-     block would stretch the light into a tall streak once the cards stack on phones. */
-  --sun-reach-x: calc(var(--light-long, 40rem) * 0.4);
-  --sun-reach: var(--sun-reach-x) calc(var(--sun-reach-x) * 0.7);
 }
-/* Each card paints the same block-sized gradient, shifted by its own offset, so the
-   cards read as two windows onto one light and the gap between them stays dark.
-   --light-* are measured in app.js; without JS each card shows its own glow. */
-.sunlit{
-  background:
-    radial-gradient(var(--sun-reach) at var(--sun-x) var(--sun-y), var(--sun-glow), transparent 70%)
-      var(--light-x, 0) var(--light-y, 0) / var(--light-w, 100%) var(--light-h, 100%) no-repeat,
-    var(--bg-raised);
+/* Dark mode: the hero's swirl inside both cards. One canvas spans the block and app.js masks it
+   to the cards' shapes, so the cards are two windows onto one moving field and the gap between
+   them stays page background. Light mode hides it like the hero's; the cards are plain surfaces there. */
+.get-swirl{
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  width: 100%; height: 100%;   /* no grid placement: it spans the whole block, rows and columns */
+  -webkit-mask: var(--swirl-mask, none) 0 0 / 100% 100% no-repeat;
+          mask: var(--swirl-mask, none) 0 0 / 100% 100% no-repeat;
+  --swirl-speed: .6;    /* calmer than the hero */
+  --swirl-floor: .3;
+  --swirl-lift:  .28;
+  --bg-vignette: .3;    /* softer than the hero: the field is cut by the cards anyway */
 }
+:root[data-theme="light"] .get-swirl{ display: none; }
+.get-card{ background: var(--bg-raised); }
+/* A light veil of the card surface keeps the text calm over the brighter ridges. */
+:root[data-theme="dark"] .get-card{ background: color-mix(in srgb, var(--bg-raised) 35%, transparent); }
 .demo-card{
   position: relative; isolation: isolate; overflow: hidden;
   min-height: 26rem;
@@ -434,6 +441,15 @@ a{ color: inherit; }
 /* ═════════════ Responsive ═════════════ */
 @media (max-width: 60rem){
   .get, .about{ grid-template-columns: minmax(0, 1fr); }
+  /* Stacked above the details, the demo card only needs its content: the play mark moves up
+     beside the heading instead of claiming its own band above it. */
+  .demo-card{
+    min-height: 0;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start;
+  }
+  .demo-card > *{ grid-column: 1; }
+  .demo-card .btn{ justify-self: start; }
+  .demo-mark{ position: static; grid-column: 2; grid-row: 1 / span 2; }
   /* Stacked above the bio: the round cut-out has no straight edge to align, so center it. */
   .portrait{ max-width: 28rem; margin-inline: auto; }
   .footer .container{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -452,6 +468,14 @@ a{ color: inherit; }
   .nav-links[data-open="true"]{ opacity: 1; visibility: visible; }
   .nav-toggle{ display: inline-grid; }
   .nav-actions{ margin-left: auto; }
+  .nav-theme{ display: none; }
+  .menu-theme{
+    position: absolute; left: var(--gutter); bottom: calc(env(safe-area-inset-bottom) + var(--gap-xl));
+    display: inline-flex; align-items: center; gap: var(--gap-s); min-height: var(--tap);
+    padding: 0; border: 0; background: none; cursor: pointer;
+    font: 500 var(--fs-m)/1 var(--font-text); color: var(--fg-muted);
+  }
+  .menu-theme .theme-name{ color: var(--fg); }
   .story-rail{ flex-basis: 100%; }
   /* The two set lines are wider than a phone: let them flow and balance into even centred lines. */
   .hero h1{ max-width: none; text-wrap: balance; }
