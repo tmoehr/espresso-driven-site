@@ -22,6 +22,11 @@
   // whole frame; the slow motion gains nothing from 120Hz+.
   const FRAME_MIN_MS = 1000 / 60 - 4;
   const MAX_DT = 0.05;          // a long pause is not dumped into the clock as one jump
+  // The 'doppio' event (a word typed on the page, see app.js): a double shot for the backdrop.
+  // For a few seconds the light drifts in time-lapse and the sun swings out and back.
+  const DOPPIO_SECONDS = 7;
+  const DOPPIO_RUSH = 45;       // peak clock speed, as a multiple of the normal drift
+  const DOPPIO_SWING = 1.4;     // how far the sun swings at the peak, in full-page scrolls
 
   // Without WebGL the canvas is taken out and the solid page background shows.
   // (An inline style, because the stylesheet's display:block for canvases beats [hidden].)
@@ -102,10 +107,10 @@
   // Full strength in the hero, easing down to the resting level over the first screen.
   const strength = () => 1 - (1 - REST_STRENGTH) * Math.min(window.scrollY / innerHeight, 1);
 
-  let sun = 0, simTime = 0, last = performance.now();
+  let sun = 0, sunSwing = 0, simTime = 0, last = performance.now();
   function draw(){
     gl.uniform1f(uTime, simTime);
-    gl.uniform1f(uSun, sun);
+    gl.uniform1f(uSun, sun + sunSwing);
     gl.uniform1f(uStrength, strength());
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
@@ -124,13 +129,25 @@
   // Reduced motion: the single still frame drawn above, no animation loop.
   if(reduceMotion) return;
 
+  // 0 at rest, rising to 1 and back to 0 over one doppio: a sin² bump, so it starts and ends gently.
+  let doppioLeft = 0;
+  window.addEventListener('doppio', () => { doppioLeft = DOPPIO_SECONDS; });
+  function doppioLevel(dt){
+    if(doppioLeft <= 0) return 0;
+    doppioLeft = Math.max(doppioLeft - dt, 0);
+    const s = Math.sin(Math.PI * (1 - doppioLeft / DOPPIO_SECONDS));
+    return s * s;
+  }
+
   let rafId = 0;
   function frame(now){
     rafId = requestAnimationFrame(frame);
     if(now - last < FRAME_MIN_MS) return;
     const dt = Math.min((now - last) / 1000, MAX_DT);
     last = now;
-    simTime += dt * SPEED;
+    const rush = doppioLevel(dt);
+    simTime += dt * SPEED * (1 + (DOPPIO_RUSH - 1) * rush);
+    sunSwing = DOPPIO_SWING * rush;
     // dt-based easing so the scroll follow feels identical at any frame rate
     sun += (scrollProgress() - sun) * (1.0 - Math.exp(-SCROLL_EASE * dt));
     draw();
