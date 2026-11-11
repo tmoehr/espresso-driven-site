@@ -89,15 +89,23 @@ function initStory() {
   let warmedUp = false;       // true once the iOS warm-up play has started (or was refused)
   let shownOpen = "";         // last values written to the DOM, to skip identical writes
   let shownFilm = "";
+  let shownOverFilm = false;
+  const nav = document.getElementById("nav");
   const frameBox = story.querySelector(".story-frame");
   const overlay = story.querySelector(".story-overlay");
   const railFill = story.querySelector(".story-rail-bar span");
 
   /** 0 at the moment the story pins, 1 when it unpins. */
-  function progress() {
-    const rect = story.getBoundingClientRect();
+  function progress(rect) {
     const range = rect.height - innerHeight;
     return range > 0 ? clamp01(-rect.top / range) : 0;
+  }
+
+  /** The nav drops its glass while the opened film is pinned behind it (see .nav[data-film]). */
+  function setNavOverFilm(over) {
+    if (over === shownOverFilm) return;
+    shownOverFilm = over;
+    nav.dataset.film = String(over);
   }
 
   function frame(now) {
@@ -105,8 +113,11 @@ function initStory() {
     const dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
     last = now;
 
-    const p = progress();
+    const rect = story.getBoundingClientRect();
+    const p = progress(rect);
     const open = clamp01(p / STORY_OPEN_END);
+    // Only while pinned: once the story scrolls on, its text passes under the bar and needs the glass.
+    setNavOverFilm(open === 1 && p < 1);
     const film = clamp01((p - STORY_OPEN_END) / (1 - STORY_OPEN_END));
     // Write only what changed, and only on the elements that read it: a custom property set
     // on .story would restyle the whole story subtree every frame, which phones feel.
@@ -147,6 +158,7 @@ function initStory() {
   new IntersectionObserver(([entry]) => {
     running = entry.isIntersecting;
     if (running) { last = 0; requestAnimationFrame(frame); }
+    else setNavOverFilm(false);
   }, { rootMargin: "100px 0px" }).observe(story);
 
   // The cut always matches the viewport's orientation. Rotating a phone or reshaping the

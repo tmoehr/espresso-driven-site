@@ -27,10 +27,11 @@
   /* Read by scripts/background.js (the morning light behind the page). Lit areas move toward
      --rays-lit, unlit ones toward --rays-shade. Dark: an amber glow on the bare ground. */
   --rays-lit:          #d9964a;
-  --rays-lit-amount:   .2;
+  --rays-lit-amount:   .3;
   --rays-shade:        var(--bg);
   --rays-shade-amount: 0;
   --card-veil: 62%;   /* how much of a card's surface covers the light behind it */
+  --portrait-warmth: .3;   /* sepia share that ties the black-and-white portrait to the warm palette */
 
   /* ── Type ── */
   --font-display: "Bricolage Grotesque", "Satoshi", system-ui, sans-serif;
@@ -74,6 +75,7 @@
   --t-intro: 800ms;      /* the logo coming into focus, once on load */
   --blur-intro: 8px;     /* small on purpose: large blurs stutter on weak GPUs */
   --rise: 12px;          /* entrance travel */
+  --t-cue: 2400ms;       /* one pass of the hero's scroll cue */
 
   /* Story (scroll-scrubbed time-lapse) */
   --story-screens: 5;     /* scroll length of the sticky story, in viewport heights */
@@ -167,9 +169,16 @@ a{ color: inherit; }
 }
 .link:hover{ background-size: 100% 1px; }
 
-/* Tags read as meta: muted text separated by middots, no outlines. */
-.tags{ display: flex; flex-wrap: wrap; row-gap: var(--gap-xs); font-size: var(--fs-s); color: var(--fg-muted); }
-.tags li:not(:last-child)::after{ content: "·"; padding-inline: var(--gap-s); }
+/* Tags read as meta: muted text separated by middots, no outlines. The middot hangs in the gap
+   before each item, so at the start of a row it falls outside the list and is clipped: no
+   separator is ever left dangling at a line end. */
+.tags{
+  --tag-gap: 1.25em;
+  display: flex; flex-wrap: wrap; gap: var(--gap-xs) var(--tag-gap); overflow: hidden;
+  font-size: var(--fs-s); color: var(--fg-muted);
+}
+.tags li{ position: relative; }
+.tags li::before{ content: "·"; position: absolute; right: 100%; width: var(--tag-gap); text-align: center; }
 
 /* ═════════════ Navigation ═════════════ */
 .nav{
@@ -181,8 +190,17 @@ a{ color: inherit; }
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   box-shadow: 0 1px 0 var(--line);
 }
+/* Over the opened film (set by app.js) the bar belongs to the footage: no glass, film text,
+   and a short scrim so it stays readable when the sky turns bright at midday. Not while the
+   phone menu is open: that is a page surface again. */
+.nav[data-film="true"]:not(:has(.nav-links[data-open="true"])){
+  background: linear-gradient(to bottom, rgb(var(--film-ink) / .6), rgb(var(--film-ink) / 0));
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: none;
+  color: var(--film-fg);
+}
 .nav .container{ display: flex; align-items: center; gap: var(--gap-l); min-height: var(--nav-h); }
-.nav-logo{ color: var(--fg); padding: 8px 0; }
+.nav-logo{ color: inherit; padding: 8px 0; }
 .nav-logo .wordmark{ width: 92px; }
 .nav-links{ display: flex; gap: clamp(1rem, 2.6vw, 2.25rem); margin-left: auto; font-size: var(--fs-s); }
 .nav-links a{ display: inline-flex; align-items: center; min-height: var(--tap); }
@@ -200,8 +218,8 @@ a{ color: inherit; }
 :root[data-theme-mode="auto"]  .theme-toggle .theme-icon-auto,
 :root[data-theme-mode="light"] .theme-toggle .theme-icon-light,
 :root[data-theme-mode="dark"]  .theme-toggle .theme-icon-dark{ display: block; }
-.nav-theme{ color: var(--fg-muted); transition: color var(--t-fast) var(--ease-out), background-color var(--t-fast) var(--ease-out); }
-.nav-theme:hover{ color: var(--fg); }
+.nav-theme{ color: color-mix(in srgb, currentColor 70%, transparent); transition: color var(--t-fast) var(--ease-out), background-color var(--t-fast) var(--ease-out); }
+.nav-theme:hover{ color: inherit; }
 .menu-theme{ display: none; }
 .nav-toggle{ display: none; }
 .nav-toggle .icon-close{ display: none; }
@@ -210,9 +228,23 @@ a{ color: inherit; }
 
 /* ═════════════ Hero ═════════════ */
 .hero{
+  position: relative;
   min-height: 100svh;
   display: grid; align-items: center;
   overflow: hidden;
+}
+/* A hairline at the foot of the hero, like one more ray: the page continues below. */
+.hero-cue{
+  --cue-h: 3rem;
+  position: absolute; left: 50%; bottom: var(--gap-l);
+  width: var(--tap); height: var(--cue-h); transform: translateX(-50%);
+  background: linear-gradient(var(--line-strong), var(--line-strong)) center / 1px 100% no-repeat;
+  overflow: hidden;
+}
+.hero-cue::after{
+  content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 40%;
+  background: linear-gradient(to bottom, transparent, var(--fg));
+  transform: translateY(-100%);
 }
 /* One axis: wordmark, line and actions share the centre line. The bottom padding is larger
    than the top one, so the block sits at the optical centre, a little above the true middle. */
@@ -239,6 +271,11 @@ a{ color: inherit; }
   .hero h1 .line:nth-child(1){ animation-delay: 520ms; }
   .hero h1 .line:nth-child(2){ animation-delay: 570ms; }
   .hero-actions{ animation-delay: 620ms; }
+  .hero-cue{ animation: fade-in var(--t-slow) var(--ease-out) 900ms both; }
+  @keyframes fade-in{ from{ opacity: 0; } }
+  .hero-cue::after{ animation: cue-run var(--t-cue) var(--ease-out) 1400ms infinite; }
+  /* 250% of its own height: from just above the track to just below it. */
+  @keyframes cue-run{ to{ transform: translateY(250%); } }
   /* Blur to sharp, no movement. */
   @keyframes focus-in{
     from{ opacity: 0; filter: blur(var(--blur-intro)); }
@@ -312,38 +349,40 @@ a{ color: inherit; }
 /* A veil of the card surface: the page's light passes behind, the text stays calm. */
 .get-card{ background: color-mix(in srgb, var(--bg-raised) var(--card-veil), transparent); }
 .demo-card{
-  position: relative; isolation: isolate; overflow: hidden;
-  min-height: 26rem;
-  display: flex; flex-direction: column; justify-content: flex-end; gap: var(--gap-m);
+  display: flex; flex-direction: column; gap: var(--gap-m);
   padding: var(--pad-card);
   border-radius: var(--r-l);
-  color: var(--film-fg); text-decoration: none;
+  box-shadow: inset 0 0 0 1px var(--line);
+  text-decoration: none;
 }
-.demo-card img{ position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
-.demo-card::before{ content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgb(var(--film-ink) / .85), rgb(var(--film-ink) / .1) 70%); }
-.demo-card p{ color: var(--film-fg-muted); max-width: 34ch; }
+/* A capture of the running demo with its settings open, shown whole. */
+.demo-shot{
+  position: relative; aspect-ratio: 1100 / 572;
+  display: grid; place-items: center;
+  overflow: hidden; border-radius: var(--r-s);
+  background: rgb(var(--film-ink));
+  margin-bottom: var(--gap-s);
+}
+.demo-shot img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease-out); }
+.demo-card:hover .demo-shot img{ transform: scale(1.03); }
+.demo-card p{ color: var(--fg-muted); max-width: 34ch; }
 
 /* Every h3 outside the film shares one style. */
-.demo-card h3, .about-body h3, .contact-intro h3{ font: 500 var(--fs-xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); }
+.demo-card h3, .about-body h3{ font: 500 var(--fs-xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); }
 .demo-card .btn{ align-self: flex-start; }
 
-/* Until the demo screenshot exists: no photo, the card stands on its own. */
-.demo-card--plain{
-  color: var(--fg);
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.demo-card--plain::before{ content: none; }
-.demo-card--plain p{ color: var(--fg-muted); }
+/* The play mark sits on the footage, so it uses the film's colours in both themes. */
 .demo-mark{
-  position: absolute; top: var(--pad-card); left: var(--pad-card);
+  position: relative;
   width: 72px; height: 72px; border-radius: 50%;
   display: grid; place-items: center;
-  box-shadow: inset 0 0 0 1px var(--line-strong);
-  color: var(--crema);
+  background: rgb(var(--film-ink) / .55);
+  box-shadow: inset 0 0 0 1px var(--film-fg-faint);
+  color: var(--film-fg);
   transition: background-color var(--t-med) var(--ease-out), color var(--t-med) var(--ease-out);
 }
 .demo-mark .icon{ width: 26px; height: 26px; margin-left: 3px; }
-.demo-card--plain:hover .demo-mark{ background: var(--crema); color: var(--on-crema); }
+.demo-card:hover .demo-mark{ background: var(--crema); color: var(--on-crema); }
 
 .get-side{
   display: flex; flex-direction: column; gap: var(--gap-l);
@@ -356,7 +395,8 @@ a{ color: inherit; }
 .specs div:first-child{ padding-top: 0; }
 .specs dt{ color: var(--fg-muted); }
 .specs dd{ font-weight: 500; text-align: right; }
-.get-side .btn{ margin-top: auto; }
+/* Facts at the top, tags and the way to get it at the foot: the card keeps pace with the taller demo card. */
+.get-side .tags{ margin-top: auto; }
 
 
 /* ═════════════ About ═════════════ */
@@ -373,7 +413,7 @@ a{ color: inherit; }
 .about{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 6rem); align-items: start; }
 /* The portrait is a round cut-out with transparency: show it as is, no frame behind it. */
 .portrait{ max-width: 32rem; }
-.portrait img{ width: 100%; aspect-ratio: 1; object-fit: contain; }
+.portrait img{ width: 100%; aspect-ratio: 1; object-fit: contain; filter: sepia(var(--portrait-warmth)); }
 .about-body{ display: grid; gap: var(--gap-l); max-width: 40rem; }
 .about-text{ display: grid; gap: var(--gap-m); color: var(--fg-muted); font-size: var(--fs-l); line-height: 1.55; }
 .about-text .signoff{ color: var(--fg); }
@@ -381,8 +421,7 @@ a{ color: inherit; }
 
 /* ═════════════ Contact ═════════════ */
 .contact{ display: grid; gap: var(--gap-xl); }
-.contact-intro{ display: grid; gap: var(--gap-s); max-width: 40rem; }
-.contact-intro p{ color: var(--fg-muted); font-size: var(--fs-l); }
+.contact-intro{ max-width: 40rem; color: var(--fg-muted); font-size: var(--fs-l); }
 .mail{
   display: block;
   font: 500 var(--fs-3xl)/.95 var(--font-display);
@@ -427,15 +466,6 @@ a{ color: inherit; }
 /* ═════════════ Responsive ═════════════ */
 @media (max-width: 60rem){
   .get, .about{ grid-template-columns: minmax(0, 1fr); }
-  /* Stacked above the details, the demo card only needs its content: the play mark moves up
-     beside the heading instead of claiming its own band above it. */
-  .demo-card{
-    min-height: 0;
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start;
-  }
-  .demo-card > *{ grid-column: 1; }
-  .demo-card .btn{ justify-self: start; }
-  .demo-mark{ position: static; grid-column: 2; grid-row: 1 / span 2; }
   /* Stacked above the bio: the round cut-out has no straight edge to align, so center it. */
   .portrait{ max-width: 28rem; margin-inline: auto; }
   .footer .container{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -446,7 +476,7 @@ a{ color: inherit; }
     position: fixed; inset: 0; z-index: -1;
     display: flex; flex-direction: column; justify-content: center; gap: var(--gap-s);
     padding: var(--nav-h) var(--gutter);
-    background: var(--bg);
+    background: var(--bg); color: var(--fg);
     font: 500 var(--fs-2xl)/1.1 var(--font-display);
     opacity: 0; visibility: hidden;
     transition: opacity var(--t-med) var(--ease-out), visibility var(--t-med);
