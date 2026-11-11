@@ -75,6 +75,8 @@
   </script>
 </head>
 <body>
+  <!-- Morning light behind the whole page (scripts/background.js). -->
+  <canvas id="backdrop" aria-hidden="true"></canvas>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
@@ -119,9 +121,8 @@
   </header>
 
   <main id="top">
-    <!-- ═════════════ Hero: the live espresso swirl (scripts/background.js) ═════════════ -->
+    <!-- ═════════════ Hero ═════════════ -->
     <section class="hero">
-      <canvas id="bg-gl" data-swirl aria-hidden="true"></canvas>
       <div class="container">
         <img class="hero-logo" src="images/logo/logo_crema.webp" width="1340" height="499" alt="espressodriven">
         <div class="hero-foot">
@@ -174,8 +175,6 @@
 
       <div class="container">
         <div class="get" id="get">
-          <!-- The swirl from the hero, seen through both cards (see .get-swirl). -->
-          <canvas class="get-swirl" data-swirl aria-hidden="true"></canvas>
           <!-- Image slot: a screenshot of the WebGL demo goes here once delivered (see .demo-card img). -->
           <a class="demo-card demo-card--plain get-card" href="/demo/heliopath/">
             <span class="demo-mark" aria-hidden="true"><svg class="icon"><use href="#i-play"/></svg></span>
@@ -283,7 +282,7 @@
     </div>
   </footer>
 
-  <!-- Swirl shaders; scripts/background.js reads them by id. -->
+  <!-- Backdrop shaders; scripts/background.js reads them by id. -->
   <script id="bg-vert" type="x-shader/x-vertex">
 attribute vec2 a_pos;   // full-screen triangle, already in clip space (-1..1)
 void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
@@ -292,98 +291,102 @@ void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
   <script id="bg-frag" type="x-shader/x-fragment">
 precision highp float;
 
+// Morning light through a window: straight rays fanning out from a sun far outside the frame.
+// Depth comes from focus: broad soft beams far away, firmer beams in the middle distance and a
+// few hairline rays in sharp focus up close. The pattern is a function of the ray angle alone,
+// so every edge is a straight line.
 uniform vec2  u_resolution;
-uniform float u_time;       // animation clock (seconds * SPEED), from JS
-uniform float u_scroll;     // smoothed scroll progress — churns the swirl further
-uniform float u_swirl;      // domain-warp strength (baked constant, set once)
+uniform float u_px;          // device pixels per CSS pixel
+uniform float u_time;        // animation clock (seconds * SPEED), from JS
+uniform float u_sun;         // smoothed scroll progress 0..1: the sun moves as the page is read
+uniform float u_strength;    // overall presence (full in the hero, quieter below)
 
-// Colours + tone come from CSS custom properties (per theme) so the page and the
+// Colours + amounts come from CSS custom properties (per theme) so the page and the
 // shader share one source of truth — see the probe in scripts/background.js.
-uniform vec3  u_fadeColor;  // --bg-fade  : edge-fade colour at the top/bottom edges
-uniform vec3  u_swirlBg;    // --swirl-bg : darker background tone the field settles into
-uniform vec3  u_swirlFg;    // --swirl-fg : lighter foreground tone the lit ridges reach
-uniform float u_toneFloor;  // --swirl-floor  : baseline brightness (dark low, light high)
-uniform float u_toneLift;   // --swirl-lift   : extra brightness on lit ridges
-uniform float u_vignette;   // --bg-vignette  : edge falloff strength
+uniform vec3  u_bg;          // --bg
+uniform vec3  u_lit;         // --rays-lit   : colour the lit areas reach
+uniform vec3  u_shade;       // --rays-shade : colour the unlit areas settle into
+uniform float u_litAmount;   // --rays-lit-amount
+uniform float u_shadeAmount; // --rays-shade-amount
 
-const float FADE_SPAN = 0.18;  // how far the top/bottom edge fade reaches (geometry, not theme)
+const float SUN_DISTANCE = 3.4;   // from the frame centre, in short sides: far enough for a gentle fan
+const float SUN_ANGLE = 2.25;     // radians at the top of the page (upper left)
+const float SUN_TRAVEL = 0.38;    // how far a full scroll moves it
+const float SUN_SWAY = 0.012;     // idle sway, so the light is never frozen
+const float SUN_SWAY_RATE = 2.0;
 
-// --- value noise (Inigo Quilez style) ---
-float hash(vec2 p){
+const float FAR_BEAMS = 9.0;      // beams per radian, per depth layer
+const float MID_BEAMS = 23.0;
+const float HAIR_SLOTS = 70.0;
+const float HAIR_SHARE = 0.22;    // share of slots that carry a hairline
+const float HAIR_PX = 1.1;        // hairline width, CSS px
+const float FAR_DRIFT = 0.5;
+const float MID_DRIFT = -0.35;
+const float MID_SEED = 7.0;       // decorrelates the middle layer from the far one
+const float HAIR_SEED = 9.0;
+
+const float FAR_WEIGHT = 0.6;
+const float MID_WEIGHT = 0.4;
+const float HAIR_WEIGHT = 0.3;
+const float MID_IN_SHADE = 0.35;  // how much of a middle beam shows outside the far beams
+const float HAIR_IN_SHADE = 0.4;
+const float REACH_NEAR = 2.3;     // light is full up to here (distance from the sun) ...
+const float REACH_FAR = 4.6;      // ... and has faded to REACH_FLOOR by here
+const float REACH_FLOOR = 0.3;
+const float AIR = 0.22;           // how much slow haze modulates the beams
+const float AIR_SCALE = 1.4;
+const float DITHER = 1.0 / 255.0; // wide soft gradients band on 8-bit displays without it
+
+float hash1(float x){ return fract(sin(x * 127.1) * 43758.5453); }
+float hash2(vec2 p){
   p = fract(p * vec2(123.34, 345.45));
   p += dot(p, p + 34.345);
   return fract(p.x * p.y);
 }
-float noise(in vec2 x){
+float noise1(float x){
+  float i = floor(x);
+  float f = fract(x);
+  return mix(hash1(i), hash1(i + 1.0), f * f * (3.0 - 2.0 * f));
+}
+float noise2(vec2 x){
   vec2 i = floor(x);
   vec2 f = fract(x);
-  float a = hash(i);
-  float b = hash(i + vec2(1.0, 0.0));
-  float c = hash(i + vec2(0.0, 1.0));
-  float d = hash(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-}
-float fbm(vec2 p){
-  float v = 0.0;
-  float a = 0.5;
-  mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-  for(int i = 0; i < 6; i++){
-    v += a * noise(p);
-    p = m * p;
-    a *= 0.5;
-  }
-  return v;
+  return mix(mix(hash2(i), hash2(i + vec2(1.0, 0.0)), u.x),
+             mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0, 1.0)), u.x), u.y);
 }
 
 void main(){
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 p = uv;
-  p.x *= u_resolution.x / u_resolution.y;   // keep swirls round
-  p *= 3.0;                                  // a few vortices across the screen
+  float shortSide = min(u_resolution.x, u_resolution.y);
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution) / shortSide;
+  float sunAngle = SUN_ANGLE - u_sun * SUN_TRAVEL + sin(u_time * SUN_SWAY_RATE) * SUN_SWAY;
+  vec2 toPixel = p - SUN_DISTANCE * vec2(cos(sunAngle), sin(sunAngle));
+  float ray = atan(toPixel.y, toPixel.x);   // constant along each ray: the only pattern coordinate
+  float dist = length(toPixel);
 
-  float t  = u_time;
-  float sc = u_scroll;
-  float w  = u_swirl;
+  float far = smoothstep(0.3, 0.75, noise1(ray * FAR_BEAMS + u_time * FAR_DRIFT));
+  float mid = smoothstep(0.48, 0.64, noise1(ray * MID_BEAMS + u_time * MID_DRIFT + MID_SEED));
 
-  // a slow common drift so the whole surface eases in one direction,
-  // like liquid settling rather than shimmering in place
-  vec2 drift = vec2(sin(t * 0.06) * 0.10, t * 0.025);
+  // Hairlines: one possible ray per angular slot. A pixel spans 1 / (dist * shortSide) radians
+  // across a ray, which gives the line a constant width in pixels without derivatives.
+  float slot = ray * HAIR_SLOTS;
+  float id = floor(slot);
+  float offset = 0.2 + 0.6 * hash1(id + HAIR_SEED);
+  float width = HAIR_PX * u_px * HAIR_SLOTS / (dist * shortSide);
+  float hair = step(1.0 - HAIR_SHARE, hash1(id))
+             * (1.0 - smoothstep(0.5 * width, 1.5 * width, abs(fract(slot) - offset)));
 
-  // domain warping: feed noise through itself twice -> marbled vortices.
-  // small, de-synced time coefficients keep the motion subtle and natural
-  vec2 q;
-  q.x = fbm(p + drift + vec2(0.0, 1.0) + 0.035 * t);
-  q.y = fbm(p + drift + vec2(5.2, 1.3) - 0.028 * t);
+  // Three depths, one light: nearer layers are brightest where the far beams already fall.
+  float light = FAR_WEIGHT * far
+              + MID_WEIGHT * mid * mix(MID_IN_SHADE, 1.0, far)
+              + HAIR_WEIGHT * hair * mix(HAIR_IN_SHADE, 1.0, far);
+  light *= mix(1.0, REACH_FLOOR, smoothstep(REACH_NEAR, REACH_FAR, dist));
+  light *= 1.0 - AIR * noise2(p * AIR_SCALE + vec2(u_time * 0.6, -u_time * 0.4));
+  light = clamp(light, 0.0, 1.0) * u_strength;
 
-  vec2 r;
-  r.x = fbm(p + w * q + vec2(1.7, 9.2) + 0.045 * t + sc);
-  r.y = fbm(p + w * q + vec2(8.3, 2.8) - 0.038 * t + sc * 0.75);
-
-  float f = fbm(p + w * r);
-
-  // --- two-tone espresso field: blend background→foreground by the warped noise ---
-  // Same layering as the old five-colour mix, collapsed onto two colours: the primary
-  // marble (f) and the sparse sheen (r) reach toward the foreground; the warped troughs
-  // (length(q)) settle back to the background, keeping the field's depth.
-  vec3 col = mix(u_swirlBg, u_swirlFg, clamp(f * f * 2.6, 0.0, 1.0));
-  col = mix(col, u_swirlBg, clamp(length(q) * 0.9, 0.0, 1.0));
-  col = mix(col, u_swirlFg, clamp(r.x * r.x * 1.1, 0.0, 1.0));
-  col = mix(col, u_swirlFg, clamp(r.y * r.y * r.y * 1.4, 0.0, 1.0)); // tight, sparse sheen
-
-  // tone map: S-curve the noise, then lift brightness from a per-theme floor. Dark
-  // keeps a low floor (deep) ; light raises it near 1 (flat, pale latte).
-  float fc = smoothstep(0.15, 0.85, f);
-  col *= u_toneFloor + u_toneLift * fc;
-  vec2 vig = uv - 0.5;
-  col *= 1.0 - u_vignette * dot(vig, vig);
-
-  // fade to the page background colour at the top/bottom viewport edges. Baked in
-  // here so it moves with the canvas (a separate fixed overlay jitters against the
-  // live canvas during iOS Safari toolbar transitions).
-  float edge = min(uv.y, 1.0 - uv.y);          // 0 at top/bottom edge
-  col = mix(u_fadeColor, col, smoothstep(0.0, FADE_SPAN, edge));
-
+  vec3 col = mix(u_bg, u_shade, (1.0 - light) * u_shadeAmount * u_strength);
+  col = mix(col, u_lit, light * u_litAmount);
+  col += (hash2(gl_FragCoord.xy) - 0.5) * DITHER;
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
   </script>

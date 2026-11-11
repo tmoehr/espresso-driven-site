@@ -23,9 +23,8 @@
     // iOS tints its bars with theme-color, so it follows the page background token.
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--bg").trim();
     if (announce) {
-      // background.js re-reads its colours on themechange; resize lets a hidden canvas drop to 0×0.
+      // background.js re-reads its colours on themechange.
       dispatchEvent(new Event("themechange"));
-      dispatchEvent(new Event("resize"));
     }
   }
 

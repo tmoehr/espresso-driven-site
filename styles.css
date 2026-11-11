@@ -1,6 +1,6 @@
 /* espressodriven.com
-   Cinematic and scroll-told. Two real things carry the page: the espresso swirl
-   shader (the brand) and the HelioPath time-lapse (the product), scrubbed by
+   Cinematic and scroll-told. Two real things carry the page: the morning light
+   backdrop (the brand) and the HelioPath time-lapse (the product), scrubbed by
    scroll. Everything else is quiet, precise typography. */
 
 /* ═════════════ Tokens ═════════════ */
@@ -24,14 +24,13 @@
   --film-accent:   #e8c49b;   /* crema, lifted for contrast on footage */
   --film-ink:      12 8 6;    /* rgb channels of the scrim, used with an alpha */
 
-  /* Read by scripts/background.js (the live site's swirl shader). Dark theme only:
-     on light ground the swirl reads as smoke, so light mode hides it (see .hero). */
-  --bg-fade:     var(--bg);
-  --swirl-bg:    #150e09;
-  --swirl-fg:    #c49a70;
-  --swirl-floor: 0.3;
-  --swirl-lift:  0.28;
-  --bg-vignette: 0.6;
+  /* Read by scripts/background.js (the morning light behind the page). Lit areas move toward
+     --rays-lit, unlit ones toward --rays-shade. Dark: an amber glow on the bare ground. */
+  --rays-lit:          #d9964a;
+  --rays-lit-amount:   .2;
+  --rays-shade:        var(--bg);
+  --rays-shade-amount: 0;
+  --card-veil: 62%;   /* how much of a card's surface covers the light behind it */
 
   /* ── Type ── */
   --font-display: "Bricolage Grotesque", "Satoshi", system-ui, sans-serif;
@@ -94,19 +93,32 @@
   --scrim:     rgb(18 13 10 / .6);
   --nav-glass: rgb(244 239 232 / .88);
 
+  /* Light: sunlit paper and soft warm shade. Light and shade differ in tone, not in greyness,
+     so the ground never reads as smoke. */
+  --rays-lit:          #fffbf5;
+  --rays-lit-amount:   .95;
+  --rays-shade:        #dccab2;
+  --rays-shade-amount: .55;
+
   color-scheme: light;
 }
 
 /* ═════════════ Base ═════════════ */
 *,*::before,*::after{ box-sizing: border-box; }
 html{ background: var(--bg); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: var(--nav-h); }
+/* The backdrop canvas sits between the root background and the content, so the body itself
+   stays transparent. Without WebGL the canvas is hidden and the root background shows. */
+#backdrop{
+  position: fixed; inset: 0 0 auto; z-index: -1; pointer-events: none;
+  /* lvh, not 100%: the box keeps one size while the iOS toolbar shows and hides, so the light never rescales. */
+  width: 100%; height: 100vh; height: 100lvh;
+}
 body{
   margin: 0;
-  background: var(--bg);
   color: var(--fg);
   font: 400 var(--fs-m)/1.6 var(--font-text);
   -webkit-font-smoothing: antialiased;
-  transition: background-color var(--t-med) var(--ease-out), color var(--t-med) var(--ease-out);
+  transition: color var(--t-med) var(--ease-out);
 }
 img, video, canvas, svg{ display: block; max-width: 100%; }
 img, video{ height: auto; }
@@ -198,19 +210,9 @@ a{ color: inherit; }
 
 /* ═════════════ Hero ═════════════ */
 .hero{
-  position: relative; isolation: isolate;
   min-height: 100svh;
   display: grid; align-items: center;
   overflow: hidden;
-}
-#bg-gl{ position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; pointer-events: none; }
-/* Light mode: plain warm paper, the crema wordmark stands on its own. With no layout box the
-   shader's canvas shrinks to 0×0 on the next resize, so its frame loop costs next to nothing. */
-:root[data-theme="light"] #bg-gl{ display: none; }
-.hero::after{
-  content: ""; position: absolute; inset: auto 0 0; height: 30%; z-index: -1;
-  background: linear-gradient(to top, var(--bg), transparent);
-  pointer-events: none;
 }
 /* One axis: wordmark, line and actions share the centre line. The bottom padding is larger
    than the top one, so the block sits at the optical centre, a little above the true middle. */
@@ -305,26 +307,10 @@ a{ color: inherit; }
 
 /* After the film: where to get it. */
 .get{
-  position: relative; isolation: isolate;
   display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--gap-m); margin-top: var(--gap-xl);
 }
-/* Dark mode: the hero's swirl inside both cards. One canvas spans the block and app.js masks it
-   to the cards' shapes, so the cards are two windows onto one moving field and the gap between
-   them stays page background. Light mode hides it like the hero's; the cards are plain surfaces there. */
-.get-swirl{
-  position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  width: 100%; height: 100%;   /* no grid placement: it spans the whole block, rows and columns */
-  -webkit-mask: var(--swirl-mask, none) 0 0 / 100% 100% no-repeat;
-          mask: var(--swirl-mask, none) 0 0 / 100% 100% no-repeat;
-  --swirl-speed: .6;    /* calmer than the hero */
-  --swirl-floor: .3;
-  --swirl-lift:  .28;
-  --bg-vignette: .3;    /* softer than the hero: the field is cut by the cards anyway */
-}
-:root[data-theme="light"] .get-swirl{ display: none; }
-.get-card{ background: var(--bg-raised); }
-/* A light veil of the card surface keeps the text calm over the brighter ridges. */
-:root[data-theme="dark"] .get-card{ background: color-mix(in srgb, var(--bg-raised) 35%, transparent); }
+/* A veil of the card surface: the page's light passes behind, the text stays calm. */
+.get-card{ background: color-mix(in srgb, var(--bg-raised) var(--card-veil), transparent); }
 .demo-card{
   position: relative; isolation: isolate; overflow: hidden;
   min-height: 26rem;

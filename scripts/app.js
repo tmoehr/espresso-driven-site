@@ -1,5 +1,5 @@
 // espressodriven.com
-// The swirl in the hero is drawn by scripts/background.js.
+// The light behind the page is drawn by scripts/background.js.
 // This file adds: the scroll-scrubbed HelioPath story, theme switching,
 // navigation, and the copy-email button.
 
@@ -176,28 +176,6 @@ function initStory() {
   });
 }
 
-// ───────────────────────── Swirl inside the cards ─────────────────────────
-
-// One swirl canvas spans the get block; its mask is the cards' rounded shapes, so the field shows
-// only inside them. Rebuilt on resize, which is rare, so the SVG string costs nothing per frame.
-function initCardSwirl() {
-  const block = document.getElementById("get");
-  const canvas = block.querySelector(".get-swirl");
-  const cards = [...block.querySelectorAll(".get-card")];
-
-  function mask() {
-    const box = block.getBoundingClientRect();
-    const rects = cards.map((card) => {
-      const r = card.getBoundingClientRect();
-      const radius = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0;
-      return `<rect x="${r.left - box.left}" y="${r.top - box.top}" width="${r.width}" height="${r.height}" rx="${radius}"/>`;
-    }).join("");
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${box.width}" height="${box.height}">${rects}</svg>`;
-    canvas.style.setProperty("--swirl-mask", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
-  }
-  new ResizeObserver(mask).observe(block);
-}
-
 // ───────────────────────── Copy email ─────────────────────────
 
 function initCopy() {
@@ -222,5 +200,4 @@ document.getElementById("year").textContent = String(new Date().getFullYear());
 initTheme();
 initNav();
 initStory();
-initCardSwirl();
 initCopy();
