@@ -12,8 +12,8 @@
   src: url("fonts/bricolage-grotesque-latin.woff2") format("woff2");
 }
 @font-face{
-  font-family: "Fraunces"; font-style: italic; font-weight: 400 500; font-display: swap;
-  src: url("fonts/fraunces-italic-latin.woff2") format("woff2");
+  font-family: "Fraunces"; font-style: normal; font-weight: 400 500; font-display: swap;
+  src: url("fonts/fraunces-latin.woff2") format("woff2");
 }
 @font-face{
   font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 500; font-display: swap;
@@ -53,8 +53,9 @@
   /* ── Type ── */
   --font-display: "Bricolage Grotesque", "Satoshi", system-ui, sans-serif;
   --font-text:    "Satoshi", system-ui, sans-serif;
-  /* The italic serif echoes the wordmark. Used sparingly: the quote and the section asides. */
+  /* The soft serif echoes the wordmark. Used sparingly: the quote and the section asides. */
   --font-accent:  "Fraunces", Georgia, serif;
+  --accent-axes:  "SOFT" 100;   /* Fraunces' softness axis at full: rounded serifs, like the crema lettering */
   --fw-display:        500;
   --fw-display-strong: 600;   /* section titles and the product name */
 
@@ -312,7 +313,7 @@ a{ color: inherit; }
 .section{ padding-top: var(--section); }
 .section-head{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--gap-s) var(--gap-l); margin-bottom: var(--gap-xl); }
 .section-head h2{ font: var(--fw-display-strong) var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
-.section-head p{ font: italic 400 var(--fs-l)/1.2 var(--font-accent); color: var(--fg-muted); }
+.section-head p{ font: 400 var(--fs-l)/1.2 var(--font-accent); font-variation-settings: var(--accent-axes); color: var(--fg-muted); }
 
 /* ═════════════ Story: HelioPath, scrubbed by scroll ═════════════ */
 .story{ position: relative; height: calc(var(--story-screens) * 100svh); }
@@ -426,7 +427,8 @@ a{ color: inherit; }
 /* ═════════════ About ═════════════ */
 .quote{
   /* One step below the section h2, so the heading keeps the lead. */
-  font: italic 400 var(--fs-xl)/1.2 var(--font-accent);
+  font: 400 var(--fs-xl)/1.2 var(--font-accent);
+  font-variation-settings: var(--accent-axes);
   max-width: 28ch;
   margin-bottom: clamp(3rem, 7vw, 5.5rem);
   text-wrap: balance;
