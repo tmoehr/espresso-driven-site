@@ -75,7 +75,8 @@
   --t-intro: 800ms;      /* the logo coming into focus, once on load */
   --blur-intro: 8px;     /* small on purpose: large blurs stutter on weak GPUs */
   --rise: 12px;          /* entrance travel */
-  --t-cue: 2400ms;       /* one pass of the hero's scroll cue */
+  --t-cue: 1900ms;       /* one pass of the streak in the hero's scroll cue */
+  --ease-in-out: cubic-bezier(.6,0,.4,1);
 
   /* Story (scroll-scrubbed time-lapse) */
   --story-screens: 5;     /* scroll length of the sticky story, in viewport heights */
@@ -233,19 +234,19 @@ a{ color: inherit; }
   display: grid; align-items: center;
   overflow: hidden;
 }
-/* A hairline at the foot of the hero, like one more ray: the page continues below. */
+/* The page continues below: a small label over a short track that a crema streak runs down.
+   app.js dismisses it once the visitor has started scrolling. */
 .hero-cue{
-  --cue-h: 3rem;
-  position: absolute; left: 50%; bottom: var(--gap-l);
-  width: var(--tap); height: var(--cue-h); transform: translateX(-50%);
-  background: linear-gradient(var(--line-strong), var(--line-strong)) center / 1px 100% no-repeat;
-  overflow: hidden;
+  position: absolute; left: 50%; bottom: var(--gap-l); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: .625rem;
+  min-width: var(--tap);
+  font-size: var(--fs-xs); color: var(--fg-muted); text-decoration: none;
+  transition: color var(--t-med) var(--ease-out), opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
 }
-.hero-cue::after{
-  content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 40%;
-  background: linear-gradient(to bottom, transparent, var(--fg));
-  transform: translateY(-100%);
-}
+.hero-cue:hover{ color: var(--crema); }
+.hero-cue[data-dismissed="true"]{ opacity: 0; transform: translate(-50%, var(--gap-s)); pointer-events: none; }
+.hero-cue-line{ position: relative; width: 1px; height: 2.25rem; overflow: hidden; }
+.hero-cue-line::after{ content: ""; position: absolute; inset: 0 0 auto; height: 45%; background: var(--crema); }
 /* One axis: wordmark, line and actions share the centre line. The bottom padding is larger
    than the top one, so the block sits at the optical centre, a little above the true middle. */
 .hero .container{
@@ -271,11 +272,12 @@ a{ color: inherit; }
   .hero h1 .line:nth-child(1){ animation-delay: 520ms; }
   .hero h1 .line:nth-child(2){ animation-delay: 570ms; }
   .hero-actions{ animation-delay: 620ms; }
-  .hero-cue{ animation: fade-in var(--t-slow) var(--ease-out) 900ms both; }
+  /* backwards only: once it has faded in, the animation lets go of opacity so the dismissal can transition it. */
+  .hero-cue{ animation: fade-in var(--t-slow) var(--ease-out) 900ms backwards; }
   @keyframes fade-in{ from{ opacity: 0; } }
-  .hero-cue::after{ animation: cue-run var(--t-cue) var(--ease-out) 1400ms infinite; }
-  /* 250% of its own height: from just above the track to just below it. */
-  @keyframes cue-run{ to{ transform: translateY(250%); } }
+  .hero-cue-line::after{ animation: cue-run var(--t-cue) var(--ease-in-out) infinite; }
+  /* In units of the streak's own height: from just above the track to just below it. */
+  @keyframes cue-run{ from{ transform: translateY(-100%); } to{ transform: translateY(260%); } }
   /* Blur to sharp, no movement. */
   @keyframes focus-in{
     from{ opacity: 0; filter: blur(var(--blur-intro)); }

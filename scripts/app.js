@@ -7,6 +7,7 @@
 
 const THEME_NAMES = { auto: "Auto", light: "Light", dark: "Dark" };   // modes from scripts/theme.js
 const NAV_SCROLL_THRESHOLD = 8;
+const CUE_DISMISS_AT = 0.15;    // the hero's scroll cue leaves after this share of a viewport
 const COPY_RESET_MS = 2000;
 
 // Story timeline, as fractions of the sticky scroll range.
@@ -63,6 +64,20 @@ function initNav() {
   addEventListener("keydown", (e) => {
     if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") { setOpen(false); toggle.focus(); }
   });
+}
+
+// ───────────────────────── Hero scroll cue ─────────────────────────
+
+// The cue has done its job once the visitor scrolls: fade it out for good.
+function initHeroCue() {
+  const cue = document.getElementById("hero-cue");
+  function onScroll() {
+    if (scrollY <= innerHeight * CUE_DISMISS_AT) return;
+    cue.dataset.dismissed = "true";
+    removeEventListener("scroll", onScroll);
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 }
 
 // ───────────────────────── Story: scroll is the clock ─────────────────────────
@@ -211,5 +226,6 @@ function initCopy() {
 document.getElementById("year").textContent = String(new Date().getFullYear());
 initTheme();
 initNav();
+initHeroCue();
 initStory();
 initCopy();
