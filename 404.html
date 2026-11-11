@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120d0a">
+  <meta name="robots" content="noindex">
+  <title>418 I’m a teapot | espressodriven</title>
+  <link rel="icon" href="/images/logo/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&display=swap" rel="stylesheet">
+  <!-- GitHub Pages serves this file for every unknown address, at any depth, so every path
+       here is root-absolute. Tokens, fonts and the nav come from the site stylesheet. -->
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/scripts/theme.js"></script>
+  <style>
+    /* Page-only layout. No colours or fonts are defined here: everything references the shared
+       tokens from styles.css. */
+    .teapot{
+      min-height: 100svh;
+      display: grid; align-content: center; justify-items: start; gap: var(--gap-l);
+      padding-block: calc(var(--nav-h) + var(--gap-xl)) var(--gap-xl);
+    }
+    /* The joke is a protocol exchange, so it is set like one. */
+    .teapot-log{
+      display: grid; gap: var(--gap-xs);
+      font: 400 var(--fs-s)/1.6 "JetBrains Mono", ui-monospace, monospace;
+      color: var(--fg-muted);
+    }
+    .teapot-log .reply{ color: var(--crema); }
+    .teapot h1{
+      font: var(--fw-display-strong) var(--fs-3xl)/.95 var(--font-display);
+      letter-spacing: var(--tracking-tight);
+    }
+    .teapot h1 span{ display: block; font: 400 var(--fs-xl)/1.2 var(--font-accent); font-variation-settings: var(--accent-axes); letter-spacing: 0; margin-top: var(--gap-m); }
+    .teapot-text{ max-width: 34rem; font-size: var(--fs-l); color: var(--fg-muted); }
+    .teapot-text a{ color: var(--fg); }
+  </style>
+</head>
+<body>
+  <header class="nav" data-scrolled="true">
+    <div class="container">
+      <a class="nav-logo" href="/" aria-label="espressodriven, home"><span class="wordmark" aria-hidden="true"></span></a>
+    </div>
+  </header>
+
+  <main class="container teapot">
+    <p class="teapot-log" aria-hidden="true">
+      <span>BREW /espresso HTCPCP/1.0</span>
+      <span class="reply">HTCPCP/1.0 418 I’m a teapot</span>
+    </p>
+    <h1>418 <span>I’m a teapot.</span></h1>
+    <p class="teapot-text">You asked this page for an espresso, and it can only make tea. Strictly speaking it is a 404: nothing lives at this address. The teapot is an old joke among developers, from <a class="link" href="https://www.rfc-editor.org/rfc/rfc2324" target="_blank" rel="noopener">RFC 2324</a>.</p>
+    <a class="btn btn-crema" href="/">Back to the bar</a>
+  </main>
+</body>
+</html>

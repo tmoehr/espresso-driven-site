@@ -1,7 +1,8 @@
 // espressodriven.com
 // The light behind the page is drawn by scripts/background.js.
 // This file adds: the scroll-scrubbed HelioPath story, theme switching,
-// navigation, and the copy-email button.
+// navigation, the copy-email button, and two small things for the curious
+// (a greeting in the console, and a word you can type).
 
 // ───────────────────────── Constants ─────────────────────────
 
@@ -9,6 +10,20 @@ const THEME_NAMES = { auto: "Auto", light: "Light", dark: "Dark" };   // modes f
 const NAV_SCROLL_THRESHOLD = 8;
 const CUE_DISMISS_AT = 0.15;    // the hero's scroll cue leaves after this share of a viewport
 const COPY_RESET_MS = 2000;
+
+// For the curious. The order is a nod to RFC 2324, the Hyper Text Coffee Pot Control Protocol.
+const CONSOLE_CUP = String.raw`
+      ) )
+     ( (
+   .-------.
+   |       |]
+   \       /
+    '-----'`;
+const CONSOLE_ORDER = "BREW /espresso HTCPCP/1.0  ->  200 OK";
+const CONSOLE_HINT = "Fancy a double? Type its Italian name anywhere on the page.";
+const CONSOLE_STYLE = "font-family: ui-monospace, monospace; color: #e8a453";   // crema; the console cannot read CSS tokens
+const SECRET_WORD = "doppio";            // typed anywhere on the page
+const SECRET_EVENT = "doppio";           // scripts/background.js answers with a time-lapse
 
 // Story timeline, as fractions of the sticky scroll range.
 const STORY_OPEN_END = 0.12;   // 0 → this: the film opens from a card to full bleed
@@ -223,9 +238,30 @@ function initCopy() {
   });
 }
 
+// ───────────────────────── For the curious ─────────────────────────
+
+function initConsoleGreeting() {
+  console.log(`%c${CONSOLE_CUP}\n\n${CONSOLE_ORDER}\n${CONSOLE_HINT}`, CONSOLE_STYLE);
+}
+
+// Listens for the secret word, typed letter by letter outside of any form field.
+function initSecretWord() {
+  let typed = "";
+  addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+    if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+    typed = (typed + e.key.toLowerCase()).slice(-SECRET_WORD.length);
+    if (typed !== SECRET_WORD) return;
+    typed = "";
+    dispatchEvent(new Event(SECRET_EVENT));
+  });
+}
+
 document.getElementById("year").textContent = String(new Date().getFullYear());
 initTheme();
 initNav();
 initHeroCue();
 initStory();
 initCopy();
+initConsoleGreeting();
+initSecretWord();
