@@ -50,6 +50,9 @@
   }
   el("text", { x: CENTER, y: CENTER + UNIT_OFFSET }, "bar");
   var tip = point(0, RADIUS - NEEDLE_INSET);
-  el("line", { "class": "gauge-needle", x1: CENTER, y1: CENTER, x2: tip[0], y2: tip[1] });
+  var needle = el("line", { "class": "gauge-needle", x1: CENTER, y1: CENTER, x2: tip[0], y2: tip[1] });
+  // The needle turns about the hub. The viewBox is not square, so its centre is not the hub:
+  // the pivot has to be given in viewBox units (the stylesheet sets transform-box: view-box).
+  needle.style.transformOrigin = CENTER + "px " + CENTER + "px";
   el("circle", { "class": "gauge-hub", cx: CENTER, cy: CENTER, r: HUB_RADIUS });
 })();

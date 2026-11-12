@@ -33,7 +33,8 @@
     .gauge-zone{ fill: none; stroke: var(--crema); stroke-width: 7; }
     .gauge-tick{ stroke: var(--fg-muted); stroke-width: 1.5; }
     .gauge-tick-major{ stroke: var(--fg); stroke-width: 2.5; }
-    .gauge-needle{ stroke: var(--fg); stroke-width: 3; stroke-linecap: round; transform-box: view-box; transform-origin: 50% 50%; }
+    /* The pivot (transform-origin) is set by gauge.js, which knows where the hub is. */
+    .gauge-needle{ stroke: var(--fg); stroke-width: 3; stroke-linecap: round; transform-box: view-box; }
     .gauge-hub{ fill: var(--fg); }
     .gauge text{ fill: var(--fg-muted); font: 500 11px "JetBrains Mono", ui-monospace, monospace; text-anchor: middle; dominant-baseline: central; }
     .lost h1{ font: var(--fw-display-strong) var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
