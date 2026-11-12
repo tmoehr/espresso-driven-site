@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#120d0a">
   <meta name="robots" content="noindex">
-  <title>418 I’m a teapot | espressodriven</title>
+  <title>Page not found | espressodriven</title>
   <link rel="icon" href="/images/logo/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://api.fontshare.com">
   <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
@@ -15,27 +15,44 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/scripts/theme.js"></script>
   <style>
-    /* Page-only layout. No colours or fonts are defined here: everything references the shared
+    /* Page-only styles. No colours or fonts are defined here: everything references the shared
        tokens from styles.css. */
-    .teapot{
+    .lost{
+      /* The needle's story: it holds brewing pressure for a moment, then the pressure is gone. */
+      --bar-step: 22.5deg;      /* one bar on the dial: 270 degrees over 12 bar */
+      --brew-bar: 9;
+      --rebound-bar: .7;        /* how far the needle bounces off its stop */
+      --t-drop: 2400ms;
       min-height: 100svh;
-      display: grid; align-content: center; justify-items: start; gap: var(--gap-l);
+      display: grid; align-content: center; justify-items: center; gap: var(--gap-m);
       padding-block: calc(var(--nav-h) + var(--gap-xl)) var(--gap-xl);
+      text-align: center;
     }
-    /* The joke is a protocol exchange, so it is set like one. */
-    .teapot-log{
-      display: grid; gap: var(--gap-xs);
-      font: 400 var(--fs-s)/1.6 "JetBrains Mono", ui-monospace, monospace;
-      color: var(--fg-muted);
+    .gauge{ width: min(70%, 17rem); height: auto; overflow: visible; margin-bottom: var(--gap-s); }
+    .gauge-rim{ fill: none; stroke: var(--line-strong); stroke-width: 2; }
+    .gauge-zone{ fill: none; stroke: var(--crema); stroke-width: 7; }
+    .gauge-tick{ stroke: var(--fg-muted); stroke-width: 1.5; }
+    .gauge-tick-major{ stroke: var(--fg); stroke-width: 2.5; }
+    .gauge-needle{ stroke: var(--fg); stroke-width: 3; stroke-linecap: round; transform-box: view-box; transform-origin: 50% 50%; }
+    .gauge-hub{ fill: var(--fg); }
+    .gauge text{ fill: var(--fg-muted); font: 500 11px "JetBrains Mono", ui-monospace, monospace; text-anchor: middle; dominant-baseline: central; }
+    .lost h1{ font: var(--fw-display-strong) var(--fs-2xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
+    .lost p{ max-width: 30rem; font-size: var(--fs-l); color: var(--fg-muted); }
+    .lost .btn{ margin-top: var(--gap-s); }
+
+    @media (prefers-reduced-motion: no-preference){
+      .gauge-needle{ animation: pressure-drop var(--t-drop) both; }
+      /* The reading and the way back arrive as the needle lands. */
+      .lost h1, .lost p, .lost .btn{ animation: lift var(--t-slow) var(--ease-out) calc(var(--t-drop) * .55) both; }
+      @keyframes pressure-drop{
+        0%, 34%{ transform: rotate(calc(var(--bar-step) * var(--brew-bar))); animation-timing-function: cubic-bezier(.7,0,1,.6); }
+        54%{ transform: rotate(0deg); animation-timing-function: ease-out; }
+        64%{ transform: rotate(calc(var(--bar-step) * var(--rebound-bar))); animation-timing-function: ease-in; }
+        74%{ transform: rotate(0deg); animation-timing-function: ease-out; }
+        81%{ transform: rotate(calc(var(--bar-step) * var(--rebound-bar) * .25)); animation-timing-function: ease-in; }
+        88%, 100%{ transform: rotate(0deg); }
+      }
     }
-    .teapot-log .reply{ color: var(--crema); }
-    .teapot h1{
-      font: var(--fw-display-strong) var(--fs-3xl)/.95 var(--font-display);
-      letter-spacing: var(--tracking-tight);
-    }
-    .teapot h1 span{ display: block; font: 400 var(--fs-xl)/1.2 var(--font-accent); font-variation-settings: var(--accent-axes); letter-spacing: 0; margin-top: var(--gap-m); }
-    .teapot-text{ max-width: 34rem; font-size: var(--fs-l); color: var(--fg-muted); }
-    .teapot-text a{ color: var(--fg); }
   </style>
 </head>
 <body>
@@ -45,14 +62,13 @@
     </div>
   </header>
 
-  <main class="container teapot">
-    <p class="teapot-log" aria-hidden="true">
-      <span>BREW /espresso HTCPCP/1.0</span>
-      <span class="reply">HTCPCP/1.0 418 I’m a teapot</span>
-    </p>
-    <h1>418 <span>I’m a teapot.</span></h1>
-    <p class="teapot-text">You asked this page for an espresso, and it can only make tea. Strictly speaking it is a 404: nothing lives at this address. The teapot is an old joke among developers, from <a class="link" href="https://www.rfc-editor.org/rfc/rfc2324" target="_blank" rel="noopener">RFC 2324</a>.</p>
-    <a class="btn btn-crema" href="/">Back to the bar</a>
+  <main class="container lost">
+    <svg class="gauge" data-gauge viewBox="0 0 200 175" role="img" aria-label="A pressure gauge reading 0 bar. The 9 bar mark, where espresso is pulled, is highlighted."></svg>
+    <h1>0 bar.</h1>
+    <p>No pressure, no page. Nothing lives at this address.</p>
+    <a class="btn btn-crema" href="/">Pull another shot</a>
   </main>
+
+  <script src="/scripts/gauge.js"></script>
 </body>
 </html>
