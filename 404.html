@@ -18,11 +18,13 @@
     /* Page-only styles. No colours or fonts are defined here: everything references the shared
        tokens from styles.css. */
     .lost{
-      /* The needle's story: it holds brewing pressure for a moment, then the pressure is gone. */
+      /* The needle's story: steady at brewing pressure, then a tremor that grows, then the
+         machine gives up and the pressure is gone at once. */
       --bar-step: 22.5deg;      /* one bar on the dial: 270 degrees over 12 bar */
-      --brew-bar: 9;
-      --rebound-bar: .7;        /* how far the needle bounces off its stop */
-      --t-drop: 2400ms;
+      --t-drop: 3200ms;
+      --impact: .53;            /* the share of --t-drop at which the needle hits its stop */
+      --ease-collapse: cubic-bezier(.9,0,1,1);   /* nothing, then everything */
+      --jolt: 3px;              /* how far the dial is knocked by the impact */
       min-height: 100svh;
       display: grid; align-content: center; justify-items: center; gap: var(--gap-m);
       padding-block: calc(var(--nav-h) + var(--gap-xl)) var(--gap-xl);
@@ -42,16 +44,39 @@
     .lost .btn{ margin-top: var(--gap-s); }
 
     @media (prefers-reduced-motion: no-preference){
-      .gauge-needle{ animation: pressure-drop var(--t-drop) both; }
+      .gauge-needle{ animation: pressure-drop var(--t-drop) ease-in-out both; }
+      .gauge{ animation: jolt var(--t-drop) ease-out both; }
       /* The reading and the way back arrive as the needle lands. */
-      .lost h1, .lost p, .lost .btn{ animation: lift var(--t-slow) var(--ease-out) calc(var(--t-drop) * .55) both; }
+      .lost h1, .lost p, .lost .btn{ animation: lift var(--t-slow) var(--ease-out) calc(var(--t-drop) * var(--impact)) both; }
+      /* The factors are bar readings on the dial. 53% is --impact (keyframe selectors cannot use variables). */
       @keyframes pressure-drop{
-        0%, 34%{ transform: rotate(calc(var(--bar-step) * var(--brew-bar))); animation-timing-function: cubic-bezier(.7,0,1,.6); }
-        54%{ transform: rotate(0deg); animation-timing-function: ease-out; }
-        64%{ transform: rotate(calc(var(--bar-step) * var(--rebound-bar))); animation-timing-function: ease-in; }
-        74%{ transform: rotate(0deg); animation-timing-function: ease-out; }
-        81%{ transform: rotate(calc(var(--bar-step) * var(--rebound-bar) * .25)); animation-timing-function: ease-in; }
-        88%, 100%{ transform: rotate(0deg); }
+        0%, 14%{ transform: rotate(calc(var(--bar-step) * 9)); }
+        17%{ transform: rotate(calc(var(--bar-step) * 9.15)); }
+        20%{ transform: rotate(calc(var(--bar-step) * 8.9)); }
+        23%{ transform: rotate(calc(var(--bar-step) * 9.2)); }
+        26%{ transform: rotate(calc(var(--bar-step) * 8.8)); }
+        29%{ transform: rotate(calc(var(--bar-step) * 9.3)); }
+        32%{ transform: rotate(calc(var(--bar-step) * 8.7)); }
+        35%{ transform: rotate(calc(var(--bar-step) * 9.5)); }
+        38%{ transform: rotate(calc(var(--bar-step) * 8.5)); }
+        41%{ transform: rotate(calc(var(--bar-step) * 9.8)); }
+        43%{ transform: rotate(calc(var(--bar-step) * 8.3)); }
+        45%{ transform: rotate(calc(var(--bar-step) * 10.2)); }
+        47%{ transform: rotate(calc(var(--bar-step) * 8.0)); }
+        49%{ transform: rotate(calc(var(--bar-step) * 10.6)); animation-timing-function: var(--ease-collapse); }
+        53%{ transform: rotate(0deg); animation-timing-function: ease-out; }
+        59%{ transform: rotate(calc(var(--bar-step) * 1.6)); animation-timing-function: ease-in; }
+        65%{ transform: rotate(0deg); animation-timing-function: ease-out; }
+        70%{ transform: rotate(calc(var(--bar-step) * .5)); animation-timing-function: ease-in; }
+        75%{ transform: rotate(0deg); animation-timing-function: ease-out; }
+        79%{ transform: rotate(calc(var(--bar-step) * .15)); animation-timing-function: ease-in; }
+        83%, 100%{ transform: rotate(0deg); }
+      }
+      /* The whole dial takes the knock when the needle hits the stop. */
+      @keyframes jolt{
+        0%, 53%{ transform: none; }
+        55%{ transform: translateY(var(--jolt)) rotate(-1deg); }
+        62%, 100%{ transform: none; }
       }
     }
   </style>
