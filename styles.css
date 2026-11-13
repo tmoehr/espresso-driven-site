@@ -95,6 +95,8 @@
   --r-l: 20px;
   --r-pill: 999px;
   --tap: 44px;
+  --btn-h: 48px;          /* one height for every text button */
+  --btn-pad: 1.5rem;      /* inline padding of a text button */
   --icon-s: 16px;   /* quiet controls, one step below the 18px .icon */
   --nav-h: 72px;
 
@@ -106,6 +108,9 @@
   --t-intro: 800ms;      /* the logo coming into focus, once on load */
   --blur-intro: 8px;     /* small on purpose: large blurs stutter on weak GPUs */
   --rise: 12px;          /* entrance travel */
+  --hover-mix: 20%;      /* a hovered fill moves this far toward --fg: lighter on dark, darker on light, always more contrast */
+  --press-scale: .98;    /* a pressed button gives a little */
+  --nudge: 2px;          /* an arrow icon steps toward where its link goes */
   --t-cue: 1900ms;       /* one pass of the streak in the hero's scroll cue */
   --ease-in-out: cubic-bezier(.6,0,.4,1);
 
@@ -175,23 +180,23 @@ a{ color: inherit; }
 }
 
 /* ═════════════ Buttons & links ═════════════ */
+/* Two roles. Primary is the one crema fill per section, the action the section exists for.
+   Line is everything else. Buttons size to their label; phones may stretch a group. */
 .btn{
   display: inline-flex; align-items: center; justify-content: center; gap: var(--gap-s);
-  min-height: 48px; padding: 0 1.5rem;
+  min-height: var(--btn-h); padding: 0 var(--btn-pad);
   border: 0; border-radius: var(--r-s);
   font: 500 var(--fs-m)/var(--lh-flat) var(--font-text);
   text-decoration: none; white-space: nowrap; cursor: pointer;
   transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
 }
-.btn:active{ transform: scale(.98); }
-.btn-primary{ background: var(--fg); color: var(--bg); }
-.btn-primary:hover{ background: color-mix(in srgb, var(--fg) 86%, var(--bg)); }
-.btn-crema{ background: var(--crema); color: var(--on-crema); }
-.btn-crema:hover{ background: color-mix(in srgb, var(--crema) 86%, var(--fg)); }
+.btn:active{ transform: scale(var(--press-scale)); }
+.btn-primary{ background: var(--crema); color: var(--on-crema); }
+.btn-primary:hover{ background: color-mix(in srgb, var(--crema), var(--fg) var(--hover-mix)); }
 .btn-line{ box-shadow: inset 0 0 0 1px var(--line-strong); background: transparent; }
 .btn-line:hover{ box-shadow: inset 0 0 0 1px var(--fg); }
 .btn .icon{ transition: transform var(--t-fast) var(--ease-out); }
-.btn:hover .icon-nudge{ transform: translate(2px, -2px); }
+.btn:hover .icon-nudge{ transform: translate(var(--nudge), calc(-1 * var(--nudge))); }
 
 /* Underline that draws in on hover */
 .link{
@@ -402,7 +407,9 @@ a{ color: inherit; }
 
 /* Every h3 outside the film shares one style, a step below the statements (hero line, quote). */
 .demo-card h3, .about-body h3{ font: var(--fw-display) var(--fs-item-title)/var(--lh-heading) var(--font-display); letter-spacing: var(--tracking-display); }
-.demo-card .btn{ align-self: flex-start; }
+.get-card .btn{ align-self: flex-start; }
+/* The whole card is the link, so hovering anywhere on it lights its button too. */
+.demo-card:hover .btn-line{ box-shadow: inset 0 0 0 1px var(--fg); }
 
 /* The play mark sits on the footage, so it uses the film's colours in both themes. */
 .demo-mark{
@@ -465,9 +472,13 @@ a{ color: inherit; }
 }
 .mail:hover{ color: var(--crema); }
 .mail-actions{ display: flex; flex-wrap: wrap; gap: var(--gap-s); }
-.copy-done{ display: none; }
-[data-copied="true"] .copy-idle{ display: none; }
-[data-copied="true"] .copy-done{ display: inline-flex; align-items: center; gap: .5rem; }
+/* Both states sit in one grid cell, so the button keeps the width of the longer label.
+   visibility, not display: the hidden state still holds its space and leaves the accessibility tree. */
+.copy-btn{ display: inline-grid; }
+.copy-state{ grid-area: 1 / 1; display: inline-flex; align-items: center; justify-content: center; gap: var(--gap-s); }
+.copy-done,
+[data-copied="true"] .copy-idle{ visibility: hidden; }
+[data-copied="true"] .copy-done{ visibility: visible; }
 
 /* ═════════════ Footer ═════════════ */
 .footer{ margin-top: var(--section); border-top: 1px solid var(--line); }
@@ -528,6 +539,7 @@ a{ color: inherit; }
   }
   .menu-theme .theme-name{ color: var(--fg); }
   .story-rail{ flex-basis: 100%; }
+  .mail-actions .btn{ flex: 1 1 0; }   /* equal shares; a wrapped button fills its own row */
   /* The aside is a margin note, not lead copy: one step down, so it stays beside its title on narrow phones. */
   .section-head p{ font-size: var(--fs-m); }
   /* The two set lines are wider than a phone: let them flow and balance into even centred lines. */
