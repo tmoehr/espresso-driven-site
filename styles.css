@@ -372,7 +372,7 @@ a{ color: inherit; }
 .story-step[data-active="true"]{ opacity: 1; transform: none; }
 .story-step h3{ font: var(--fw-display-strong) var(--fs-2xl)/var(--lh-flat) var(--font-display); letter-spacing: var(--tracking-tight); }
 .story-step .tagline{ margin-top: .75rem; font-size: var(--fs-l); color: var(--film-accent); }
-.story-step p{ font: var(--fw-display) var(--fs-xl)/var(--lh-heading) var(--font-display); letter-spacing: var(--tracking-display); }
+.story-step p{ font: var(--fw-display) var(--fs-xl)/var(--lh-heading) var(--font-display); letter-spacing: var(--tracking-display); text-wrap: balance; }
 .story-step .lead{ font: 400 var(--fs-l)/var(--lh-lead) var(--font-text); letter-spacing: 0; }
 
 .story-rail{ flex: 0 1 18rem; display: grid; gap: var(--gap-s); font-size: var(--fs-xs); color: var(--film-fg-muted); font-variant-numeric: tabular-nums; }
