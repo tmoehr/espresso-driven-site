@@ -30,7 +30,6 @@ const SECRET_EVENT = "doppio";           // scripts/background.js answers with a
 const STORY_OPEN_END = 0.12;   // 0 → this: the film opens from a card to full bleed
 const STORY_SMOOTHING = 10;    // higher follows scroll more tightly (per second, exponential)
 const SEEK_EPSILON = 1 / 30;   // don't ask the decoder for changes smaller than a frame
-const SEEK_STALL_MS = 500;     // a seek still unanswered after this long is treated as lost and asked again
 // Portrait viewports get the 9:16 cut, everything else the 16:9 one.
 const PORTRAIT_QUERY = "(orientation: portrait)";
 const VIDEO_EXT = ".mp4";
@@ -118,8 +117,7 @@ function initStory() {
   let shownTime = 0;          // smoothed playhead (seconds)
   let running = false;
   let last = 0;
-  let warmedUp = false;       // true once the warm-up play has started (or was refused)
-  let seekAt = 0;             // frame time of the last seek request, to spot one that never completes
+  let warmedUp = false;       // true once the iOS warm-up play has started (or was refused)
   let shownOpen = "";         // last values written to the DOM, to skip identical writes
   let shownFilm = "";
   let shownOverFilm = false;
@@ -168,19 +166,14 @@ function initStory() {
     }
 
     // Scrub the video towards the scroll position; skip while a seek is in flight
-    // so requests don't queue up behind a slow decoder. A seek cut off by a hidden tab
-    // never reports back and would block scrubbing for good, so a stalled one is replaced.
+    // so requests don't queue up behind a slow decoder.
     if (video.duration) {
       // Safari restarts muted inline videos by itself once they scroll into view, so after the
       // warm-up the pause is re-asserted every frame while the story is visible (no-op when paused).
       if (warmedUp && !video.paused) video.pause();
       const target = film * (video.duration - SEEK_EPSILON);
       shownTime += (target - shownTime) * (1 - Math.exp(-STORY_SMOOTHING * dt));
-      const seekFree = !video.seeking || now - seekAt > SEEK_STALL_MS;
-      if (seekFree && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) {
-        video.currentTime = shownTime;
-        seekAt = now;
-      }
+      if (!video.seeking && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) video.currentTime = shownTime;
     }
 
     const index = Math.min(steps.length - 1, Math.floor(film * steps.length));
@@ -218,23 +211,12 @@ function initStory() {
   // done but keeps the decoder running, so Safari would show the film playing on its own.
   video.addEventListener("playing", () => setTimeout(() => video.pause()));
 
-  // WebKit only decodes frames for seeking after the video has been played once, and again
+  // iOS only decodes frames for seeking after the video has been played once, and again
   // after every source swap. Until that play has started, the frame loop must not pause it.
   // A refused play (autoplay blocked) ends the wait too.
-  function warmUp() {
-    warmedUp = false;
+  video.addEventListener("loadedmetadata", () => {
     video.play().then(() => video.pause(), () => {}).finally(() => { warmedUp = true; });
-  }
-  video.addEventListener("loadedmetadata", warmUp);
-
-  // Safari releases the decoder of a paused video while its tab is hidden or the page sits in
-  // the back/forward cache: seeks then succeed without painting, leaving a still. Coming back
-  // needs the same warm-up as a fresh source.
-  function rewarm() {
-    if (document.visibilityState === "visible" && video.readyState >= HTMLMediaElement.HAVE_METADATA) warmUp();
-  }
-  document.addEventListener("visibilitychange", rewarm);
-  addEventListener("pageshow", (e) => { if (e.persisted) rewarm(); });
+  });
 }
 
 // ───────────────────────── Copy email ─────────────────────────
