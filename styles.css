@@ -327,6 +327,8 @@ a{ color: inherit; }
 .section-head{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--gap-s) var(--gap-l); margin-bottom: var(--gap-xl); }
 .section-head h2{ font: var(--fw-display-strong) var(--fs-2xl)/var(--lh-flat) var(--font-display); letter-spacing: var(--tracking-tight); }
 .section-head p{ font: 400 var(--fs-l)/var(--lh-heading) var(--font-accent); font-variation-settings: var(--accent-axes); color: var(--fg-muted); }
+/* One word of an aside in the wordmark's colour. Only where the aside is the call itself. */
+.section-head .accent{ color: var(--crema); }
 
 /* ═════════════ Story: HelioPath, scrubbed by scroll ═════════════ */
 .story{ position: relative; height: calc(var(--story-screens) * 100svh); }
