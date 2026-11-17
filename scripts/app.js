@@ -28,6 +28,7 @@ const SECRET_EVENT = "doppio";           // scripts/background.js answers with a
 
 // Story timeline, as fractions of the sticky scroll range.
 const STORY_OPEN_END = 0.12;   // 0 → this: the film opens from a card to full bleed
+const STORY_FILM_START = 0.06; // the playhead starts here, overlapping the opening; rail and steps wait for full bleed
 const STORY_SMOOTHING = 10;    // higher follows scroll more tightly (per second, exponential)
 const SEEK_EPSILON = 1 / 30;   // don't ask the decoder for changes smaller than a frame
 // Portrait viewports get the 9:16 cut, everything else the 16:9 one.
@@ -120,7 +121,7 @@ function initStory() {
   let warmedUp = false;       // true once the warm-up play has started (or was refused)
   let seekLost = false;       // true after the tab was hidden: a seek cut off there never reports back
   let shownOpen = "";         // last values written to the DOM, to skip identical writes
-  let shownFilm = "";
+  let shownChapter = "";
   let shownOverFilm = false;
   const nav = document.getElementById("nav");
   const frameBox = story.querySelector(".story-frame");
@@ -150,7 +151,10 @@ function initStory() {
     const open = clamp01(p / STORY_OPEN_END);
     // Only while pinned: once the story scrolls on, its text passes under the bar and needs the glass.
     setNavOverFilm(open === 1 && p < 1);
-    const film = clamp01((p - STORY_OPEN_END) / (1 - STORY_OPEN_END));
+    // Two clocks: the film already runs during the opening, while the rail and the steps start
+    // at full bleed, since the overlay that shows them only fades in with the opening.
+    const film = clamp01((p - STORY_FILM_START) / (1 - STORY_FILM_START));
+    const chapter = clamp01((p - STORY_OPEN_END) / (1 - STORY_OPEN_END));
     // Write only what changed, and only on the elements that read it: a custom property set
     // on .story would restyle the whole story subtree every frame, which phones feel.
     const openValue = open.toFixed(3);
@@ -160,10 +164,10 @@ function initStory() {
       overlay.style.setProperty("--frame", openValue);
       frameBox.dataset.open = String(open === 1);
     }
-    const filmValue = film.toFixed(3);
-    if (filmValue !== shownFilm) {
-      shownFilm = filmValue;
-      railFill.style.setProperty("--p", filmValue);
+    const chapterValue = chapter.toFixed(3);
+    if (chapterValue !== shownChapter) {
+      shownChapter = chapterValue;
+      railFill.style.setProperty("--p", chapterValue);
     }
 
     // Scrub the video towards the scroll position; skip while a seek is in flight
@@ -181,7 +185,7 @@ function initStory() {
       }
     }
 
-    const index = Math.min(steps.length - 1, Math.floor(film * steps.length));
+    const index = Math.min(steps.length - 1, Math.floor(chapter * steps.length));
     if (index !== active) {
       steps[active].dataset.active = "false";
       steps[index].dataset.active = "true";
