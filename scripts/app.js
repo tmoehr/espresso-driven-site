@@ -117,7 +117,8 @@ function initStory() {
   let shownTime = 0;          // smoothed playhead (seconds)
   let running = false;
   let last = 0;
-  let warmedUp = false;       // true once the iOS warm-up play has started (or was refused)
+  let warmedUp = false;       // true once the warm-up play has started (or was refused)
+  let seekLost = false;       // true after the tab was hidden: a seek cut off there never reports back
   let shownOpen = "";         // last values written to the DOM, to skip identical writes
   let shownFilm = "";
   let shownOverFilm = false;
@@ -166,14 +167,18 @@ function initStory() {
     }
 
     // Scrub the video towards the scroll position; skip while a seek is in flight
-    // so requests don't queue up behind a slow decoder.
+    // so requests don't queue up behind a slow decoder. A seek lost to a hidden tab is
+    // overridden once; a slow one is always waited for, since restarting it only adds delay.
     if (video.duration) {
       // Safari restarts muted inline videos by itself once they scroll into view, so after the
       // warm-up the pause is re-asserted every frame while the story is visible (no-op when paused).
       if (warmedUp && !video.paused) video.pause();
       const target = film * (video.duration - SEEK_EPSILON);
       shownTime += (target - shownTime) * (1 - Math.exp(-STORY_SMOOTHING * dt));
-      if (!video.seeking && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) video.currentTime = shownTime;
+      if ((!video.seeking || seekLost) && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) {
+        video.currentTime = shownTime;
+        seekLost = false;
+      }
     }
 
     const index = Math.min(steps.length - 1, Math.floor(film * steps.length));
@@ -211,12 +216,25 @@ function initStory() {
   // done but keeps the decoder running, so Safari would show the film playing on its own.
   video.addEventListener("playing", () => setTimeout(() => video.pause()));
 
-  // iOS only decodes frames for seeking after the video has been played once, and again
+  // WebKit only decodes frames for seeking after the video has been played once, and again
   // after every source swap. Until that play has started, the frame loop must not pause it.
   // A refused play (autoplay blocked) ends the wait too.
-  video.addEventListener("loadedmetadata", () => {
+  function warmUp() {
+    warmedUp = false;
     video.play().then(() => video.pause(), () => {}).finally(() => { warmedUp = true; });
-  });
+  }
+  video.addEventListener("loadedmetadata", warmUp);
+
+  // Safari releases the decoder of a paused video while its tab is hidden or the page sits in
+  // the back/forward cache: seeks then succeed without painting, leaving a still. Coming back
+  // needs the same warm-up as a fresh source, and frees the frame loop from a seek that died.
+  function resume() {
+    if (document.visibilityState !== "visible" || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
+    seekLost = true;
+    warmUp();
+  }
+  document.addEventListener("visibilitychange", resume);
+  addEventListener("pageshow", (e) => { if (e.persisted) resume(); });
 }
 
 // ───────────────────────── Copy email ─────────────────────────
