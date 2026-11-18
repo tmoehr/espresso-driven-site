@@ -31,6 +31,7 @@ const STORY_OPEN_END = 0.12;   // 0 → this: the film opens from a card to full
 const STORY_FILM_START = 0.06; // the playhead starts here, overlapping the opening; rail and steps wait for full bleed
 const STORY_SMOOTHING = 10;    // higher follows scroll more tightly (per second, exponential)
 const SEEK_EPSILON = 1 / 30;   // don't ask the decoder for changes smaller than a frame
+const SEEK_STALL_MS = 300;     // a seek into buffered film still without a picture after this long has stalled
 // Portrait viewports get the 9:16 cut, everything else the 16:9 one.
 const PORTRAIT_QUERY = "(orientation: portrait)";
 const VIDEO_EXT = ".mp4";
@@ -119,7 +120,7 @@ function initStory() {
   let running = false;
   let last = 0;
   let warmedUp = false;       // true once the warm-up play has started (or was refused)
-  let seekLost = false;       // true after the tab was hidden: a seek cut off there never reports back
+  let pictureDueAt = 0;       // time of the oldest seek still waiting for its picture; 0 when the film is up to date
   let shownOpen = "";         // last values written to the DOM, to skip identical writes
   let shownChapter = "";
   let shownOverFilm = false;
@@ -171,17 +172,17 @@ function initStory() {
     }
 
     // Scrub the video towards the scroll position; skip while a seek is in flight
-    // so requests don't queue up behind a slow decoder. A seek lost to a hidden tab is
-    // overridden once; a slow one is always waited for, since restarting it only adds delay.
+    // so requests don't queue up behind a slow decoder.
     if (video.duration) {
       // Safari restarts muted inline videos by itself once they scroll into view, so after the
       // warm-up the pause is re-asserted every frame while the story is visible (no-op when paused).
       if (warmedUp && !video.paused) video.pause();
       const target = film * (video.duration - SEEK_EPSILON);
       shownTime += (target - shownTime) * (1 - Math.exp(-STORY_SMOOTHING * dt));
-      if ((!video.seeking || seekLost) && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) {
+      if (pictureDueAt && now - pictureDueAt > SEEK_STALL_MS && isBuffered(video.currentTime)) kickStalledFilm(now);
+      if (!video.seeking && Math.abs(video.currentTime - shownTime) > SEEK_EPSILON) {
         video.currentTime = shownTime;
-        seekLost = false;
+        if (!pictureDueAt) pictureDueAt = now;
       }
     }
 
@@ -220,25 +221,43 @@ function initStory() {
   // done but keeps the decoder running, so Safari would show the film playing on its own.
   video.addEventListener("playing", () => setTimeout(() => video.pause()));
 
-  // WebKit only decodes frames for seeking after the video has been played once, and again
+  // iOS only decodes frames for seeking after the video has been played once, and again
   // after every source swap. Until that play has started, the frame loop must not pause it.
   // A refused play (autoplay blocked) ends the wait too.
-  function warmUp() {
-    warmedUp = false;
+  video.addEventListener("loadedmetadata", () => {
     video.play().then(() => video.pause(), () => {}).finally(() => { warmedUp = true; });
-  }
-  video.addEventListener("loadedmetadata", warmUp);
+  });
 
-  // Safari releases the decoder of a paused video while its tab is hidden or the page sits in
-  // the back/forward cache: seeks then succeed without painting, leaving a still. Coming back
-  // needs the same warm-up as a fresh source, and frees the frame loop from a seek that died.
-  function resume() {
-    if (document.visibilityState !== "visible" || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
-    seekLost = true;
-    warmUp();
+  /** True when the film at `time` is already downloaded, so a seek there has no reason to wait. */
+  function isBuffered(time) {
+    const ranges = video.buffered;
+    for (let i = 0; i < ranges.length; i++) {
+      if (time >= ranges.start(i) && time <= ranges.end(i)) return true;
+    }
+    return false;
   }
-  document.addEventListener("visibilitychange", resume);
-  addEventListener("pageshow", (e) => { if (e.persisted) resume(); });
+
+  // After its tab was hidden, Safari can freeze a paused video in two ways: a seek never
+  // completes (macOS and iOS), or seeks complete without painting (iOS). Either way no new
+  // picture arrives, and a play() brings it back at once; the "playing" handler and the frame
+  // loop stop the playback again. Seeks into film still downloading are slow for a reason and
+  // are left alone: interrupting those is what makes scrubbing stutter on a phone.
+  function kickStalledFilm(now) {
+    pictureDueAt = now;   // at most one kick per stall interval
+    video.play().catch(() => {});
+  }
+
+  // A frame presented after the last seek completed settles every seek before it. A frame that
+  // arrives while a seek is still open is an old picture shown again (Safari does that when the
+  // tab comes back), not the seek's result. Without frame callbacks, a finished seek has to count
+  // as painted, so only seeks that never complete can be spotted.
+  const markPainted = () => { if (!video.seeking) pictureDueAt = 0; };
+  if ("requestVideoFrameCallback" in video) {
+    const onFrame = () => { markPainted(); video.requestVideoFrameCallback(onFrame); };
+    video.requestVideoFrameCallback(onFrame);
+  } else {
+    video.addEventListener("seeked", markPainted);
+  }
 }
 
 // ───────────────────────── Copy email ─────────────────────────
